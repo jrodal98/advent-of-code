@@ -1,6 +1,14 @@
-# Advent of code 2023
+# Advent of code
 
 https://adventofcode.com/2023
+
+# How to use repository
+
+1. Download `direnv`
+2. Store AOC session cookie in `.env` file (e.g. `export AOC_SESSION=...`)
+3. `python main.py init` to setup template
+4. `python main.py solve` to test and submit solutions
+5. `python main.py --help` for more advanced usage
 
 <!--- advent_readme_stars table --->
 ## 2023 Results

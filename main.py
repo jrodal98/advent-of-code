@@ -2,19 +2,23 @@
 # www.jrodal.com
 
 import importlib
-from enum import Enum
 import os
 import shutil
+from types import ModuleType
 import click
 import aocd
 
+from enum import Enum
+
 from rich.console import Console
 from rich.progress import SpinnerColumn
-
 from rich.progress import Progress, MofNCompleteColumn, TimeElapsedColumn
-
+from rich.traceback import install
 
 from aoc_utils.solution_submitter import ProblemPart, submit
+
+
+install(suppress=[click], show_locals=True)
 
 
 # override this if you are solving for other years
@@ -95,7 +99,10 @@ def solve(
             tasks.append(Task.RUN_PART2_TESTS)
         tasks.append(Task.SOLVE_PART2)
 
-    # with console.status("[bold green]Working on tasks...") as status:
+    module_path = gen_solution_dir(day, year).replace("/", ".")
+
+    tests_module = importlib.import_module(f"{module_path}.tests")
+    solution_module = importlib.import_module(f"{module_path}.solution")
 
     progress = Progress(
         SpinnerColumn(),
@@ -106,15 +113,17 @@ def solve(
     with progress:
         for task in progress.track(tasks):
             console.log(f"Running {task.value}")
-            run_task(task, day, year)
+            run_task(task, day, year, tests_module, solution_module)
             console.log(f"{task.value} complete")
 
 
-def run_task(task: Task, day: int, year: int) -> None:
-    solution_module = gen_solution_dir(day, year).replace("/", ".")
-
-    tests_module = importlib.import_module(f"{solution_module}.tests")
-    solution_module = importlib.import_module(f"{solution_module}.solution")
+def run_task(
+    task: Task,
+    day: int,
+    year: int,
+    tests_module: ModuleType,
+    solution_module: ModuleType,
+) -> None:
     match task:
         case Task.RUN_PART1_TESTS:
             tests_module.TestRunner().part1()
