@@ -6,10 +6,11 @@ https://adventofcode.com/2023
 
 1. Download `direnv`
 2. Store AOC session cookie in `.env` file (e.g. `export AOC_SESSION=...`)
-3. `init` to setup template
-4. `solve` to test and submit solutions
-5. Use `init --help` and `solve --help` for more advanced usage
-6. If `init` and `solve` aren't working, try `python main.py init`, etc
+3. `pip install -r requirements.txt`
+4. `init` to setup template
+5. `solve` to test and submit solutions
+6. Use `init --help` and `solve --help` for more advanced usage
+7. If `init` and `solve` aren't working, try `python main.py init`, etc
 
 <!--- advent_readme_stars table --->
 ## 2023 Results
