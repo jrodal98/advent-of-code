@@ -18,13 +18,13 @@ class TestRunner:
             raise ValueError("part1_sample.txt is empty")
 
     def part1(self) -> None:
-        example_solution = None
+        solver = Solver(self.part1_data)
+        example_solution = solver.PART1_EXAMPLE_SOLUTION
         assert example_solution is not None
-
-        assert Solver(self.part1_data).part1() == example_solution
+        assert solver.part1() == example_solution
 
     def part2(self) -> None:
-        example_solution = None
+        solver = Solver(self.part2_data)
+        example_solution = solver.PART2_EXAMPLE_SOLUTION
         assert example_solution is not None
-
-        assert Solver(self.part2_data).part2() == example_solution
+        assert solver.part2() == example_solution
