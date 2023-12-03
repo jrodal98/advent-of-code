@@ -30,10 +30,8 @@ def gen_solution_dir(day: int, year: int) -> str:
 class Task(Enum):
     RUN_PART1_TESTS = "Running Part1 tests"
     SOLVE_PART1 = "Solving Part1"
-    SUBMIT_PART1 = "Submitting Part1"
     RUN_PART2_TESTS = "Running Part2 tests"
     SOLVE_PART2 = "Solving Part2"
-    SUBMIT_PART2 = "Submitting Part2"
 
 
 @click.group()
@@ -91,13 +89,11 @@ def solve(
         if not skip_tests:
             tasks.append(Task.RUN_PART1_TESTS)
         tasks.append(Task.SOLVE_PART1)
-        tasks.append(Task.SUBMIT_PART1)
 
     if not skip_part2:
         if not skip_tests:
             tasks.append(Task.RUN_PART2_TESTS)
         tasks.append(Task.SOLVE_PART2)
-        tasks.append(Task.SUBMIT_PART2)
 
     # with console.status("[bold green]Working on tasks...") as status:
 
