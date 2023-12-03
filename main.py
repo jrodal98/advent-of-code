@@ -16,6 +16,7 @@ from rich.progress import Progress, MofNCompleteColumn, TimeElapsedColumn
 from rich.traceback import install
 
 from aoc_utils.solution_submitter import ProblemPart, submit
+from aoc_utils.walk_directory import walk_directory
 
 
 install(suppress=[click], show_locals=True)
@@ -53,8 +54,7 @@ def init(
     console.log("AOC Solver!", log_locals=True)
     p = gen_solution_dir(day, year)
     shutil.copytree("templates", p)
-    console.log(os.listdir(p))
-    console.log("Done!")
+    walk_directory(p, console)
 
 
 @cli.command()
