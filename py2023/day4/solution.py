@@ -14,12 +14,9 @@ class Solver(BaseSolver):
         for card in self.data.splitlines():
             _, numbers = card.split(": ")
             winners, mine = numbers.split(" | ")
-            winners = re.findall(r"\d+", winners)
-            mine = re.findall(r"\d+", mine)
-            num_matches = 0
-            for m in mine:
-                if m in winners:
-                    num_matches += 1
+            winners = set(re.findall(r"\d+", winners))
+            mine = set(re.findall(r"\d+", mine))
+            num_matches = len(winners & mine)
             if num_matches > 0:
                 res += int(2 ** (num_matches - 1))
         return res
@@ -29,15 +26,11 @@ class Solver(BaseSolver):
         num_cards = [1 for _ in range(len(cards_original))]
         for i, card in enumerate(cards_original):
             card_num_stuff, numbers = card.split(": ")
-            card_num = int(re.findall(r"\d+", card_num_stuff)[0]) - 1
+            card_num = int(re.findall(r"\d+", card_num_stuff)[0])
             winners, mine = numbers.split(" | ")
-            winners = re.findall(r"\d+", winners)
-            mine = re.findall(r"\d+", mine)
-            num_matches = 0
-            for m in mine:
-                if m in winners:
-                    num_matches += 1
+            winners = set(re.findall(r"\d+", winners))
+            mine = set(re.findall(r"\d+", mine))
+            num_matches = len(winners & mine)
             for j in range(num_matches):
-                num_cards[card_num + j + 1] += num_cards[i]
-
+                num_cards[card_num + j] += num_cards[i]
         return sum(num_cards)
