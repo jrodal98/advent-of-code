@@ -7,8 +7,8 @@ Solution = str | int
 
 
 class BaseSolver(ABC):
-    PART1_EXAMPLE_SOLUTION: int | None = None
-    PART2_EXAMPLE_SOLUTION: int | None = None
+    PART1_EXAMPLE_SOLUTION: Solution | None = None
+    PART2_EXAMPLE_SOLUTION: Solution | None = None
 
     def __init__(self, data: str) -> None:
         self.data = data
