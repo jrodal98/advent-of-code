@@ -26,7 +26,7 @@ class Solver(BaseSolver):
         num_cards = [1 for _ in range(len(cards_original))]
         for i, card in enumerate(cards_original):
             card_num_stuff, numbers = card.split(": ")
-            card_num = int(re.findall(r"\d+", card_num_stuff)[0])
+            card_num = i + 1
             winners, mine = numbers.split(" | ")
             winners = set(re.findall(r"\d+", winners))
             mine = set(re.findall(r"\d+", mine))
