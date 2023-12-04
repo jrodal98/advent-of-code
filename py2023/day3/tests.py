@@ -2,35 +2,14 @@
 # www.jrodal.com
 
 import os
-import sys
 import unittest
 
-from typing import Type
-
-from aoc_utils.rich_test_runner import RichTestRunner
 from .solution import Solver
 
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 PART1_SAMPLE_PATH = os.path.join(DATA_DIR, "part1_sample.txt")
 PART2_SAMPLE_PATH = os.path.join(DATA_DIR, "part2_sample.txt")
-
-
-class TestRunner:
-    @classmethod
-    def _run_tests(cls, test_cls: Type[unittest.TestCase], log_locals: bool) -> None:
-        runner = RichTestRunner(tb_locals=log_locals)
-        result = runner.run(unittest.makeSuite(test_cls))
-        if not result.wasSuccessful():
-            sys.exit(1)
-
-    @classmethod
-    def part1(cls, log_locals: bool = False) -> None:
-        cls._run_tests(PartOneUnitTests, log_locals)
-
-    @classmethod
-    def part2(cls, log_locals: bool = False) -> None:
-        cls._run_tests(PartTwoUnitTests, log_locals)
 
 
 class PartOneUnitTests(unittest.TestCase):

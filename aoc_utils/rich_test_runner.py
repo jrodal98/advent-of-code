@@ -3,9 +3,12 @@
 
 
 import unittest
+import sys
+
 from io import StringIO
 from rich.console import Console
 from rich.traceback import Traceback
+from typing import Type
 
 
 class RichTestResult(unittest.TextTestResult):
@@ -24,6 +27,11 @@ class RichTestResult(unittest.TextTestResult):
 
 class RichTestRunner(unittest.TextTestRunner):
     resultclass = RichTestResult
+
+    def make_suite_and_run(self, test_case_cls: Type[unittest.TestCase]) -> None:
+        result = self.run(unittest.makeSuite(test_case_cls))
+        if not result.wasSuccessful():
+            sys.exit(1)
 
 
 if __name__ == "__main__":

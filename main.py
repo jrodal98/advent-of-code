@@ -15,6 +15,7 @@ from rich.progress import SpinnerColumn
 from rich.progress import Progress, MofNCompleteColumn, TimeElapsedColumn
 from rich.traceback import install
 
+from aoc_utils.rich_test_runner import RichTestRunner
 from aoc_utils.solution_submitter import ProblemPart, submit
 from aoc_utils.walk_directory import walk_directory
 
@@ -135,14 +136,14 @@ def run_task(
 ) -> None:
     match task:
         case Task.RUN_PART1_TESTS:
-            tests_module.TestRunner.part1(log_locals)
+            RichTestRunner(tb_locals=log_locals).make_suite_and_run(tests_module.PartOneUnitTests)
         case Task.SOLVE_PART1:
             solution = solution_module.Solver(
                 data=aocd.get_data(day=day, year=year)
             ).part1()
             submit(solution, part=ProblemPart.PART1, day=day, year=year)
         case Task.RUN_PART2_TESTS:
-            tests_module.TestRunner.part2(log_locals)
+            RichTestRunner(tb_locals=log_locals).make_suite_and_run(tests_module.PartTwoUnitTests)
         case Task.SOLVE_PART2:
             solution = solution_module.Solver(
                 data=aocd.get_data(day=day, year=year)
