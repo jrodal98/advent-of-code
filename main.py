@@ -19,8 +19,6 @@ from aoc_utils.solution_submitter import ProblemPart, submit
 from aoc_utils.walk_directory import walk_directory
 
 
-install(suppress=[click], show_locals=True)
-
 
 # override this if you are solving for other years
 YEAR = aocd.get.most_recent_year()
@@ -59,6 +57,13 @@ def init(
 
 @cli.command()
 @click.option(
+    "--log-locals",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Log local variables in traceback",
+)
+@click.option(
     "--skip-part2",
     is_flag=True,
     show_default=True,
@@ -83,10 +88,13 @@ def solve(
     skip_tests: bool,
     skip_part1: bool,
     skip_part2: bool,
+    log_locals: bool,
 ):
     day = day
     year = year
     console.log("AOC Solver!", log_locals=True)
+
+    install(suppress=[click], show_locals=log_locals)
 
     tasks = []
     if not skip_part1:
@@ -113,7 +121,7 @@ def solve(
     with progress:
         for task in progress.track(tasks):
             console.log(f"Running {task.value}")
-            run_task(task, day, year, tests_module, solution_module)
+            run_task(task, day, year, tests_module, solution_module, log_locals)
             console.log(f"{task.value} complete")
 
 
@@ -123,17 +131,18 @@ def run_task(
     year: int,
     tests_module: ModuleType,
     solution_module: ModuleType,
+    log_locals: bool
 ) -> None:
     match task:
         case Task.RUN_PART1_TESTS:
-            tests_module.TestRunner().part1()
+            tests_module.TestRunner.part1(log_locals)
         case Task.SOLVE_PART1:
             solution = solution_module.Solver(
                 data=aocd.get_data(day=day, year=year)
             ).part1()
             submit(solution, part=ProblemPart.PART1, day=day, year=year)
         case Task.RUN_PART2_TESTS:
-            tests_module.TestRunner().part2()
+            tests_module.TestRunner.part2(log_locals)
         case Task.SOLVE_PART2:
             solution = solution_module.Solver(
                 data=aocd.get_data(day=day, year=year)
