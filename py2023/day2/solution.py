@@ -5,8 +5,8 @@ from aoc_utils.base_solver import BaseSolver, Solution
 
 
 class Solver(BaseSolver):
-    PART1_EXAMPLE_SOLUTION: int | None = 8
-    PART2_EXAMPLE_SOLUTION: int | None = 2286
+    PART1_EXAMPLE_SOLUTION: Solution | None = 8
+    PART2_EXAMPLE_SOLUTION: Solution | None = 2286
 
     def part1(self) -> Solution:
         res = 0

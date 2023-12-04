@@ -5,8 +5,8 @@ from aoc_utils.base_solver import BaseSolver, Solution
 
 
 class Solver(BaseSolver):
-    PART1_EXAMPLE_SOLUTION: int | None = 4361
-    PART2_EXAMPLE_SOLUTION: int | None = 467835
+    PART1_EXAMPLE_SOLUTION: Solution | None = 4361
+    PART2_EXAMPLE_SOLUTION: Solution | None = 467835
 
     def part1(self) -> Solution:
         grid = []
