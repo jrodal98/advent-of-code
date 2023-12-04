@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
-import re
 from aoc_utils.base_solver import BaseSolver, Solution
 
 
@@ -14,8 +13,8 @@ class Solver(BaseSolver):
         for card in self.data.splitlines():
             _, numbers = card.split(": ")
             winners, mine = numbers.split(" | ")
-            winners = set(re.findall(r"\d+", winners))
-            mine = set(re.findall(r"\d+", mine))
+            winners = set(int(x) for x in winners.split())
+            mine = set(int(x) for x in mine.split())
             num_matches = len(winners & mine)
             if num_matches > 0:
                 res += int(2 ** (num_matches - 1))
@@ -28,8 +27,8 @@ class Solver(BaseSolver):
             _, numbers = card.split(": ")
             card_num = i + 1
             winners, mine = numbers.split(" | ")
-            winners = set(re.findall(r"\d+", winners))
-            mine = set(re.findall(r"\d+", mine))
+            winners = set(int(x) for x in winners.split())
+            mine = set(int(x) for x in mine.split())
             num_matches = len(winners & mine)
             for j in range(num_matches):
                 num_cards[card_num + j] += num_cards[i]
