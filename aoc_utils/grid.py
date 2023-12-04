@@ -3,10 +3,11 @@
 
 from rich.table import Table
 from rich.console import Console
-from typing import Generic, Iterator, List, Tuple, TypeVar
+from typing import Callable, Generic, Iterable, Iterator, List, Tuple, Type, TypeVar
 
 
 T = TypeVar("T")
+U = TypeVar("U")
 
 
 class Grid(Generic[T]):
@@ -17,6 +18,20 @@ class Grid(Generic[T]):
         self.rows = rows
         self.h = len(rows)
         self.w = len(rows[0]) if rows else 0
+
+    @classmethod
+    def from_lines(
+        cls: Type["Grid[str]"], lines: str | Iterable[str], delimiter: str = ","
+    ) -> "Grid[str]":
+        if isinstance(lines, str):
+            lines = lines.splitlines()
+
+        rows = [[cell for cell in line.split(delimiter)] for line in lines]
+        return cls(rows)
+
+    def transform(self, func: Callable[[T], U]) -> "Grid[U]":
+        transformed_rows = [[func(cell) for cell in row] for row in self.rows]
+        return Grid[U](transformed_rows)
 
     def transpose(self) -> "Grid":
         transposed_rows = list(map(list, zip(*self.rows)))
@@ -75,3 +90,10 @@ class Grid(Generic[T]):
             table.add_row(*map(str, row))
         console = Console()
         console.print(table)
+
+
+if __name__ == "__main__":
+    g = Grid.from_lines(["1,2,3", "4,5,6"]).transform(int)
+    g.display()
+    g2 = g.transform(lambda x: x**2)
+    g2.display()
