@@ -10,21 +10,13 @@ import aocd
 
 from enum import Enum
 
-from rich.console import Console
-from rich.progress import SpinnerColumn
-from rich.progress import Progress, MofNCompleteColumn, TimeElapsedColumn
 from rich.traceback import install
 
 from aoc_utils.rich_test_runner import RichTestRunner
 from aoc_utils.solution_submitter import ProblemPart, submit
 from aoc_utils.walk_directory import walk_directory
 
-
-
-# override this if you are solving for other years
-YEAR = aocd.get.most_recent_year()
-DAY = aocd.get.current_day()
-console = Console()
+from consts import YEAR, DAY, CONSOLE
 
 
 def gen_solution_dir(day: int, year: int) -> str:
@@ -50,10 +42,10 @@ def init(
     day: int,
     year: int,
 ):
-    console.log("AOC Solver!", log_locals=True)
+    CONSOLE.log("AOC Solver!", log_locals=True)
     p = gen_solution_dir(day, year)
     shutil.copytree("templates", p)
-    walk_directory(p, console)
+    walk_directory(p, CONSOLE)
 
 
 @cli.command()
@@ -93,7 +85,6 @@ def solve(
 ):
     day = day
     year = year
-    console.log("AOC Solver!", log_locals=True)
 
     install(suppress=[click], show_locals=log_locals)
 
@@ -113,17 +104,10 @@ def solve(
     tests_module = importlib.import_module(f"{module_path}.tests")
     solution_module = importlib.import_module(f"{module_path}.solution")
 
-    progress = Progress(
-        SpinnerColumn(),
-        TimeElapsedColumn(),
-        MofNCompleteColumn(),
-        console=console,
-    )
-    with progress:
-        for task in progress.track(tasks):
-            console.log(f"Running {task.value}")
-            run_task(task, day, year, tests_module, solution_module, log_locals)
-            console.log(f"{task.value} complete")
+    for task in tasks:
+        CONSOLE.log(f"Running {task.value}")
+        run_task(task, day, year, tests_module, solution_module, log_locals)
+        CONSOLE.log(f"{task.value} complete")
 
 
 def run_task(
@@ -132,22 +116,28 @@ def run_task(
     year: int,
     tests_module: ModuleType,
     solution_module: ModuleType,
-    log_locals: bool
+    log_locals: bool,
 ) -> None:
     match task:
         case Task.RUN_PART1_TESTS:
-            RichTestRunner(tb_locals=log_locals).make_suite_and_run(tests_module.PartOneUnitTests)
+            RichTestRunner(tb_locals=log_locals).make_suite_and_run(
+                tests_module.PartOneUnitTests
+            )
         case Task.SOLVE_PART1:
             solution = solution_module.Solver(
                 data=aocd.get_data(day=day, year=year)
             ).part1()
+            CONSOLE.log(f"Part1: {solution}")
             submit(solution, part=ProblemPart.PART1, day=day, year=year)
         case Task.RUN_PART2_TESTS:
-            RichTestRunner(tb_locals=log_locals).make_suite_and_run(tests_module.PartTwoUnitTests)
+            RichTestRunner(tb_locals=log_locals).make_suite_and_run(
+                tests_module.PartTwoUnitTests
+            )
         case Task.SOLVE_PART2:
             solution = solution_module.Solver(
                 data=aocd.get_data(day=day, year=year)
             ).part2()
+            CONSOLE.log(f"Part2: {solution}")
             submit(solution, part=ProblemPart.PART2, day=day, year=year)
 
 

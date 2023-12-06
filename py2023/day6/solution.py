@@ -2,6 +2,8 @@
 # www.jrodal.com
 
 import re
+
+from rich.progress import track
 from aoc_utils.base_solver import BaseSolver, Solution
 
 import numpy as np
@@ -15,7 +17,7 @@ class Solver(BaseSolver):
 
     def find_scores(self, x: int) -> list[int]:
         scores = []
-        for i in range(x + 1):
+        for i in track(range(x + 1)):
             j = x - i
             scores.append(i * j)
         return scores
