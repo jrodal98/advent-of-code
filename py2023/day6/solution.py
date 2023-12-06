@@ -4,6 +4,10 @@
 import re
 from aoc_utils.base_solver import BaseSolver, Solution
 
+import numpy as np
+
+EPSILON = 0.0001
+
 
 class Solver(BaseSolver):
     PART1_EXAMPLE_SOLUTION: Solution | None = 288
@@ -16,6 +20,16 @@ class Solver(BaseSolver):
             scores.append(i * j)
         return scores
 
+    # This is a math based solution that works in place of compute_num_wins
+    def compute_num_wins_with_math(self, times: list[int], distances: list[int]) -> int:
+        res = 1
+        for time, distance in zip(times, distances):
+            roots = np.roots([1, -time, distance + EPSILON])
+            bigger, smaller = int(max(roots)), int(min(roots))
+            res *= bigger - smaller
+        return res
+
+    # This is the solution I used during submission
     def compute_num_wins(self, times: list[int], distances: list[int]) -> int:
         result = 1
         for time, distance in zip(times, distances):
@@ -32,11 +46,13 @@ class Solver(BaseSolver):
         times = [int(i) for i in re.findall(r"\d+", times_line)]
         distances = [int(i) for i in re.findall(r"\d+", distances_line)]
 
-        return self.compute_num_wins(times, distances)
+        return self.compute_num_wins_with_math(times, distances)
+        # return self.compute_num_wins(times, distances)
 
     def part2(self) -> Solution:
         times_line, distances_line = self.data.splitlines()
         times = [int("".join(re.findall(r"\d+", times_line)))]
         distances = [int("".join(re.findall(r"\d+", distances_line)))]
 
-        return self.compute_num_wins(times, distances)
+        return self.compute_num_wins_with_math(times, distances)
+        # return self.compute_num_wins(times, distances)
