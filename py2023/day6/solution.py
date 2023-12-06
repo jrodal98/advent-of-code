@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+# www.jrodal.com
+
+import re
+from aoc_utils.base_solver import BaseSolver, Solution
+
+
+class Solver(BaseSolver):
+    PART1_EXAMPLE_SOLUTION: Solution | None = 288
+    PART2_EXAMPLE_SOLUTION: Solution | None = 71503
+
+    def find_scores(self, x: int) -> list[int]:
+        scores = []
+        for i in range(x + 1):
+            j = x - i
+            scores.append(i * j)
+        return scores
+
+    def compute_num_wins(self, times: list[int], distances: list[int]) -> int:
+        result = 1
+        for time, distance in zip(times, distances):
+            scores = self.find_scores(time)
+            res = 0
+            for score in scores:
+                if score > distance:
+                    res += 1
+            result *= res
+        return result
+
+    def part1(self) -> Solution:
+        times_line, distances_line = self.data.splitlines()
+        times = [int(i) for i in re.findall(r"\d+", times_line)]
+        distances = [int(i) for i in re.findall(r"\d+", distances_line)]
+
+        return self.compute_num_wins(times, distances)
+
+    def part2(self) -> Solution:
+        times_line, distances_line = self.data.splitlines()
+        times = [int("".join(re.findall(r"\d+", times_line)))]
+        distances = [int("".join(re.findall(r"\d+", distances_line)))]
+
+        return self.compute_num_wins(times, distances)
