@@ -1,82 +1,65 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
+from collections import Counter
 from aoc_utils.base_solver import BaseSolver, Solution
 
 
-CARD_SCORES = {
-    "A": 13,
-    "K": 12,
-    "Q": 11,
-    "J": 10,
-    "T": 9,
-    "9": 8,
-    "8": 7,
-    "7": 6,
-    "6": 5,
-    "5": 4,
-    "4": 3,
-    "3": 2,
-    "2": 1,
-}
-
-PART_2_CARD_SCORES = {
-    "A": 13,
-    "K": 12,
-    "Q": 11,
-    "J": 0,
-    "T": 9,
-    "9": 8,
-    "8": 7,
-    "7": 6,
-    "6": 5,
-    "5": 4,
-    "4": 3,
-    "3": 2,
-    "2": 1,
-}
-
-
-def score_func(s: str) -> int:
-    set_s = set(s)
-    letters = {letter: s.count(letter) for letter in set_s}
+def score_hand(s: str) -> int:
+    letters = Counter(s)
 
     if max(letters.values()) == 5:
-        return 20
+        return -1
     elif max(letters.values()) == 4:
-        return 19
+        return -2
     elif max(letters.values()) == 3:
-        if len(set_s) == 2:
-            return 18
+        if len(letters) == 2:
+            return -3
         else:
-            return 17
+            return -4
     elif max(letters.values()) == 2:
-        if len(set_s) == 3:
-            return 16
+        if len(letters) == 3:
+            return -5
         else:
-            return 15
+            return -6
     else:
-        return 14
+        return -7
 
 
-def part_2_custom_sort(s: str):
+def hand_sorter(s: str, wildcard_jokers: bool = False):
+    card_scores = {
+        "A": 13,
+        "K": 12,
+        "Q": 11,
+        "J": 10,
+        "T": 9,
+        "9": 8,
+        "8": 7,
+        "7": 6,
+        "6": 5,
+        "5": 4,
+        "4": 3,
+        "3": 2,
+        "2": 1,
+    }
+    if not wildcard_jokers:
+        hand_score = score_hand(s)
+        return [hand_score] + [card_scores[letter] for letter in s]
+
+    card_scores["J"] = 0
+
     if "J" in s:
-        hand_score = max([score_func(s.replace("J", c)) for c in CARD_SCORES.keys()])
+        hands = [s.replace("J", c) for c in card_scores.keys()]
     else:
-        hand_score = score_func(s)
-    return [hand_score] + [PART_2_CARD_SCORES[letter] for letter in s]
-
-
-def custom_sort(s: str):
-    hand_score = score_func(s)
-    return [hand_score] + [CARD_SCORES[letter] for letter in s]
+        hands = [s]
+    return [max(score_hand(h) for h in hands)] + [card_scores[letter] for letter in s]
 
 
 class Solver(BaseSolver):
     PART1_EXAMPLE_SOLUTION: Solution | None = 6440
     PART2_EXAMPLE_SOLUTION: Solution | None = 5905
 
-    def part1(self) -> Solution:
+    def compute_answer(self, wildcard_jokers: bool = False) -> Solution:
         hands = []
         bids = []
         for line in self.data.splitlines():
@@ -86,28 +69,18 @@ class Solver(BaseSolver):
             bids.append(bid)
 
         sorted_hands = sorted(
-            zip(hands, bids), key=lambda y: custom_sort(y[0]), reverse=False
+            zip(hands, bids),
+            key=lambda y: hand_sorter(y[0], wildcard_jokers=wildcard_jokers),
+            reverse=False,
         )
         res = 0
         for i, (hand, bid) in enumerate(sorted_hands, 1):
             print(i, hand)
             res += i * bid
         return res
+
+    def part1(self) -> Solution:
+        return self.compute_answer(wildcard_jokers=False)
 
     def part2(self) -> Solution:
-        hands = []
-        bids = []
-        for line in self.data.splitlines():
-            hand, bid = line.split()
-            bid = int(bid)
-            hands.append(hand)
-            bids.append(bid)
-
-        sorted_hands = sorted(
-            zip(hands, bids), key=lambda y: part_2_custom_sort(y[0]), reverse=False
-        )
-        res = 0
-        for i, (hand, bid) in enumerate(sorted_hands, 1):
-            print(i, hand)
-            res += i * bid
-        return res
+        return self.compute_answer(wildcard_jokers=True)
