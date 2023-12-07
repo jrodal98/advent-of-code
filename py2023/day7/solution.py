@@ -9,20 +9,27 @@ def score_hand(s: str) -> int:
     letters = Counter(s)
 
     if max(letters.values()) == 5:
+        # Five of a kind
         return -1
     elif max(letters.values()) == 4:
+        # Four of a kind
         return -2
     elif max(letters.values()) == 3:
+        # Full house
         if len(letters) == 2:
             return -3
+        # Three of a kind
         else:
             return -4
     elif max(letters.values()) == 2:
+        # Two pair
         if len(letters) == 3:
             return -5
+        # One pair
         else:
             return -6
     else:
+        # High card
         return -7
 
 
