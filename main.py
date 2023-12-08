@@ -2,7 +2,6 @@
 # www.jrodal.com
 
 import importlib
-from io import StringIO
 import os
 import shutil
 import click
@@ -10,6 +9,7 @@ import aocd
 
 from enum import Enum
 
+from rich.markdown import Markdown
 from rich.traceback import install
 from aoc_utils.log_runtime import print_runtime_table
 
@@ -105,18 +105,19 @@ def solve(
         ),
     ):
         if part:
+            CONSOLE.log(Markdown(f"# {part.name}"))
             if tests:
+                CONSOLE.log(Markdown("## Tests"))
                 RichTestRunner(
-                    # passing streamIO allows me to swallow test output
-                    # without printing it to the console when all tests pass
-                    stream=StringIO(),
                     tb_locals=log_locals,
                 ).make_suite_and_run(tests)
+            CONSOLE.log(Markdown("## Solve Puzzle Input"))
             _, runtime = solution_module.Solver(
                 data=aocd.get_data(day=day, year=year)
             ).solve_and_submit(part, day=day, year=year)
             runtime_objects[part] = runtime
 
+    CONSOLE.log(Markdown("# Performance"))
     print_runtime_table(
         runtime_objects.get(ProblemPart.PART1),
         runtime_objects.get(ProblemPart.PART2),

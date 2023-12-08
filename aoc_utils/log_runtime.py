@@ -96,4 +96,4 @@ def print_runtime_table(
         part2_to_part1_ratio,
     )
 
-    console.print(table)
+    console.print(table, justify="center")
