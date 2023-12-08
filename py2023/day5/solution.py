@@ -9,7 +9,7 @@ class Solver(BaseSolver):
     PART1_EXAMPLE_SOLUTION: Solution | None = 35
     PART2_EXAMPLE_SOLUTION: Solution | None = 46
 
-    def part1(self) -> Solution:
+    def _part1(self) -> Solution:
         lines = self.data.split("\n\n")
         seeds_line = lines[0]
         map_lines = lines[1:]
@@ -30,7 +30,7 @@ class Solver(BaseSolver):
             seeds = new_seeds + working_seeds
         return min(seeds)
 
-    def part2(self) -> Solution:
+    def _part2(self) -> Solution:
         lines = self.data.split("\n\n")
         seeds_line = lines[0]
         map_lines = lines[1:]

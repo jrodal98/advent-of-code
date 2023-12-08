@@ -43,7 +43,7 @@ class Solver(BaseSolver):
             result *= res
         return result
 
-    def part1(self) -> Solution:
+    def _part1(self) -> Solution:
         times_line, distances_line = self.data.splitlines()
         times = [int(i) for i in re.findall(r"\d+", times_line)]
         distances = [int(i) for i in re.findall(r"\d+", distances_line)]
@@ -51,7 +51,7 @@ class Solver(BaseSolver):
         return self.compute_num_wins_with_math(times, distances)
         # return self.compute_num_wins(times, distances)
 
-    def part2(self) -> Solution:
+    def _part2(self) -> Solution:
         times_line, distances_line = self.data.splitlines()
         times = [int("".join(re.findall(r"\d+", times_line)))]
         distances = [int("".join(re.findall(r"\d+", distances_line)))]

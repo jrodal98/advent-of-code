@@ -8,8 +8,8 @@ class Solver(BaseSolver):
     PART1_EXAMPLE_SOLUTION: Solution | None = None
     PART2_EXAMPLE_SOLUTION: Solution | None = None
 
-    def part1(self) -> Solution:
+    def _part1(self) -> Solution:
         raise NotImplementedError
 
-    def part2(self) -> Solution:
+    def _part2(self) -> Solution:
         raise NotImplementedError

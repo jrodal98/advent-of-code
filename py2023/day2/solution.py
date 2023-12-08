@@ -8,7 +8,7 @@ class Solver(BaseSolver):
     PART1_EXAMPLE_SOLUTION: Solution | None = 8
     PART2_EXAMPLE_SOLUTION: Solution | None = 2286
 
-    def part1(self) -> Solution:
+    def _part1(self) -> Solution:
         res = 0
         for game_id, line in enumerate(self.data.splitlines(), 1):
             bad = False
@@ -33,7 +33,7 @@ class Solver(BaseSolver):
 
         return res
 
-    def part2(self) -> Solution:
+    def _part2(self) -> Solution:
         res = 0
         for line in self.data.splitlines():
             max_color_counts = {"red": 0, "blue": 0, "green": 0}

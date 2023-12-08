@@ -86,8 +86,8 @@ class Solver(BaseSolver):
             res += i * bid
         return res
 
-    def part1(self) -> Solution:
+    def _part1(self) -> Solution:
         return self.compute_answer(wildcard_jokers=False)
 
-    def part2(self) -> Solution:
+    def _part2(self) -> Solution:
         return self.compute_answer(wildcard_jokers=True)

@@ -24,10 +24,10 @@ class Solver(BaseSolver):
             res += int(digits[0] + digits[-1])
         return res
 
-    def part1(self) -> Solution:
+    def _part1(self) -> Solution:
         return self._do_part1(self.data)
 
-    def part2(self) -> Solution:
+    def _part2(self) -> Solution:
         s = self.data
         rep = {
             "one": "1e",

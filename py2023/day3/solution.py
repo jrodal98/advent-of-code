@@ -8,7 +8,7 @@ class Solver(BaseSolver):
     PART1_EXAMPLE_SOLUTION: Solution | None = 4361
     PART2_EXAMPLE_SOLUTION: Solution | None = 467835
 
-    def part1(self) -> Solution:
+    def _part1(self) -> Solution:
         grid = []
         for line in self.data.splitlines():
             row = []
@@ -64,7 +64,7 @@ class Solver(BaseSolver):
 
         return sum(nums)
 
-    def part2(self) -> Solution:
+    def _part2(self) -> Solution:
         grid = []
         for line in self.data.splitlines():
             row = []

@@ -10,10 +10,10 @@ class Solver(BaseSolver):
     PART1_EXAMPLE_SOLUTION: Solution | None = 2
     PART2_EXAMPLE_SOLUTION: Solution | None = 6
 
-    def part1(self) -> Solution:
-        return self.compute_answer(False)
+    def _part1(self) -> Solution:
+        return min(50, self.compute_answer(False))
 
-    def part2(self) -> Solution:
+    def _part2(self) -> Solution:
         return self.compute_answer(True)
 
     def compute_answer(
