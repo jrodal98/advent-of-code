@@ -42,7 +42,7 @@ def log_runtime(
         unit = "h"
         elapsed_time /= 3600
 
-    console.log(f"{msg} executed in {elapsed_time:.4f} {unit}")
+    console.log(f"{msg} executed in {elapsed_time:.2f} {unit}")
     runtime.elapsed_time_unit = elapsed_time
     runtime.unit = unit
     runtime.elapsed_time_seconds = elapsed_time_seconds
