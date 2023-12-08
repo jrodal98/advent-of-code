@@ -3,6 +3,7 @@
 
 from aoc_utils.base_solver import BaseSolver, Solution
 from itertools import cycle
+from math import lcm
 
 
 class Solver(BaseSolver):
@@ -42,13 +43,31 @@ class Solver(BaseSolver):
             node_to_directions[node] = (left, right)
 
         nodes = [node for node in node_to_directions.keys() if node[-1] == "A"]
-        steps = 0
-        for dir in cycle(direction_sequence):
-            if dir == "L":
-                nodes = [node_to_directions[node][0] for node in nodes]
-            else:
-                nodes = [node_to_directions[node][1] for node in nodes]
-            steps += 1
-            if all(node[-1] == "Z" for node in nodes):
-                break
+
+        steps_to_z = []
+
+        for node in nodes:
+            steps = 0
+            for dir in cycle(direction_sequence):
+                if dir == "L":
+                    node = node_to_directions[node][0]
+                else:
+                    node = node_to_directions[node][1]
+                steps += 1
+                if node[-1] == "Z":
+                    break
+            steps_to_z.append(steps)
+        steps = lcm(*steps_to_z)
+
+        # def find_path_to_z(node: str, dir: str) -> str:
+        #     if dir == "L":
+        #         return node_to_directions[node][0]
+        #     else:
+        #         return node_to_directions[node][1]
+        #
+        # for dir in cycle(direction_sequence):
+        #     nodes = [move_node(node, dir) for node in nodes]
+        #     steps += 1
+        #     if all(node[-1] == "Z" for node in nodes):
+        #         break
         return steps
