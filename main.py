@@ -4,13 +4,13 @@
 import importlib
 import os
 import shutil
-from types import ModuleType
 import click
 import aocd
 
 from enum import Enum
 
 from rich.traceback import install
+from aoc_utils.log_runtime import log_runtime, print_runtime_table
 
 from aoc_utils.rich_test_runner import RichTestRunner
 from aoc_utils.solution_submitter import ProblemPart, submit
@@ -88,57 +88,41 @@ def solve(
 
     install(suppress=[click], show_locals=log_locals)
 
-    tasks = []
-    if not skip_part1:
-        if not skip_tests:
-            tasks.append(Task.RUN_PART1_TESTS)
-        tasks.append(Task.SOLVE_PART1)
-
-    if not skip_part2:
-        if not skip_tests:
-            tasks.append(Task.RUN_PART2_TESTS)
-        tasks.append(Task.SOLVE_PART2)
-
     module_path = gen_solution_dir(day, year).replace("/", ".")
 
     tests_module = importlib.import_module(f"{module_path}.tests")
     solution_module = importlib.import_module(f"{module_path}.solution")
 
-    for task in tasks:
-        CONSOLE.log(f"Running {task.value}")
-        run_task(task, day, year, tests_module, solution_module, log_locals)
-        CONSOLE.log(f"{task.value} complete")
+    part1_runtime_obj = None
+    part2_runtime_obj = None
 
-
-def run_task(
-    task: Task,
-    day: int,
-    year: int,
-    tests_module: ModuleType,
-    solution_module: ModuleType,
-    log_locals: bool,
-) -> None:
-    match task:
-        case Task.RUN_PART1_TESTS:
+    if not skip_part1:
+        if not skip_tests:
             RichTestRunner(tb_locals=log_locals).make_suite_and_run(
                 tests_module.PartOneUnitTests
             )
-        case Task.SOLVE_PART1:
+        with log_runtime("Part 1", console=CONSOLE) as runtime:
             solution = solution_module.Solver(
                 data=aocd.get_data(day=day, year=year)
             ).part1()
-            CONSOLE.log(f"Part1: {solution}")
-            submit(solution, part=ProblemPart.PART1, day=day, year=year)
-        case Task.RUN_PART2_TESTS:
+            part1_runtime_obj = runtime
+        CONSOLE.log(f"Part1: {solution}")
+        submit(solution, part=ProblemPart.PART1, day=day, year=year)
+
+    if not skip_part2:
+        if not skip_tests:
             RichTestRunner(tb_locals=log_locals).make_suite_and_run(
                 tests_module.PartTwoUnitTests
             )
-        case Task.SOLVE_PART2:
+        with log_runtime("Part 2", console=CONSOLE) as runtime:
             solution = solution_module.Solver(
                 data=aocd.get_data(day=day, year=year)
             ).part2()
-            CONSOLE.log(f"Part2: {solution}")
-            submit(solution, part=ProblemPart.PART2, day=day, year=year)
+            part2_runtime_obj = runtime
+        CONSOLE.log(f"Part2: {solution}")
+        submit(solution, part=ProblemPart.PART2, day=day, year=year)
+
+    print_runtime_table(part1_runtime_obj, part2_runtime_obj, CONSOLE)
 
 
 if __name__ == "__main__":

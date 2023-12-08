@@ -82,7 +82,6 @@ class Solver(BaseSolver):
         )
         res = 0
         for i, (hand, bid) in enumerate(sorted_hands, 1):
-            print(i, hand)
             res += i * bid
         return res
 
