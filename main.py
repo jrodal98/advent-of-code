@@ -2,6 +2,7 @@
 # www.jrodal.com
 
 import importlib
+from io import StringIO
 import os
 import shutil
 import click
@@ -105,7 +106,12 @@ def solve(
     ):
         if part:
             if tests:
-                RichTestRunner(tb_locals=log_locals).make_suite_and_run(tests)
+                RichTestRunner(
+                    # passing streamIO allows me to swallow test output
+                    # without printing it to the console when all tests pass
+                    stream=StringIO(),
+                    tb_locals=log_locals,
+                ).make_suite_and_run(tests)
             _, runtime = solution_module.Solver(
                 data=aocd.get_data(day=day, year=year)
             ).solve_and_submit(part, day=day, year=year)

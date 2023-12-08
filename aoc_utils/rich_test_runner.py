@@ -31,6 +31,8 @@ class RichTestRunner(unittest.TextTestRunner):
     def make_suite_and_run(self, test_case_cls: Type[unittest.TestCase]) -> None:
         result = self.run(unittest.makeSuite(test_case_cls))
         if not result.wasSuccessful():
+            if hasattr(self.stream, "getvalue"):
+                print(self.stream.getvalue())
             sys.exit(1)
 
 
