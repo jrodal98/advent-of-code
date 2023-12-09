@@ -21,7 +21,7 @@ class Solver(BaseSolver):
             last_digits.append(0)
             cumsum = np.cumsum(sorted(last_digits))
             res += cumsum[-1]
-        return str(res)
+        return res
 
     def _part2(self) -> Solution:
         res = 0
@@ -40,4 +40,4 @@ class Solver(BaseSolver):
             for digit in first_digits[::-1]:
                 last_digit = digit - last_digit
             res += last_digit
-        return str(res)
+        return res
