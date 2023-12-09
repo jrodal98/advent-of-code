@@ -50,6 +50,13 @@ class AOCTestCase(unittest.TestCase, ABC):
             self._MANIFEST_PATH, self._PROBLEM_PART
         )
 
+    def test_no_empty_inputs(self) -> None:
+        for test in self.testcases:
+            name = test.name or test.input
+            with self.subTest(name=name):
+                test_input = self._read_input(test)
+                self.assertNotEqual(len(test_input), 0, msg=f"Test {name} is empty")
+
     def test_no_none_outputs(self) -> None:
         for test in self.testcases:
             name = test.name or test.input
@@ -58,6 +65,13 @@ class AOCTestCase(unittest.TestCase, ABC):
                     test.output, msg=f"Test {name} had no expected output"
                 )
 
+    def _read_input(self, test: TestCaseFromManifest) -> str:
+        if os.path.exists(os.path.join(self._DATA_DIR, test.input)):
+            with open(os.path.join(self._DATA_DIR, test.input)) as f:
+                return f.read()
+        else:
+            return test.input
+
     def test_execute_manifest(self) -> None:
         for test in self.testcases:
             name = test.name or test.input
@@ -65,11 +79,9 @@ class AOCTestCase(unittest.TestCase, ABC):
                 if test.output is None:
                     continue
 
-                if os.path.exists(os.path.join(self._DATA_DIR, test.input)):
-                    with open(os.path.join(self._DATA_DIR, test.input)) as f:
-                        test_input = f.read()
-                else:
-                    test_input = test.input
+                test_input = self._read_input(test)
+                if len(test_input) == 0:
+                    continue
 
                 solver = self._SOLVER(test_input)
                 match self._PROBLEM_PART:
