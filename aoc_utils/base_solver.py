@@ -21,9 +21,6 @@ class ProblemPart(Enum):
 
 
 class BaseSolver(ABC):
-    PART1_EXAMPLE_SOLUTION: Solution | None = None
-    PART2_EXAMPLE_SOLUTION: Solution | None = None
-
     def __init__(self, data: str, *, console: Console | None = None) -> None:
         self.data = data
         self.console = console or CONSOLE

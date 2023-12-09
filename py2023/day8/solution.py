@@ -7,9 +7,6 @@ from math import lcm
 
 
 class Solver(BaseSolver):
-    PART1_EXAMPLE_SOLUTION: Solution | None = 2
-    PART2_EXAMPLE_SOLUTION: Solution | None = 6
-
     def _part1(self) -> Solution:
         return self.compute_answer(False)
 
