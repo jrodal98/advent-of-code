@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+mapfile -t all_files < <(git ls-files -o -m --exclude-standard)
+files_to_open=("solution.py" "sample1.txt" "test_manifest.yml")
+
+result=()
+
+for file in "${files_to_open[@]}"; do
+  read -r -a matching_files <<<"$(printf "%s\n" "${all_files[@]}" | grep "$file")"
+  result+=("${matching_files[@]}")
+done
+
+$EDITOR "${result[@]}"
