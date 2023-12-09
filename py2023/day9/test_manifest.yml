@@ -1,6 +1,8 @@
 part1:
   - input: sample1.txt
     output: 114
+  - input: 0 3 6 9 12 15
+    output: 18
 part2:
   - input: sample1.txt
     output: 2
