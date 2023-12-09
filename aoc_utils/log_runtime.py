@@ -4,6 +4,7 @@ import time
 from contextlib import contextmanager
 from rich.console import Console
 from typing import Generator
+from rich.markdown import Markdown
 
 from rich.table import Table
 
@@ -42,7 +43,7 @@ def log_runtime(
         unit = "h"
         elapsed_time /= 3600
 
-    console.log(f"{msg} executed in {elapsed_time:.2f} {unit}")
+    console.print(f"{msg} executed in {elapsed_time:.2f} {unit}")
     runtime.elapsed_time_unit = elapsed_time
     runtime.unit = unit
     runtime.elapsed_time_seconds = elapsed_time_seconds
@@ -55,6 +56,8 @@ def print_runtime_table(
 ) -> None:
     if not part1_runtime_obj and not part2_runtime_obj:
         return
+
+    CONSOLE.print(Markdown("# Performance"))
 
     console = console or CONSOLE
 

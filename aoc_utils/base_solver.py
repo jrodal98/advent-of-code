@@ -5,6 +5,7 @@ import aocd
 
 from abc import ABC, abstractmethod
 from enum import Enum
+from inspect import getsource
 from rich.console import Console
 from urllib3.response import HTTPResponse
 from aoc_utils.log_runtime import log_runtime, Runtime
@@ -34,7 +35,7 @@ class BaseSolver(ABC):
             else:
                 solution = self.part2()
 
-            self.console.log(f"{part.name}: {solution}")
+            self.console.print(f"{part.name}: {solution}")
 
         response = aocd.post.submit(solution, part=part.value, day=day, year=year)
         if isinstance(response, HTTPResponse):
@@ -56,6 +57,17 @@ class BaseSolver(ABC):
             return int(solution)
         except ValueError:
             return str(solution)
+
+    @classmethod
+    def is_not_implemented(cls, part: ProblemPart) -> bool:
+        match part:
+            case ProblemPart.PART1:
+                code = getsource(cls._part1)
+            case ProblemPart.PART2:
+                code = getsource(cls._part2)
+            case _:
+                raise ValueError(f"Invalid part {part}")
+        return "raise NotImplementedError" in code.strip().splitlines()[-1]
 
     @abstractmethod
     def _part1(self) -> Solution:

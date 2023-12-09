@@ -32,7 +32,7 @@ class Task(Enum):
 
 
 @click.group()
-def cli():
+def cli() -> None:
     pass
 
 
@@ -42,8 +42,7 @@ def cli():
 def init(
     day: int,
     year: int,
-):
-    CONSOLE.log("AOC Solver!", log_locals=True)
+) -> None:
     p = gen_solution_dir(day, year)
     shutil.copytree("templates", p)
     walk_directory(p, CONSOLE)
@@ -83,7 +82,7 @@ def solve(
     skip_part1: bool,
     skip_part2: bool,
     log_locals: bool,
-):
+) -> None:
     day = day
     year = year
 
@@ -92,6 +91,7 @@ def solve(
     module_path = gen_solution_dir(day, year).replace("/", ".")
     tests_module = importlib.import_module(f"{module_path}.tests")
     solution_module = importlib.import_module(f"{module_path}.solution")
+    solver_kls = solution_module.Solver
 
     runtime_objects = {}
     for part, tests in (
@@ -104,20 +104,23 @@ def solve(
             tests_module.PartTwoUnitTests if not skip_tests else None,
         ),
     ):
-        if part:
-            CONSOLE.log(Markdown(f"# {part.name}"))
-            if tests:
-                CONSOLE.log(Markdown("## Tests"))
-                RichTestRunner(
-                    tb_locals=log_locals,
-                ).make_suite_and_run(tests)
-            CONSOLE.log(Markdown("## Solve Puzzle Input"))
-            _, runtime = solution_module.Solver(
-                data=aocd.get_data(day=day, year=year)
-            ).solve_and_submit(part, day=day, year=year)
-            runtime_objects[part] = runtime
+        if not part:
+            continue
+        CONSOLE.print(Markdown(f"# {part.name}"))
+        if solver_kls.is_not_implemented(part):
+            CONSOLE.print(f"[red] {part.name} not implemented [/red]")
+            continue
+        if tests:
+            CONSOLE.print(Markdown("## Tests"))
+            RichTestRunner(
+                tb_locals=log_locals,
+            ).make_suite_and_run(tests)
+        CONSOLE.print(Markdown("## Solve Puzzle Input"))
+        _, runtime = solver_kls(
+            data=aocd.get_data(day=day, year=year)
+        ).solve_and_submit(part, day=day, year=year)
+        runtime_objects[part] = runtime
 
-    CONSOLE.log(Markdown("# Performance"))
     print_runtime_table(
         runtime_objects.get(ProblemPart.PART1),
         runtime_objects.get(ProblemPart.PART2),
