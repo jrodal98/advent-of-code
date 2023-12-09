@@ -92,10 +92,7 @@ class AOCTestCase(unittest.TestCase, ABC):
                     case _:
                         raise Exception("Problem part must be specified")
 
-                try:
-                    expected_output = int(test.output)
-                except ValueError:
-                    expected_output = str(test.output)
+                expected_output = test.output
 
                 self.assertEqual(
                     expected_output,

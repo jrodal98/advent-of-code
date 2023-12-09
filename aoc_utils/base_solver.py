@@ -44,10 +44,18 @@ class BaseSolver(ABC):
         return solution, runtime
 
     def part1(self) -> Solution:
-        return self._part1()
+        solution = self._part1()
+        try:
+            return int(solution)
+        except ValueError:
+            return str(solution)
 
     def part2(self) -> Solution:
-        return self._part2()
+        solution = self._part2()
+        try:
+            return int(solution)
+        except ValueError:
+            return str(solution)
 
     @abstractmethod
     def _part1(self) -> Solution:
