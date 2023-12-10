@@ -14,14 +14,22 @@ class Grid(Generic[T]):
     _DIRS = [(0, 1), (1, 0), (0, -1), (-1, 0)]
     _DIRS_8 = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
 
-    def __init__(self, rows: List[List[T]]) -> None:
-        self.rows = rows
-        self.h = len(rows)
-        self.w = len(rows[0]) if rows else 0
+    def __init__(self, rows: List[List[T]], padding: T | None = None) -> None:
+        if padding:
+            self.rows = [[padding, *row, padding] for row in rows]
+            self.rows.insert(0, [padding] * len(self.rows[0]))
+            self.rows.append([padding] * len(self.rows[0]))
+        else:
+            self.rows = rows
+        self.h = len(self.rows)
+        self.w = len(self.rows[0]) if self.rows else 0
 
     @classmethod
     def from_lines(
-        cls: Type["Grid[str]"], lines: str | Iterable[str], delimiter: str = ","
+        cls: Type["Grid[str]"],
+        lines: str | Iterable[str],
+        delimiter: str = ",",
+        padding: str | None = None,
     ) -> "Grid[str]":
         if isinstance(lines, str):
             lines = lines.splitlines()
@@ -30,7 +38,7 @@ class Grid(Generic[T]):
             rows = [[cell for cell in line.split(delimiter)] for line in lines]
         else:
             rows = [[cell for cell in line] for line in lines]
-        return cls(rows)
+        return cls(rows, padding=padding)
 
     def transform(self, func: Callable[[T], U]) -> "Grid[U]":
         transformed_rows = [[func(cell) for cell in row] for row in self.rows]
@@ -49,8 +57,32 @@ class Grid(Generic[T]):
     def left_coord(self, x: int, y: int) -> tuple[int, int]:
         return x - 1, y
 
+    def upper_left_coord(self, x: int, y: int) -> tuple[int, int]:
+        return x - 1, y - 1
+
+    def upper_right_coord(self, x: int, y: int) -> tuple[int, int]:
+        return x + 1, y - 1
+
+    def bottom_left_coord(self, x: int, y: int) -> tuple[int, int]:
+        return x - 1, y + 1
+
+    def bottom_right_coord(self, x: int, y: int) -> tuple[int, int]:
+        return x + 1, y + 1
+
     def right_coord(self, x: int, y: int) -> tuple[int, int]:
         return x + 1, y
+
+    def bottom_left(self, x: int, y: int) -> T | None:
+        return self.get(x - 1, y + 1)
+
+    def bottom_right(self, x: int, y: int) -> T | None:
+        return self.get(x + 1, y + 1)
+
+    def upper_left(self, x: int, y: int) -> T | None:
+        return self.get(x - 1, y - 1)
+
+    def upper_right(self, x: int, y: int) -> T | None:
+        return self.get(x + 1, y - 1)
 
     def up_coord(self, x: int, y: int) -> tuple[int, int]:
         return x, y - 1

@@ -5,5 +5,5 @@ part1:
     output: 8
 
 part2:
-  - input: sample1.txt
-    output:
+  - input: sample3.txt
+    output: 4
