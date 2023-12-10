@@ -28,7 +28,7 @@ class Grid(Generic[T]):
     def from_lines(
         cls: Type["Grid[str]"],
         lines: str | Iterable[str],
-        delimiter: str = ",",
+        delimiter: str | None = None,
         padding: str | None = None,
     ) -> "Grid[str]":
         if isinstance(lines, str):
@@ -159,10 +159,3 @@ class Grid(Generic[T]):
             table.add_row(*map(str, row))
         console = Console()
         console.print(table)
-
-
-if __name__ == "__main__":
-    g = Grid.from_lines(["1,2,3", "4,5,6"]).transform(int)
-    g.display()
-    g2 = g.transform(lambda x: x**2)
-    g2.display()
