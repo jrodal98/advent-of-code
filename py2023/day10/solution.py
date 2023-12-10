@@ -110,5 +110,7 @@ class Solver(BaseSolver):
                 for cx, cy in self.get_valid_transitions(grid, x, y, True):
                     graph.add_edge(identifier, f"{cx}-{cy}")
 
+        print(graph.nodes())
+
         print(set(nx.nodes(graph)) - set(nx.dfs_postorder_nodes(graph, "0-0")))
         assert False
