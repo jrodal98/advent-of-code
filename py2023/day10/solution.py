@@ -71,18 +71,11 @@ class Solver(BaseSolver):
                 assert False, "This shouldn't be possible"
 
     def _part1(self) -> Solution:
-        grid = Grid.from_lines(self.data, delimiter="")
-        s_pos = grid.find_cell("S")
-        self.replace_s(*s_pos, grid)
-        graph = nx.DiGraph()
-        for y in range(grid.h):
-            for x in range(grid.w):
-                for cx, cy in self.get_valid_transitions(grid, x, y):
-                    graph.add_edge((x, y), (cx, cy))
-
-        a = sorted(list(nx.simple_cycles(graph)), key=lambda s: len(s))[-1]
-        return len(a) // 2
-        # return max(nx.shortest_path_length(graph, s_pos).values())  # pyright: ignore
+        return max(
+            nx.shortest_path_length(
+                *self._get_graph_and_s_pos()
+            ).values()  # pyright: ignore
+        )
 
     def get_valid_transitions(
         self, grid: Grid, x: int, y: int
@@ -99,17 +92,22 @@ class Solver(BaseSolver):
 
         return [(x, y) for x, y in transitions if grid.get(x, y)]
 
-    def _part2(self) -> Solution:
+    def _get_graph_and_s_pos(self) -> tuple[nx.DiGraph, tuple[int, int]]:
         grid = Grid.from_lines(self.data, delimiter="")
+        graph = nx.DiGraph()
         s_pos = grid.find_cell("S")
         self.replace_s(*s_pos, grid)
-        graph = nx.DiGraph()
         for y in range(grid.h):
             for x in range(grid.w):
                 for cx, cy in self.get_valid_transitions(grid, x, y):
                     graph.add_edge((x, y), (cx, cy))
+        return graph, s_pos
+
+    def _part2(self) -> Solution:
+        graph, s_pos = self._get_graph_and_s_pos()
 
         path = sorted(list(nx.simple_cycles(graph)), key=lambda s: len(s))[-1]
+        # print(nx.shortest_path_length(graph, s_pos))
 
         shoelace = path + [path[0]]
 
