@@ -26,7 +26,10 @@ class Grid(Generic[T]):
         if isinstance(lines, str):
             lines = lines.splitlines()
 
-        rows = [[cell for cell in line.split(delimiter)] for line in lines]
+        if delimiter:
+            rows = [[cell for cell in line.split(delimiter)] for line in lines]
+        else:
+            rows = [[cell for cell in line] for line in lines]
         return cls(rows)
 
     def transform(self, func: Callable[[T], U]) -> "Grid[U]":
@@ -39,6 +42,37 @@ class Grid(Generic[T]):
 
     def at(self, x: int, y: int) -> T:
         return self.rows[y][x]
+
+    def left(self, x: int, y: int) -> T | None:
+        return self.get(x - 1, y)
+
+    def left_coord(self, x: int, y: int) -> tuple[int, int]:
+        return x - 1, y
+
+    def right_coord(self, x: int, y: int) -> tuple[int, int]:
+        return x + 1, y
+
+    def up_coord(self, x: int, y: int) -> tuple[int, int]:
+        return x, y - 1
+
+    def down_coord(self, x: int, y: int) -> tuple[int, int]:
+        return x, y + 1
+
+    def right(self, x: int, y: int) -> T | None:
+        return self.get(x + 1, y)
+
+    def up(self, x: int, y: int) -> T | None:
+        return self.get(x, y - 1)
+
+    def down(self, x: int, y: int) -> T | None:
+        return self.get(x, y + 1)
+
+    def find_cell(self, value: T) -> tuple[int, int]:
+        for y, row in enumerate(self.rows):
+            for x, cell in enumerate(row):
+                if cell == value:
+                    return x, y
+        assert False, "Cell not found"
 
     def get(self, x: int, y: int, default: T | None = None) -> T | None:
         if 0 <= x < self.w and 0 <= y < self.h:
