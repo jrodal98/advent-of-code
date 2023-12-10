@@ -84,6 +84,9 @@ class Grid(Generic[T]):
     def upper_right(self, x: int, y: int) -> T | None:
         return self.get(x + 1, y - 1)
 
+    def replace(self, x: int, y: int, value: T) -> None:
+        self.rows[y][x] = value
+
     def up_coord(self, x: int, y: int) -> tuple[int, int]:
         return x, y - 1
 
