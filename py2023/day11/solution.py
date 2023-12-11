@@ -8,28 +8,29 @@ from itertools import combinations
 
 
 class Solver(BaseSolver):
-    def _get_galaxy_positions(self) -> list[tuple[int, int]]:
-        rows = []
-        for row in self.data.splitlines():
+    def _get_galaxy_positions(self, expansion: int = 2) -> list[tuple[int, int]]:
+        grid = Grid.from_lines(self.data)
+        grid_t = grid.transpose()
+        y_translation = [0 for y in range(grid.h)]
+        for y, row in enumerate(grid.rows):
             if "#" not in row:
-                rows.append(row)
-            rows.append(row)
+                for j in range(y, grid.h):
+                    y_translation[j] += expansion - 1
 
-        t_rows = Grid(rows).transpose().rows
-        rows = []
-        for row in t_rows:
+        x_translation = [0 for x in range(grid_t.h)]
+        for y, row in enumerate(grid_t.rows):
             if "#" not in row:
-                rows.append(row)
-            rows.append(row)
-
-        grid = Grid(rows).transpose()
+                for j in range(y, grid_t.h):
+                    x_translation[j] += expansion - 1
 
         galaxy_positions = []
         for y in range(grid.h):
             for x in range(grid.w):
                 cell = grid.at(x, y)
                 if cell == "#":
-                    galaxy_positions.append((x, y))
+                    galaxy_positions.append(
+                        (x + x_translation[x], y + y_translation[y])
+                    )
 
         return galaxy_positions
 
@@ -41,4 +42,8 @@ class Solver(BaseSolver):
         return res
 
     def _part2(self) -> Solution:
-        raise NotImplementedError
+        galaxy_positions = self._get_galaxy_positions(1_000_000)
+        res = 0
+        for (x1, y1), (x2, y2) in combinations(galaxy_positions, 2):
+            res += abs(x1 - x2) + abs(y1 - y2)
+        return res
