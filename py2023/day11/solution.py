@@ -29,7 +29,7 @@ class Solver(BaseSolver):
             (grid, y_translation),
             (grid.transpose(), x_translation),
         ):
-            for y, row in enumerate(g.rows):
+            for y, row in enumerate(g.rows()):
                 if "#" not in row:
                     for j in range(y, g.h):
                         translation[j] += expansion - 1

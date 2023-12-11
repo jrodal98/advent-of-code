@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
+from math import sqrt
 from rich.table import Table
 from rich.console import Console
 from typing import Callable, Generic, Iterable, Iterator, List, Tuple, Type, TypeVar
@@ -14,15 +15,22 @@ class Grid(Generic[T]):
     _DIRS = [(0, 1), (1, 0), (0, -1), (-1, 0)]
     _DIRS_8 = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
 
-    def __init__(self, rows: List[List[T]], padding: T | None = None) -> None:
-        if padding:
-            self.rows = [[padding, *row, padding] for row in rows]
-            self.rows.insert(0, [padding] * len(self.rows[0]))
-            self.rows.append([padding] * len(self.rows[0]))
+    def __init__(self, data: List[T], *, w: int | None, h: int | None) -> None:
+        len_data = len(data)
+        if w is not None:
+            self.w = w
+            self.h = h or len_data // w
+        elif h:
+            self.w = len_data // h
+            self.h = h
         else:
-            self.rows = rows
-        self.h = len(self.rows)
-        self.w = len(self.rows[0]) if self.rows else 0
+            rl = int(sqrt(len_data))
+            self.w = rl
+            self.h = rl
+
+        assert self.w * self.h == len_data
+
+        self.data = data
 
     @classmethod
     def from_lines(
@@ -38,18 +46,34 @@ class Grid(Generic[T]):
             rows = [[cell for cell in line.split(delimiter)] for line in lines]
         else:
             rows = [[cell for cell in line] for line in lines]
-        return cls(rows, padding=padding)
+        if padding:
+            rows = [[padding, *row, padding] for row in rows]
+            rows.insert(0, [padding] * len(rows[0]))
+            rows.append([padding] * len(rows[0]))
+        return cls([cell for row in rows for cell in row], w=len(rows[0]), h=len(rows))
+
+    def iter_coord_and_cell(self) -> Iterator[tuple[tuple[int, int], T]]:
+        for i, cell in enumerate(self.data):
+            x, y = i % self.w, i // self.w
+            yield (x, y), cell
 
     def transform(self, func: Callable[[T], U]) -> "Grid[U]":
-        transformed_rows = [[func(cell) for cell in row] for row in self.rows]
-        return Grid[U](transformed_rows)
+        transformed_data = [func(cell) for cell in self.data]
+        return Grid[U](transformed_data, w=self.w, h=self.h)
 
-    def transpose(self) -> "Grid":
-        transposed_rows = list(map(list, zip(*self.rows)))
-        return Grid(transposed_rows)
+    def transpose(self) -> "Grid[T]":
+        return Grid([cell for col in self.cols() for cell in col], w=self.h, h=self.w)
+
+    def rows(self) -> Iterator[Iterator[T]]:
+        for r in range(self.h):
+            yield (self.data[r * self.w + c] for c in range(self.w))
+
+    def cols(self) -> Iterator[Iterator[T]]:
+        for c in range(self.w):
+            yield (self.data[r * self.w + c] for r in range(self.h))
 
     def at(self, x: int, y: int) -> T:
-        return self.rows[y][x]
+        return self.data[y * self.w + x]
 
     def left(self, x: int, y: int) -> T | None:
         return self.get(x - 1, y)
@@ -85,7 +109,7 @@ class Grid(Generic[T]):
         return self.get(x + 1, y - 1)
 
     def replace(self, x: int, y: int, value: T) -> None:
-        self.rows[y][x] = value
+        self.data[y * self.w + x] = value
 
     def up_coord(self, x: int, y: int) -> tuple[int, int]:
         return x, y - 1
@@ -103,11 +127,8 @@ class Grid(Generic[T]):
         return self.get(x, y + 1)
 
     def find_cell(self, value: T) -> tuple[int, int]:
-        for y, row in enumerate(self.rows):
-            for x, cell in enumerate(row):
-                if cell == value:
-                    return x, y
-        assert False, "Cell not found"
+        i = self.data.index(value)
+        return i % self.w, i // self.w
 
     def get(self, x: int, y: int, default: T | None = None) -> T | None:
         if 0 <= x < self.w and 0 <= y < self.h:
@@ -159,7 +180,7 @@ class Grid(Generic[T]):
         table = Table(show_header=False, show_lines=True)
         for _ in range(self.w):
             table.add_column()
-        for row in self.rows:
+        for row in self.rows():
             table.add_row(*map(str, row))
         console = Console()
         console.print(table)
