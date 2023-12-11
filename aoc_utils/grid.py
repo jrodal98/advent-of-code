@@ -1,14 +1,73 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
+from __future__ import annotations
+
+from dataclasses import astuple, dataclass
 from math import sqrt
 from rich.table import Table
 from rich.console import Console
-from typing import Callable, Generic, Iterable, Iterator, List, Tuple, Type, TypeVar
+from typing import Callable, Generic, Iterable, Iterator, List, Type, TypeVar
 
 
 T = TypeVar("T")
 U = TypeVar("U")
+
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+    def translate(self, dx: int = 0, dy: int = 0) -> Point:
+        return Point(self.x + dx, self.y + dy)
+
+    def manhattan_distance(self, other: Point) -> int:
+        return abs(self.x - other.x) + abs(self.y - other.y)
+
+    def euiclean_distance(self, other: Point) -> float:
+        return sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2)
+
+    def __add__(self, other: Point) -> Point:
+        return Point(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other: Point) -> Point:
+        return Point(self.x - other.x, self.y - other.y)
+
+    def __iter__(self) -> Iterator[int]:
+        return iter(astuple(self))
+
+    @property
+    def left(self) -> Point:
+        return Point(self.x - 1, self.y)
+
+    @property
+    def right(self) -> Point:
+        return Point(self.x + 1, self.y)
+
+    @property
+    def up(self) -> Point:
+        return Point(self.x, self.y - 1)
+
+    @property
+    def down(self) -> Point:
+        return Point(self.x, self.y + 1)
+
+    @property
+    def upper_left(self) -> Point:
+        return Point(self.x - 1, self.y - 1)
+
+    @property
+    def upper_right(self) -> Point:
+        return Point(self.x + 1, self.y - 1)
+
+    @property
+    def bottom_left(self) -> Point:
+        return Point(self.x - 1, self.y + 1)
+
+    @property
+    def bottom_right(self) -> Point:
+        return Point(self.x + 1, self.y + 1)
 
 
 class Grid(Generic[T]):
@@ -52,10 +111,10 @@ class Grid(Generic[T]):
             rows.append([padding] * len(rows[0]))
         return cls([cell for row in rows for cell in row], w=len(rows[0]), h=len(rows))
 
-    def iter_coord_and_cell(self) -> Iterator[tuple[tuple[int, int], T]]:
+    def iter(self) -> Iterator[tuple[Point, T]]:
         for i, cell in enumerate(self.data):
             x, y = i % self.w, i // self.w
-            yield (x, y), cell
+            yield Point(x, y), cell
 
     def transform(self, func: Callable[[T], U]) -> "Grid[U]":
         transformed_data = [func(cell) for cell in self.data]
@@ -72,91 +131,65 @@ class Grid(Generic[T]):
         for c in range(self.w):
             yield (self.data[r * self.w + c] for r in range(self.h))
 
-    def at(self, x: int, y: int) -> T:
-        return self.data[y * self.w + x]
+    def at(self, p: Point) -> T:
+        return self.data[p.y * self.w + p.x]
 
-    def left(self, x: int, y: int) -> T | None:
-        return self.get(x - 1, y)
+    def replace(self, p: Point, value: T) -> None:
+        self.data[p.y * self.w + p.x] = value
 
-    def left_coord(self, x: int, y: int) -> tuple[int, int]:
-        return x - 1, y
+    def left(self, p: Point) -> T | None:
+        return self.get(p.left)
 
-    def upper_left_coord(self, x: int, y: int) -> tuple[int, int]:
-        return x - 1, y - 1
+    def right(self, p: Point) -> T | None:
+        return self.get(p.right)
 
-    def upper_right_coord(self, x: int, y: int) -> tuple[int, int]:
-        return x + 1, y - 1
+    def up(self, p: Point) -> T | None:
+        return self.get(p.up)
 
-    def bottom_left_coord(self, x: int, y: int) -> tuple[int, int]:
-        return x - 1, y + 1
+    def down(self, p: Point) -> T | None:
+        return self.get(p.down)
 
-    def bottom_right_coord(self, x: int, y: int) -> tuple[int, int]:
-        return x + 1, y + 1
+    def bottom_left(self, p: Point) -> T | None:
+        return self.get(p.bottom_left)
 
-    def right_coord(self, x: int, y: int) -> tuple[int, int]:
-        return x + 1, y
+    def bottom_right(self, p: Point) -> T | None:
+        return self.get(p.bottom_right)
 
-    def bottom_left(self, x: int, y: int) -> T | None:
-        return self.get(x - 1, y + 1)
+    def upper_left(self, p: Point) -> T | None:
+        return self.get(p.upper_left)
 
-    def bottom_right(self, x: int, y: int) -> T | None:
-        return self.get(x + 1, y + 1)
+    def upper_right(self, p: Point) -> T | None:
+        return self.get(p.upper_right)
 
-    def upper_left(self, x: int, y: int) -> T | None:
-        return self.get(x - 1, y - 1)
-
-    def upper_right(self, x: int, y: int) -> T | None:
-        return self.get(x + 1, y - 1)
-
-    def replace(self, x: int, y: int, value: T) -> None:
-        self.data[y * self.w + x] = value
-
-    def up_coord(self, x: int, y: int) -> tuple[int, int]:
-        return x, y - 1
-
-    def down_coord(self, x: int, y: int) -> tuple[int, int]:
-        return x, y + 1
-
-    def right(self, x: int, y: int) -> T | None:
-        return self.get(x + 1, y)
-
-    def up(self, x: int, y: int) -> T | None:
-        return self.get(x, y - 1)
-
-    def down(self, x: int, y: int) -> T | None:
-        return self.get(x, y + 1)
-
-    def find_cell(self, value: T) -> tuple[int, int]:
+    def find_cell(self, value: T) -> Point:
         i = self.data.index(value)
-        return i % self.w, i // self.w
+        return Point(i % self.w, i // self.w)
 
-    def get(self, x: int, y: int, default: T | None = None) -> T | None:
-        if 0 <= x < self.w and 0 <= y < self.h:
-            return self.at(x, y)
+    def get(self, p: Point, default: T | None = None) -> T | None:
+        if 0 <= p.x < self.w and 0 <= p.y < self.h:
+            return self.at(p)
         else:
             return default
 
     def neighbors(
         self,
-        x: int,
-        y: int,
+        p: Point,
         *,
         include_diagonals: bool = False,
-        include_self: bool = False
+        include_self: bool = False,
     ) -> Iterator[T]:
         for neighbor in self.neighbors_coordinates(
-            x, y, include_diagonals=include_diagonals, include_self=include_self
+            p, include_diagonals=include_diagonals, include_self=include_self
         ):
-            yield self.at(neighbor[0], neighbor[1])
+            yield self.at(neighbor)
 
     def neighbors_coordinates(
         self,
-        x: int,
-        y: int,
+        p: Point,
         *,
         include_diagonals: bool = False,
-        include_self: bool = False
-    ) -> Iterator[Tuple[int, int]]:
+        include_self: bool = False,
+    ) -> Iterator[Point]:
         if include_diagonals:
             dirs = self._DIRS_8
         else:
@@ -168,13 +201,9 @@ class Grid(Generic[T]):
             self_dx_xy = []
 
         for dx, dy in dirs + self_dx_xy:
-            nx, ny = x + dx, y + dy
+            nx, ny = p.x + dx, p.y + dy
             if 0 <= nx < self.w and 0 <= ny < self.h:
-                yield nx, ny
-
-    @classmethod
-    def taxicab_distance(cls, x1: int, y1: int, x2: int, y2: int) -> int:
-        return abs(x1 - x2) + abs(y1 - y2)
+                yield Point(nx, ny)
 
     def display(self) -> None:
         table = Table(show_header=False, show_lines=True)

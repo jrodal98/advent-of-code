@@ -5,7 +5,7 @@ import networkx as nx
 
 from enum import Enum
 from aoc_utils.base_solver import BaseSolver, Solution
-from aoc_utils.grid import Grid
+from aoc_utils.grid import Grid, Point
 
 
 class Direction(Enum):
@@ -32,35 +32,31 @@ class Solver(BaseSolver):
 
         area = 0
         for a, b in zip(shoelace, shoelace[1:]):
-            area += (a[0] * b[1]) - (a[1] * b[0])
-
+            area += (a.x * b.y) - (a.y * b.x)
         return int(area / 2 - len(path) / 2 + 1)
 
-    def _get_graph_and_s_pos(self) -> tuple[nx.DiGraph, tuple[int, int]]:
+    def _get_graph_and_s_pos(self) -> tuple[nx.DiGraph, Point]:
         grid = Grid.from_lines(self.data)
         graph = nx.DiGraph()
         s_pos = grid.find_cell("S")
-        self._replace_s(*s_pos, grid)
-        for y in range(grid.h):
-            for x in range(grid.w):
-                for cx, cy in self._get_valid_transitions(grid, x, y):
-                    graph.add_edge((x, y), (cx, cy))
+        self._replace_s(s_pos, grid)
+        for p1, _ in grid.iter():
+            for p2 in self._get_valid_transitions(grid, p1):
+                graph.add_edge(p1, p2)
         return graph, s_pos
 
-    def _get_valid_transitions(
-        self, grid: Grid, x: int, y: int
-    ) -> list[tuple[int, int]]:
+    def _get_valid_transitions(self, grid: Grid, coord: Point) -> list[Point]:
         transitions = []
         for coord, d in [
-            (grid.left_coord(x, y), Direction.LEFT),
-            (grid.right_coord(x, y), Direction.RIGHT),
-            (grid.up_coord(x, y), Direction.UP),
-            (grid.down_coord(x, y), Direction.DOWN),
+            (coord.left, Direction.LEFT),
+            (coord.right, Direction.RIGHT),
+            (coord.up, Direction.UP),
+            (coord.down, Direction.DOWN),
         ]:
-            if self._is_valid_transition(grid.get(*coord), d):
+            if self._is_valid_transition(grid.get(coord), d):
                 transitions.append(coord)
 
-        return [(x, y) for x, y in transitions if grid.get(x, y)]
+        return [p for p in transitions if grid.get(p)]
 
     def _is_valid_transition(
         self, possible_next: str | None, direction: Direction
@@ -78,27 +74,27 @@ class Solver(BaseSolver):
             case _:
                 return False
 
-    def _replace_s(self, x: int, y: int, grid: Grid) -> None:
+    def _replace_s(self, p: Point, grid: Grid) -> None:
         match self._is_valid_transition(
-            grid.left(x, y), Direction.LEFT
+            grid.left(p), Direction.LEFT
         ), self._is_valid_transition(
-            grid.right(x, y), Direction.RIGHT
+            grid.right(p), Direction.RIGHT
         ), self._is_valid_transition(
-            grid.up(x, y), Direction.UP
+            grid.up(p), Direction.UP
         ), self._is_valid_transition(
-            grid.down(x, y), Direction.DOWN
+            grid.down(p), Direction.DOWN
         ):
             case True, True, False, False:
-                grid.replace(x, y, "-")
+                grid.replace(p, value="-")
             case True, False, True, False:
-                grid.replace(x, y, "J")
+                grid.replace(p, value="J")
             case True, False, False, True:
-                grid.replace(x, y, "7")
+                grid.replace(p, value="7")
             case False, True, True, False:
-                grid.replace(x, y, "L")
+                grid.replace(p, value="L")
             case False, True, False, True:
-                grid.replace(x, y, "F")
+                grid.replace(p, value="F")
             case False, False, True, True:
-                grid.replace(x, y, "|")
+                grid.replace(p, value="|")
             case _:
                 assert False, "This shouldn't be possible"
