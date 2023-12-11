@@ -16,12 +16,10 @@ class Solver(BaseSolver):
         return self._calculate_sum_of_shortest_paths(expansion=1_000_000)
 
     def _calculate_sum_of_shortest_paths(self, expansion: int) -> int:
-        res = 0
-        for (x1, y1), (x2, y2) in combinations(
-            self._get_galaxy_positions(expansion), 2
-        ):
-            res += abs(x1 - x2) + abs(y1 - y2)
-        return res
+        return sum(
+            Grid.taxicab_distance(*p1, *p2)
+            for p1, p2 in combinations(self._get_galaxy_positions(expansion), 2)
+        )
 
     def _get_galaxy_positions(self, expansion: int = 2) -> Iterator[tuple[int, int]]:
         grid = Grid.from_lines(self.data)

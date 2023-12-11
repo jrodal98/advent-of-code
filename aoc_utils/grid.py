@@ -151,6 +151,10 @@ class Grid(Generic[T]):
             if 0 <= nx < self.w and 0 <= ny < self.h:
                 yield nx, ny
 
+    @classmethod
+    def taxicab_distance(cls, x1: int, y1: int, x2: int, y2: int) -> int:
+        return abs(x1 - x2) + abs(y1 - y2)
+
     def display(self) -> None:
         table = Table(show_header=False, show_lines=True)
         for _ in range(self.w):
