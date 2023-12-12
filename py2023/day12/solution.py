@@ -21,12 +21,23 @@ def num_valid(
     ans = 0
     c = record[0]
     if c in ["#", "?"]:
-        ans += num_valid(record[1:], nums, n_damaged + 1)
+        consume_pounds = record[1:].lstrip("#")
+        ans += num_valid(
+            consume_pounds,
+            nums,
+            n_damaged + len(record) - len(consume_pounds),
+        )
     if c in [".", "?"]:
-        if n_damaged == 0:
-            ans += num_valid(record[1:].lstrip("."), nums, 0)
-        elif n_damaged == target:
-            ans += num_valid(record[1:].lstrip("."), nums[1:], 0)
+        if n_damaged not in [0, target]:
+            return ans
+
+        consume_dots = record[1:].lstrip(".")
+        consume_dots_and_pounds = consume_dots.lstrip("#")
+        ans += num_valid(
+            consume_dots_and_pounds,
+            nums[int(n_damaged > 0) :],
+            len(consume_dots) - len(consume_dots_and_pounds),
+        )
     return ans
 
 
@@ -36,7 +47,13 @@ class Solver(BaseSolver):
         for line in self.data.splitlines():
             record, nums = line.split()
             nums = tuple(int(i) for i in nums.split(","))
-            res += num_valid(record.lstrip(".").rstrip("."), nums, 0)
+            consume_dots = record.strip(".")
+            consume_dots_and_pounds = consume_dots.lstrip("#")
+            res += num_valid(
+                consume_dots_and_pounds,
+                nums,
+                len(consume_dots) - len(consume_dots_and_pounds),
+            )
         return res
 
     def _part2(self) -> Solution:
@@ -46,5 +63,11 @@ class Solver(BaseSolver):
             record = "?".join([record] * 5)
             nums = ",".join([nums] * 5)
             nums = tuple(int(i) for i in nums.split(","))
-            res += num_valid(record.lstrip(".").rstrip("."), nums, 0)
+            consume_dots = record.strip(".")
+            consume_dots_and_pounds = consume_dots.lstrip("#")
+            res += num_valid(
+                consume_dots_and_pounds,
+                nums,
+                len(consume_dots) - len(consume_dots_and_pounds),
+            )
         return res
