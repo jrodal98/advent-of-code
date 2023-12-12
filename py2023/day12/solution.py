@@ -12,50 +12,22 @@ def num_valid(
     nums: tuple[int, ...],
     n_damaged: int,
 ) -> int:
-    if not record:
-        if len(nums) > 1:
-            return 0
-        elif len(nums) == 1:
-            return int(nums[0] == n_damaged)
-        elif n_damaged == 0:
-            return 1
-        else:
-            return 0
-
     target = nums[0] if nums else 0
-    for i, c in enumerate(record):
-        if c == "#":
-            if n_damaged == target:
-                return 0
-            n_damaged += 1
-        elif c == "?":
-            ans = 0
-            if n_damaged == target:
-                # only valid option is .
-                ans += num_valid(record[i + 1 :].lstrip("."), nums[1:], 0)
-            else:
-                # replace with a #
-                ans += num_valid(record[i + 1 :], nums, n_damaged + 1)
-                if not n_damaged:
-                    # if there is no damage, we can "skip" this .
-                    ans += num_valid(record[i + 1 :].lstrip("."), nums, 0)
+    if n_damaged > target:
+        return 0
+    if not record:
+        return sum(nums) == n_damaged
 
-            return ans
-        else:
-            if n_damaged != target:
-                return 0
-            return num_valid(record[i + 1 :].lstrip("."), nums[1:], 0)
-
-    if n_damaged != target:
-        return 0
-    if len(nums) > 1:
-        return 0
-    elif len(nums) == 1:
-        return int(nums[0] == n_damaged)
-    elif n_damaged == 0:
-        return 1
-    else:
-        return 0
+    ans = 0
+    c = record[0]
+    if c in ["#", "?"]:
+        ans += num_valid(record[1:], nums, n_damaged + 1)
+    if c in [".", "?"]:
+        if n_damaged == 0:
+            ans += num_valid(record[1:].lstrip("."), nums, 0)
+        elif n_damaged == target:
+            ans += num_valid(record[1:].lstrip("."), nums[1:], 0)
+    return ans
 
 
 class Solver(BaseSolver):
