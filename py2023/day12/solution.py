@@ -1,81 +1,84 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
-from itertools import product
 
 from aoc_utils.base_solver import BaseSolver, Solution
 
-num_cache_hits = 0
-num_cache_misses = 0
 
+# @cache
+def num_valid(
+    record: str,
+    nums: tuple[int, ...],
+    n_damaged: int,
+) -> int:
+    if not record:
+        if len(nums) > 1:
+            return 0
+        elif len(nums) == 1:
+            return int(nums[0] == n_damaged)
+        elif n_damaged == 0:
+            return 1
+        else:
+            return 0
 
-def is_valid(
-    record: str, nums: tuple[int, ...], cache: dict[tuple[str, tuple[int, ...]], bool]
-) -> bool:
-    global num_cache_hits, num_cache_misses
-    if (record, nums) in cache:
-        num_cache_hits += 1
-        return cache[(record, nums)]
+    # ?###???????? 3,2,1
+    target = nums[0] if nums else 0
+    for i, c in enumerate(record):
+        if n_damaged > target:
+            return 0
+        if c == "#":
+            if n_damaged == target:
+                return 0
+            n_damaged += 1
+        elif c == "?":
+            ans = 0
+            if n_damaged == target:
+                # only valid option is .
+                x = num_valid(record[i + 1 :], nums[1:], 0)
+                # print(f"num valid when {record[i :]} is .: {x}")
+                ans += x
+            else:
+                # replace with a #
+                x = num_valid(record[i + 1 :], nums, n_damaged + 1)
+                # print(f"num valid when {record[i :]} is #: {x}")
+                ans += x
 
-    num_cache_misses += 1
+            if not n_damaged and target != 0:
+                # if there is no damage, we can "skip" this one
+                x = num_valid(record[i + 1 :], nums, 0)
+                ans += x
 
-    groups = [x for x in record.split(".") if x]
-    if len(groups) != len(nums):
-        cache[(record, nums)] = False
-        return False
-    for i, v in enumerate(groups):
-        if len(v) != nums[i]:
-            cache[(record, nums)] = False
-            return False
-    cache[(record, nums)] = True
-    return True
+            return ans
+        else:
+            if not n_damaged:
+                continue
+            if n_damaged != target:
+                return 0
+            nums = nums[1:]
+            target = nums[0] if nums else 0
+            n_damaged = 0
 
+    if n_damaged != target:
+        return 0
 
-def generate_permutations(record, nums):
-    # Replace '?' with possible characters
-    possible_characters = set(["#", "."])
-    replaced_string = [c if c != "?" else possible_characters for c in record]
-
-    l_nums_minus_1 = len(nums) - 1
-    s_nums = sum(nums)
-
-    # Generate all possible permutations
-    permutations = (
-        "".join(p)
-        for p in product(*replaced_string)
-        if not (p.count(".") < l_nums_minus_1 or s_nums > p.count("#"))
-    )
-
-    return permutations
+    return 1
 
 
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
-        global num_cache_hits, num_cache_misses
         res = 0
-        cache = {}
         for line in self.data.splitlines():
             record, nums = line.split()
             nums = tuple(int(i) for i in nums.split(","))
-            for p in generate_permutations(record, nums):
-                is_v = is_valid(p, nums, cache)
-                res += int(is_v)
-        print(
-            f"Cache hits: {num_cache_hits * 100 / (num_cache_hits + num_cache_misses):.2f}%",
-            f"{num_cache_hits=}",
-            f"{num_cache_misses=}",
-        )
+            res += num_valid(record, nums, 0)
         return res
 
     def _part2(self) -> Solution:
         res = 0
-        cache = {}
         for line in self.data.splitlines():
             record, nums = line.split()
             record = "?".join([record] * 5)
             nums = ",".join([nums] * 5)
             nums = tuple(int(i) for i in nums.split(","))
-            for p in generate_permutations(record, nums):
-                is_v = is_valid(p, nums, cache)
-                res += int(is_v)
+            res += num_valid(record, nums, 0)
         return res
