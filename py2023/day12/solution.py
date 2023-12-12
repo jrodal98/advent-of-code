@@ -22,11 +22,8 @@ def num_valid(
         else:
             return 0
 
-    # ?###???????? 3,2,1
     target = nums[0] if nums else 0
     for i, c in enumerate(record):
-        if n_damaged > target:
-            return 0
         if c == "#":
             if n_damaged == target:
                 return 0
@@ -35,29 +32,19 @@ def num_valid(
             ans = 0
             if n_damaged == target:
                 # only valid option is .
-                x = num_valid(record[i + 1 :], nums[1:], 0)
-                # print(f"num valid when {record[i :]} is .: {x}")
-                ans += x
+                ans += num_valid(record[i + 1 :].lstrip("."), nums[1:], 0)
             else:
                 # replace with a #
-                x = num_valid(record[i + 1 :], nums, n_damaged + 1)
-                # print(f"num valid when {record[i :]} is #: {x}")
-                ans += x
-
-            if not n_damaged and target != 0:
-                # if there is no damage, we can "skip" this one
-                x = num_valid(record[i + 1 :], nums, 0)
-                ans += x
+                ans += num_valid(record[i + 1 :], nums, n_damaged + 1)
+                if not n_damaged:
+                    # if there is no damage, we can "skip" this .
+                    ans += num_valid(record[i + 1 :].lstrip("."), nums, 0)
 
             return ans
         else:
-            if not n_damaged:
-                continue
             if n_damaged != target:
                 return 0
-            nums = nums[1:]
-            target = nums[0] if nums else 0
-            n_damaged = 0
+            return num_valid(record[i + 1 :].lstrip("."), nums[1:], 0)
 
     if n_damaged != target:
         return 0
@@ -77,7 +64,7 @@ class Solver(BaseSolver):
         for line in self.data.splitlines():
             record, nums = line.split()
             nums = tuple(int(i) for i in nums.split(","))
-            res += num_valid(record, nums, 0)
+            res += num_valid(record.lstrip(".").rstrip("."), nums, 0)
         return res
 
     def _part2(self) -> Solution:
@@ -87,5 +74,5 @@ class Solver(BaseSolver):
             record = "?".join([record] * 5)
             nums = ",".join([nums] * 5)
             nums = tuple(int(i) for i in nums.split(","))
-            res += num_valid(record, nums, 0)
+            res += num_valid(record.lstrip(".").rstrip("."), nums, 0)
         return res
