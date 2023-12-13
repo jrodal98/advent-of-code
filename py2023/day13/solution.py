@@ -10,32 +10,36 @@ class Solver(BaseSolver):
         ans = 0
         for grid_data in self.data.split("\n\n"):
             grid = Grid.from_lines(grid_data)
-            valid = True
-            split_col = grid.w // 2 + (1 - grid.w % 1)
-            for row in grid.rows():
-                if not valid:
+            columns = [list(col) for col in grid.cols()]
+            num_valid = 0
+            is_valid = False
+            for i in range(len(columns)):
+                if is_valid:
                     break
-                row = list(row)
-                for l, r in zip(reversed(row[:split_col]), row[split_col:]):
+                num_valid = i
+                for l, r in zip(list(reversed(columns[: i + 1])), columns[i + 1 :]):
+                    is_valid = True
                     if l != r:
-                        valid = False
+                        is_valid = False
                         break
-            if valid:
-                ans += split_col
-            valid = True
-            grid = grid.transpose()
-            split_col = grid.w // 2 + (1 - grid.w % 1)
-            for row in grid.rows():
-                if not valid:
-                    break
-                row = list(row)
-                for l, r in zip(reversed(row[:split_col]), row[split_col:]):
-                    if l != r:
-                        valid = False
-                        break
+            if is_valid:
+                ans += num_valid + 1
 
-            if valid:
-                ans += (split_col) * 100
+            columns = [list(col) for col in grid.rows()]
+            num_valid = 0
+            is_valid = False
+            for i in range(len(columns)):
+                if is_valid:
+                    break
+                num_valid = i
+                for l, r in zip(list(reversed(columns[: i + 1])), columns[i + 1 :]):
+                    is_valid = True
+                    if l != r:
+                        is_valid = False
+                        break
+            if is_valid:
+                ans += (num_valid + 1) * 100
+
         return ans
 
     def _part2(self) -> Solution:
