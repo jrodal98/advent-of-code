@@ -15,19 +15,18 @@ class Solver(BaseSolver):
     def _compute_solution(self, xor_target: int) -> int:
         ans = 0
         for grid_data in self.data.split("\n\n"):
-            g = Grid.from_lines(grid_data).transform(lambda x: x == "#")
-            for grid, factor in ((g, 1), (g.transpose(), 100)):
-                columns = [list(col) for col in grid.cols()]
-                for col in range(1, len(columns)):
+            grid = Grid.from_lines(grid_data).transform(lambda x: x == "#")
+            for data, factor in ((grid.cols(), 1), (grid.rows(), 100)):
+                for mirror_location in range(1, len(data)):
                     sum_of_xors = 0
-                    for left_cols, right_cols in zip(
-                        list(reversed(columns[:col])), columns[col:]
+                    for source_image, reflection in zip(
+                        reversed(data[:mirror_location]), data[mirror_location:]
                     ):
-                        for a, b in zip(left_cols, right_cols):
+                        for a, b in zip(source_image, reflection):
                             sum_of_xors += int(a ^ b)
 
                     if sum_of_xors == xor_target:
-                        ans += col * factor
+                        ans += mirror_location * factor
                         break
 
         return ans
