@@ -121,15 +121,23 @@ class Grid(Generic[T]):
         return Grid[U](transformed_data, w=self.w, h=self.h)
 
     def transpose(self) -> "Grid[T]":
-        return Grid([cell for col in self.cols() for cell in col], w=self.h, h=self.w)
+        return Grid(
+            [cell for col in self.iter_cols() for cell in col], w=self.h, h=self.w
+        )
 
-    def rows(self) -> Iterator[Iterator[T]]:
+    def iter_rows(self) -> Iterator[Iterator[T]]:
         for r in range(self.h):
             yield (self.data[r * self.w + c] for c in range(self.w))
 
-    def cols(self) -> Iterator[Iterator[T]]:
+    def rows(self) -> list[list[T]]:
+        return [list(r) for r in self.iter_rows()]
+
+    def iter_cols(self) -> Iterator[Iterator[T]]:
         for c in range(self.w):
             yield (self.data[r * self.w + c] for r in range(self.h))
+
+    def cols(self) -> list[list[T]]:
+        return [list(c) for c in self.iter_cols()]
 
     def at(self, p: Point) -> T:
         return self.data[p.y * self.w + p.x]
@@ -209,7 +217,7 @@ class Grid(Generic[T]):
         table = Table(show_header=False, show_lines=True)
         for _ in range(self.w):
             table.add_column()
-        for row in self.rows():
+        for row in self.iter_rows():
             table.add_row(*map(str, row))
         console = Console()
         console.print(table)

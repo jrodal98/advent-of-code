@@ -25,13 +25,13 @@ class Solver(BaseSolver):
         grid = Grid.from_lines(self.data)
 
         y_translation = [0] * grid.h
-        for y, row in enumerate(grid.rows()):
+        for y, row in enumerate(grid.iter_rows()):
             if "#" not in row:
                 for j in range(y, grid.h):
                     y_translation[j] += expansion - 1
 
         x_translation = [0] * grid.w
-        for x, col in enumerate(grid.cols()):
+        for x, col in enumerate(grid.iter_cols()):
             if "#" not in col:
                 for j in range(x, grid.w):
                     x_translation[j] += expansion - 1

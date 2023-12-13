@@ -15,38 +15,19 @@ class Solver(BaseSolver):
     def _compute_solution(self, xor_target: int) -> int:
         ans = 0
         for grid_data in self.data.split("\n\n"):
-            grid = Grid.from_lines(grid_data)
-            grid = grid.transform(lambda x: x == "#")
-            columns = [list(col) for col in grid.cols()]
-            num_valid = 0
-            is_valid = False
-            for i in range(len(columns) - 1):
-                if is_valid:
-                    break
-                num_valid = i
-                sum_of_xors = 0
-                for l, r in zip(list(reversed(columns[: i + 1])), columns[i + 1 :]):
-                    for a, b in zip(l, r):
-                        sum_of_xors += int(a ^ b)
+            g = Grid.from_lines(grid_data).transform(lambda x: x == "#")
+            for grid, factor in ((g, 1), (g.transpose(), 100)):
+                columns = [list(col) for col in grid.cols()]
+                for col in range(1, len(columns)):
+                    sum_of_xors = 0
+                    for left_cols, right_cols in zip(
+                        list(reversed(columns[:col])), columns[col:]
+                    ):
+                        for a, b in zip(left_cols, right_cols):
+                            sum_of_xors += int(a ^ b)
 
-                is_valid = sum_of_xors == xor_target
-
-            if is_valid:
-                ans += num_valid + 1
-
-            columns = [list(col) for col in grid.rows()]
-            num_valid = 0
-            is_valid = False
-            for i in range(len(columns) - 1):
-                if is_valid:
-                    break
-                num_valid = i
-                sum_of_xors = 0
-                for l, r in zip(list(reversed(columns[: i + 1])), columns[i + 1 :]):
-                    for a, b in zip(l, r):
-                        sum_of_xors += int(a ^ b)
-                is_valid = sum_of_xors == xor_target
-            if is_valid:
-                ans += (num_valid + 1) * 100
+                    if sum_of_xors == xor_target:
+                        ans += col * factor
+                        break
 
         return ans
