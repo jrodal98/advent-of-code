@@ -21,32 +21,32 @@ class Solver(BaseSolver):
         seen_grids = set()
         cycle_grids = []
         cycle_start = 0
-        cycle_start_gstring_dir = None
 
         TARGET = 1000000000 - 1
         for i in range(TARGET):
             for d in (Direction.UP, Direction.LEFT, Direction.DOWN, Direction.RIGHT):
                 grid = self._shift_grid(grid, d)
                 if d == Direction.UP:
-                    l_before = len(seen_grids)
+                    if grid in seen_grids:
+                        if cycle_grids:
+                            grid = cycle_grids[
+                                (TARGET - cycle_start) % len(cycle_grids)
+                            ]
+                            for d in (
+                                Direction.UP,
+                                Direction.LEFT,
+                                Direction.DOWN,
+                                Direction.RIGHT,
+                            ):
+                                grid = self._shift_grid(grid, d)
+
+                            return self._score_grid(grid)
+                        else:
+                            print("cycle_start detected")
+                            cycle_start = i
+                            seen_grids = set()
+
                     seen_grids.add(grid)
-
-                    if cycle_start_gstring_dir == grid:
-                        grid = cycle_grids[(TARGET - cycle_start) % len(cycle_grids)]
-                        for d in (
-                            Direction.UP,
-                            Direction.LEFT,
-                            Direction.DOWN,
-                            Direction.RIGHT,
-                        ):
-                            grid = self._shift_grid(grid, d)
-
-                        return self._score_grid(grid)
-
-                    if l_before == len(seen_grids) and cycle_start == 0:
-                        print("cycle_start detected")
-                        cycle_start = i
-                        cycle_start_gstring_dir = grid
                     if cycle_start > 0:
                         print("adding grid", d)
                         cycle_grids.append(grid)
