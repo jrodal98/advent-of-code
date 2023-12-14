@@ -20,31 +20,34 @@ class Solver(BaseSolver):
         grid = Grid.from_lines(self.data)
         seen_grids = set()
         cycle_grids = []
-        gstring = "".join(["".join(c) for r in grid.rows() for c in r])
-        done = False
         cycle_start = 0
         cycle_start_gstring_dir = None
 
         TARGET = 1000000000 - 1
         for i in range(TARGET):
-            if done:
-                break
             for d in (Direction.UP, Direction.LEFT, Direction.DOWN, Direction.RIGHT):
                 grid = self._shift_grid(grid, d)
                 if d == Direction.UP:
                     l_before = len(seen_grids)
-                    gstring = "".join(["".join(c) for r in grid.rows() for c in r])
-                    seen_grids.add(((gstring, d)))
+                    seen_grids.add(grid)
 
-                    if cycle_start_gstring_dir == (gstring, d):
-                        done = True
-                        break
+                    if cycle_start_gstring_dir == grid:
+                        grid = cycle_grids[(TARGET - cycle_start) % len(cycle_grids)]
+                        for d in (
+                            Direction.UP,
+                            Direction.LEFT,
+                            Direction.DOWN,
+                            Direction.RIGHT,
+                        ):
+                            grid = self._shift_grid(grid, d)
+
+                        return self._score_grid(grid)
 
                     if l_before == len(seen_grids) and cycle_start == 0:
                         print("cycle_start detected")
                         cycle_start = i
-                        cycle_start_gstring_dir = (gstring, d)
-                    if cycle_start > 0 and d == cycle_start_gstring_dir[1]:
+                        cycle_start_gstring_dir = grid
+                    if cycle_start > 0:
                         print("adding grid", d)
                         cycle_grids.append(grid)
 
@@ -52,6 +55,9 @@ class Solver(BaseSolver):
         for d in (Direction.UP, Direction.LEFT, Direction.DOWN, Direction.RIGHT):
             grid = self._shift_grid(grid, d)
 
+        return self._score_grid(grid)
+
+    def _score_grid(self, grid: Grid) -> int:
         ans = 0
         for j, row in enumerate(grid.rows()):
             for i in row:

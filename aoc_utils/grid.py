@@ -282,3 +282,11 @@ class Grid(Generic[T]):
             table.add_row(*map(str, row))
         console = Console()
         console.print(table)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Grid):
+            return False
+        return self.data == other.data
+
+    def __hash__(self) -> int:
+        return hash(tuple(self.data))
