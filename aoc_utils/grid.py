@@ -17,13 +17,13 @@ U = TypeVar("U")
 
 class Direction(Enum):
     UP = 0
-    LEFT = 1
-    DOWN = 3
-    RIGHT = 4
-    UPPER_LEFT = 5
-    UPPER_RIGHT = 6
-    LOWER_LEFT = 7
-    LOWER_RIGHT = 8
+    DOWN = 1
+    LEFT = 2
+    RIGHT = 3
+    UPPER_LEFT = 4
+    UPPER_RIGHT = 5
+    LOWER_LEFT = 6
+    LOWER_RIGHT = 7
 
 
 @dataclass(frozen=True)
@@ -144,15 +144,15 @@ class Grid(Generic[T]):
             rows.append([padding] * len(rows[0]))
         return cls([cell for row in rows for cell in row], w=len(rows[0]), h=len(rows))
 
-    def iter(self) -> Iterator[tuple[Point, T]]:
-        for i, cell in enumerate(self.data):
-            x, y = i % self.w, i // self.w
-            yield Point(x, y), cell
-
-    def iter_rev(self) -> Iterator[tuple[Point, T]]:
-        for i in reversed(range(len(self.data))):
-            x, y = i % self.w, i // self.w
-            yield Point(x, y), self.data[i]
+    def iter(self, reverse: bool = False) -> Iterator[tuple[Point, T]]:
+        if reverse:
+            for i in reversed(range(len(self.data))):
+                x, y = i % self.w, i // self.w
+                yield Point(x, y), self.data[i]
+        else:
+            for i, cell in enumerate(self.data):
+                x, y = i % self.w, i // self.w
+                yield Point(x, y), cell
 
     def get_direction(
         self, p: Point | None, direction: Direction, default: T | None = None
