@@ -9,12 +9,7 @@ class Solver(BaseSolver):
     def _part1(self) -> Solution:
         grid = Grid.from_lines(self.data)
         grid = self._shift_grid(grid, Direction.UP)
-        ans = 0
-        for j, row in enumerate(grid.rows()):
-            for i in row:
-                if i == "O":
-                    ans += grid.h - j
-        return ans
+        return self._score_grid(grid)
 
     def _part2(self) -> Solution:
         grid = Grid.from_lines(self.data)
@@ -42,20 +37,14 @@ class Solver(BaseSolver):
 
                             return self._score_grid(grid)
                         else:
-                            print("cycle_start detected")
                             cycle_start = i
                             seen_grids = set()
 
                     seen_grids.add(grid)
                     if cycle_start > 0:
-                        print("adding grid", d)
                         cycle_grids.append(grid)
 
-        grid = cycle_grids[(TARGET - cycle_start) % len(cycle_grids)]
-        for d in (Direction.UP, Direction.LEFT, Direction.DOWN, Direction.RIGHT):
-            grid = self._shift_grid(grid, d)
-
-        return self._score_grid(grid)
+        assert False
 
     def _score_grid(self, grid: Grid) -> int:
         ans = 0
