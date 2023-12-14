@@ -1,43 +1,44 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
-from functools import cache
 from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.grid import Grid
 
 
-@cache
+# @cache
 def shift_grid(grid: Grid, direction: str) -> Grid:
     if direction == "U":
-        for _ in range(grid.h):
-            for p, c in grid.iter():
-                if c == "O" and grid.up(p) == ".":
+        for p, c in grid.iter():
+            if c == "O":
+                while grid.up(p) == ".":
                     grid.replace(p.up, "O")
                     grid.replace(p, ".")
+                    p = p.up
     elif direction == "D":
-        for _ in range(grid.h):
-            for p, c in list(grid.iter())[::-1]:
-                if c == "O" and grid.down(p) == ".":
+        for p, c in list(grid.iter())[::-1]:
+            if c == "O":
+                while grid.down(p) == ".":
                     grid.replace(p.down, "O")
                     grid.replace(p, ".")
+                    p = p.down
+
     elif direction == "L":
-        # grid.display()
         grid = grid.transpose()
-        for _ in range(grid.h):
-            for p, c in grid.iter():
-                if c == "O" and grid.up(p) == ".":
+        for p, c in grid.iter():
+            if c == "O":
+                while grid.up(p) == ".":
                     grid.replace(p.up, "O")
                     grid.replace(p, ".")
+                    p = p.up
         grid = grid.transpose()
-        # grid.display()
-        # assert False
     elif direction == "R":
         grid = grid.transpose()
-        for _ in range(grid.h):
-            for p, c in list(grid.iter())[::-1]:
-                if c == "O" and grid.down(p) == ".":
+        for p, c in list(grid.iter())[::-1]:
+            if c == "O":
+                while grid.down(p) == ".":
                     grid.replace(p.down, "O")
                     grid.replace(p, ".")
+                    p = p.down
         grid = grid.transpose()
     return grid
 
@@ -64,10 +65,14 @@ class Solver(BaseSolver):
 
         TARGET = 1000000000 - 1
         for i in range(TARGET):
+            print(i)
+            # if i % 10 == 0:
+            #     print(i)
             if done:
                 break
             for d in "ULDR":
-                if i > 1000 and d == "U":
+                grid = shift_grid(grid, d)
+                if i > 0 and d == "U":
                     l_before = len(seen_grids)
                     gstring = "".join(["".join(c) for r in grid.rows() for c in r])
                     seen_grids.add(((gstring, d)))
@@ -83,7 +88,6 @@ class Solver(BaseSolver):
                     if cycle_start > 0 and d == cycle_start_gstring_dir[1]:
                         print("adding grid", d)
                         cycle_grids.append(grid)
-                grid = shift_grid(grid, d)
 
         print(cycle_start_gstring_dir)
         grid = cycle_grids[(TARGET - cycle_start) % len(cycle_grids)]
