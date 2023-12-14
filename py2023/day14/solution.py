@@ -2,27 +2,24 @@
 # www.jrodal.com
 
 from aoc_utils.base_solver import BaseSolver, Solution
-from aoc_utils.grid import Grid
+from aoc_utils.grid import Direction, Grid
 
 
-# @cache
-def shift_grid(grid: Grid, direction: str) -> Grid:
-    if direction == "U":
+def shift_grid(grid: Grid, direction: Direction) -> Grid:
+    if direction == Direction.UP:
         for p, c in grid.iter():
-            if c == "O":
-                while grid.up(p) == ".":
-                    grid.replace(p.up, "O")
-                    grid.replace(p, ".")
-                    p = p.up
-    elif direction == "D":
-        for p, c in list(grid.iter())[::-1]:
-            if c == "O":
-                while grid.down(p) == ".":
-                    grid.replace(p.down, "O")
-                    grid.replace(p, ".")
-                    p = p.down
+            if c != "O":
+                continue
+            while grid.get_direction(p, direction) == ".":
+                p = grid.swap_direction(p, direction)
+    elif direction == Direction.DOWN:
+        for p, c in grid.iter_rev():
+            if c != "O":
+                continue
+            while grid.down(p) == ".":
+                p = grid.swap(p, p.down)
 
-    elif direction == "L":
+    elif direction == Direction.LEFT:
         grid = grid.transpose()
         for p, c in grid.iter():
             if c == "O":
@@ -31,7 +28,7 @@ def shift_grid(grid: Grid, direction: str) -> Grid:
                     grid.replace(p, ".")
                     p = p.up
         grid = grid.transpose()
-    elif direction == "R":
+    elif direction == Direction.RIGHT:
         grid = grid.transpose()
         for p, c in list(grid.iter())[::-1]:
             if c == "O":
@@ -46,7 +43,7 @@ def shift_grid(grid: Grid, direction: str) -> Grid:
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
         grid = Grid.from_lines(self.data)
-        grid = shift_grid(grid, "U")
+        grid = shift_grid(grid, Direction.UP)
         ans = 0
         for j, row in enumerate(grid.rows()):
             for i in row:
@@ -65,14 +62,11 @@ class Solver(BaseSolver):
 
         TARGET = 1000000000 - 1
         for i in range(TARGET):
-            print(i)
-            # if i % 10 == 0:
-            #     print(i)
             if done:
                 break
-            for d in "ULDR":
+            for d in (Direction.UP, Direction.LEFT, Direction.DOWN, Direction.RIGHT):
                 grid = shift_grid(grid, d)
-                if i > 0 and d == "U":
+                if d == Direction.UP:
                     l_before = len(seen_grids)
                     gstring = "".join(["".join(c) for r in grid.rows() for c in r])
                     seen_grids.add(((gstring, d)))
@@ -91,11 +85,8 @@ class Solver(BaseSolver):
 
         print(cycle_start_gstring_dir)
         grid = cycle_grids[(TARGET - cycle_start) % len(cycle_grids)]
-        for d in "ULDR":
+        for d in (Direction.UP, Direction.LEFT, Direction.DOWN, Direction.RIGHT):
             grid = shift_grid(grid, d)
-        # grid.display()
-        # for d in "ULDR":
-        #     grid = shift_grid(grid, d)
 
         ans = 0
         for j, row in enumerate(grid.rows()):

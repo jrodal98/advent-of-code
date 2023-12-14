@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import astuple, dataclass
+from enum import Enum
 from math import sqrt
 from rich.table import Table
 from rich.console import Console
@@ -12,6 +13,17 @@ from typing import Callable, Generic, Iterable, Iterator, List, Type, TypeVar
 
 T = TypeVar("T")
 U = TypeVar("U")
+
+
+class Direction(Enum):
+    UP = 0
+    LEFT = 1
+    DOWN = 3
+    RIGHT = 4
+    UPPER_LEFT = 5
+    UPPER_RIGHT = 6
+    LOWER_LEFT = 7
+    LOWER_RIGHT = 8
 
 
 @dataclass(frozen=True)
@@ -36,6 +48,27 @@ class Point:
 
     def __iter__(self) -> Iterator[int]:
         return iter(astuple(self))
+
+    def point_at_direction(self, direction: Direction) -> Point:
+        match direction:
+            case Direction.LEFT:
+                return self.left
+            case Direction.UP:
+                return self.up
+            case Direction.RIGHT:
+                return self.right
+            case Direction.DOWN:
+                return self.down
+            case Direction.UPPER_LEFT:
+                return self.upper_left
+            case Direction.UPPER_RIGHT:
+                return self.upper_right
+            case Direction.LOWER_LEFT:
+                return self.bottom_left
+            case Direction.LOWER_RIGHT:
+                return self.bottom_right
+            case _:
+                raise ValueError(f"Invalid direction: {direction}")
 
     @property
     def left(self) -> Point:
@@ -115,6 +148,34 @@ class Grid(Generic[T]):
         for i, cell in enumerate(self.data):
             x, y = i % self.w, i // self.w
             yield Point(x, y), cell
+
+    def iter_rev(self) -> Iterator[tuple[Point, T]]:
+        for i in reversed(range(len(self.data))):
+            x, y = i % self.w, i // self.w
+            yield Point(x, y), self.data[i]
+
+    def get_direction(
+        self, p: Point | None, direction: Direction, default: T | None = None
+    ) -> T | None:
+        if not p:
+            return None
+        return self.get(p.point_at_direction(direction), default)
+
+    def swap_direction(self, p: Point | None, direction: Direction) -> Point | None:
+        if not p:
+            return None
+        p2 = p.point_at_direction(direction)
+        if self.get(p2):
+            return self.swap(p, p2)
+        else:
+            return None
+
+    def swap(self, p1: Point, p2: Point) -> Point:
+        self.data[p1.y * self.w + p1.x], self.data[p2.y * self.w + p2.x] = (
+            self.data[p2.y * self.w + p2.x],
+            self.data[p1.y * self.w + p1.x],
+        )
+        return p2
 
     def transform(self, func: Callable[[T], U]) -> "Grid[U]":
         transformed_data = [func(cell) for cell in self.data]
