@@ -107,7 +107,9 @@ class Grid(Generic[T]):
     _DIRS = [(0, 1), (1, 0), (0, -1), (-1, 0)]
     _DIRS_8 = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
 
-    def __init__(self, data: List[T], *, w: int | None, h: int | None) -> None:
+    def __init__(
+        self, data: List[T], *, w: int | None = None, h: int | None = None
+    ) -> None:
         len_data = len(data)
         if w is not None:
             self.w = w
@@ -289,4 +291,4 @@ class Grid(Generic[T]):
         return self.data == other.data
 
     def __hash__(self) -> int:
-        return hash(tuple(self.data))
+        return hash(tuple(self.data)) + hash(self.w) - hash(self.h)
