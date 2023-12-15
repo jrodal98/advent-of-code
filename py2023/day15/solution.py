@@ -24,9 +24,8 @@ class Solver(BaseSolver):
         for s in sequence:
             label, operator, focal_l = s.partition(s[max(s.find("="), s.find("-"))])
             box = boxes[self._compute_hash(label)]
-            label_in_box = label in box
             focal_lengths[label] = int(focal_l or 0)
-            match operator, label_in_box:
+            match operator, label in box:
                 case "-", True:
                     box.remove(label)
                 case "=", False:
