@@ -4,58 +4,35 @@
 from aoc_utils.base_solver import BaseSolver, Solution
 
 
-def compute_hash(s: str) -> int:
-    current_value = 0
-    for c in s:
-        current_value += ord(c)
-        current_value *= 17
-        current_value %= 256
-    assert current_value >= 0
-    assert current_value <= 255
-    return current_value
-
-
 class Solver(BaseSolver):
+    def _compute_hash(self, s: str) -> int:
+        current_value = 0
+        for c in s:
+            current_value += ord(c)
+            current_value *= 17
+            current_value %= 256
+        return current_value
+
     def _part1(self) -> Solution:
         sequence = self.data.strip().split(",")
-        ans = 0
-        for s in sequence:
-            ans += compute_hash(s)
-        return ans
+        return sum(self._compute_hash(s) for s in sequence)
 
     def _part2(self) -> Solution:
         sequence = self.data.strip().split(",")
-        boxes: list[list[tuple[str, int]]] = []
-        for i in range(256):
-            boxes.append([])
+        boxes: list[list[str]] = [[] for _ in range(256)]
+        focal_lengths = {}
         for s in sequence:
-            if "=" in s:
-                label, operator, focal_l = s.partition("=")
-            else:
-                label, operator, focal_l = s.partition("-")
-
-            box_n = compute_hash(label)
-            focal_l = int(focal_l or 0)
-            box = boxes[box_n]
-
-            if operator == "-":
-                for i, (lbl, _) in enumerate(box):
-                    if label == lbl:
-                        box.pop(i)
-                        break
-            else:
-                replaced = False
-                for i, (lbl, _) in enumerate(box):
-                    if label == lbl:
-                        box[i] = (label, focal_l)
-                        replaced = True
-                        break
-                if not replaced:
-                    box.append((label, focal_l))
-
-        ans = 0
-        for box_n, box in enumerate(boxes):
-            for slot_n, (_, focal_l) in enumerate(box):
-                ans += (1 + box_n) * (1 + slot_n) * focal_l
-
-        return ans
+            label, operator, focal_l = s.partition(s[max(s.find("="), s.find("-"))])
+            box = boxes[self._compute_hash(label)]
+            label_in_box = label in box
+            focal_lengths[label] = int(focal_l or 0)
+            match operator, label_in_box:
+                case "-", True:
+                    box.remove(label)
+                case "=", False:
+                    box.append(label)
+        return sum(
+            box_n * slot_n * focal_lengths[lbl]
+            for box_n, box in enumerate(boxes, 1)
+            for slot_n, lbl in enumerate(box, 1)
+        )
