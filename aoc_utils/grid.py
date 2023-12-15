@@ -188,6 +188,13 @@ class Grid(Generic[T]):
             [cell for col in self.iter_cols() for cell in col], w=self.h, h=self.w
         )
 
+    def rotate(self) -> "Grid[T]":
+        return Grid(
+            [cell for col in self.iter_cols() for cell in reversed(list(col))],
+            w=self.h,
+            h=self.w,
+        )
+
     def iter_rows(self) -> Iterator[Iterator[T]]:
         for r in range(self.h):
             yield (self.data[r * self.w + c] for c in range(self.w))
@@ -292,3 +299,9 @@ class Grid(Generic[T]):
 
     def __hash__(self) -> int:
         return hash(tuple(self.data)) + hash(self.w) - hash(self.h)
+
+
+if __name__ == "__main__":
+    grid = Grid.from_lines("123\n456\n789")
+    grid.display()
+    grid.rotate().display()
