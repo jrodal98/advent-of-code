@@ -14,11 +14,11 @@ class Solver(BaseSolver):
         return current_value
 
     def _part1(self) -> Solution:
-        sequence = self.data.strip().split(",")
+        sequence = self.data.split(",")
         return sum(self._compute_hash(s) for s in sequence)
 
     def _part2(self) -> Solution:
-        sequence = self.data.strip().split(",")
+        sequence = self.data.split(",")
         boxes: list[list[str]] = [[] for _ in range(256)]
         focal_lengths = {}
         for s in sequence:

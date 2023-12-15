@@ -23,7 +23,7 @@ class ProblemPart(Enum):
 
 class BaseSolver(ABC):
     def __init__(self, data: str, *, console: Console | None = None) -> None:
-        self.data = data
+        self.data = data.rstrip("\r\n")
         self.console = console or CONSOLE
 
     def solve_and_submit(
