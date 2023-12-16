@@ -2,6 +2,7 @@
 # www.jrodal.com
 
 from copy import deepcopy
+from collections import deque
 from typing import Iterable
 from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.grid import Direction, Grid, Point
@@ -36,9 +37,9 @@ class Solver(BaseSolver):
         start_direction: Direction,
     ) -> int:
         seen_states = set()
-        queue = [(start_position, start_direction)]
+        queue = deque([(start_position, start_direction)])
         while queue:
-            current_state = queue.pop()
+            current_state = queue.popleft()
             current_position, current_direction = current_state
             if not current_position:
                 continue
