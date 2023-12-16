@@ -25,6 +25,82 @@ class Direction(Enum):
     LOWER_LEFT = 6
     LOWER_RIGHT = 7
 
+    @property
+    def clockwise(self) -> Direction:
+        match self:
+            case self.UP:
+                return self.RIGHT
+            case self.RIGHT:
+                return self.DOWN
+            case self.DOWN:
+                return self.LEFT
+            case self.LEFT:
+                return self.UP
+            case _:
+                raise ValueError(
+                    f"Invalid direction: {self} - maybe you meant clockwise8"
+                )
+
+    @property
+    def clockwise8(self) -> Direction:
+        match self:
+            case self.UP:
+                return self.UPPER_RIGHT
+            case self.UPPER_RIGHT:
+                return self.RIGHT
+            case self.RIGHT:
+                return self.LOWER_RIGHT
+            case self.LOWER_RIGHT:
+                return self.DOWN
+            case self.DOWN:
+                return self.LOWER_LEFT
+            case self.LOWER_LEFT:
+                return self.LEFT
+            case self.LEFT:
+                return self.UPPER_LEFT
+            case self.UPPER_LEFT:
+                return self.UP
+            case _:
+                raise ValueError(f"Invalid direction: {self}")
+
+    @property
+    def counter_clockwise(self) -> Direction:
+        match self:
+            case self.UP:
+                return self.LEFT
+            case self.LEFT:
+                return self.DOWN
+            case self.DOWN:
+                return self.RIGHT
+            case self.RIGHT:
+                return self.UP
+            case _:
+                raise ValueError(
+                    f"Invalid direction: {self} - maybe you meant counter_clockwise8"
+                )
+
+    @property
+    def counter_clockwise8(self) -> Direction:
+        match self:
+            case self.UP:
+                return self.UPPER_LEFT
+            case self.UPPER_LEFT:
+                return self.LEFT
+            case self.LEFT:
+                return self.LOWER_LEFT
+            case self.LOWER_LEFT:
+                return self.DOWN
+            case self.DOWN:
+                return self.LOWER_RIGHT
+            case self.LOWER_RIGHT:
+                return self.RIGHT
+            case self.RIGHT:
+                return self.UPPER_RIGHT
+            case self.UPPER_RIGHT:
+                return self.UP
+            case _:
+                raise ValueError(f"Invalid direction: {self}")
+
 
 @dataclass(frozen=True)
 class Point:
