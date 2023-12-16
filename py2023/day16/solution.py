@@ -5,17 +5,11 @@ from typing import Iterable
 from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.grid import Direction, Grid, Point
 
-import sys
-
-sys.setrecursionlimit(10000)
-
 
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
         grid = Grid.from_lines(self.data)
-        seen_states = set()
-        self._move_in_grid(grid, Point(-1, 0), Direction.RIGHT, seen_states)
-        return len({p for p, _ in seen_states}) - 1
+        return self._shoot_light_into_grid(grid, Point(-1, 0), Direction.RIGHT)
 
     def _part2(self) -> Solution:
         grid = Grid.from_lines(self.data)
@@ -29,30 +23,33 @@ class Solver(BaseSolver):
 
         ans = 0
         for start_point, d in boundary_states:
-            seen_states = set()
-            self._move_in_grid(grid, start_point, d, seen_states)
-            ans = max(ans, len({p for p, _ in seen_states}))
-        return ans - 1
+            ans = max(ans, self._shoot_light_into_grid(grid, start_point, d))
+        return ans
 
-    def _move_in_grid(
+    def _shoot_light_into_grid(
         self,
         grid: Grid,
-        current_position: Point | None,
-        direction: Direction,
-        seen_states: set[tuple[Point, Direction]],
-    ) -> None:
-        if not current_position:
-            return None
+        start_position: Point | None,
+        start_direction: Direction,
+    ) -> int:
+        seen_states = set()
+        queue = [(start_position, start_direction)]
+        while queue:
+            current_state = queue.pop()
+            current_position, current_direction = current_state
+            if not current_position:
+                continue
+            if current_state in seen_states:
+                continue
 
-        hashkey = (current_position, direction)
-        if hashkey in seen_states:
-            return None
-        seen_states.add(hashkey)
+            seen_states.add(current_state)
 
-        neighbor = current_position.point_at_direction(direction)
-        neighbor_value = grid.get(neighbor)
-        for d in self._bounce_beam(neighbor_value, direction):
-            self._move_in_grid(grid, neighbor, d, seen_states)
+            new_position = current_position.point_at_direction(current_direction)
+            obstacle = grid.get(new_position)
+            for new_direction in self._bounce_beam(obstacle, current_direction):
+                queue.append((new_position, new_direction))
+
+        return len({p for p, _ in seen_states}) - 1
 
     def _bounce_beam(
         self, obstacle: str | None, current_direction: Direction
