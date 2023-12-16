@@ -3,16 +3,8 @@
 
 import networkx as nx
 
-from enum import Enum
 from aoc_utils.base_solver import BaseSolver, Solution
-from aoc_utils.grid import Grid, Point
-
-
-class Direction(Enum):
-    LEFT = 0
-    RIGHT = 1
-    UP = 2
-    DOWN = 3
+from aoc_utils.grid import Direction, Grid, Point
 
 
 class Solver(BaseSolver):
@@ -47,14 +39,9 @@ class Solver(BaseSolver):
 
     def _get_valid_transitions(self, grid: Grid, coord: Point) -> list[Point]:
         transitions = []
-        for coord, d in [
-            (coord.left, Direction.LEFT),
-            (coord.right, Direction.RIGHT),
-            (coord.up, Direction.UP),
-            (coord.down, Direction.DOWN),
-        ]:
-            if self._is_valid_transition(grid.get(coord), d):
-                transitions.append(coord)
+        for c, d in coord.neighbors_with_dir():
+            if self._is_valid_transition(grid.get(c), d):
+                transitions.append(c)
 
         return [p for p in transitions if grid.get(p)]
 

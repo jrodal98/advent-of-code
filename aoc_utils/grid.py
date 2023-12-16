@@ -125,7 +125,7 @@ class Point:
     def __iter__(self) -> Iterator[int]:
         return iter(astuple(self))
 
-    def point_at_direction(self, direction: Direction) -> Point:
+    def neighbor(self, direction: Direction) -> Point:
         match direction:
             case Direction.LEFT:
                 return self.left
@@ -145,6 +145,32 @@ class Point:
                 return self.bottom_right
             case _:
                 raise ValueError(f"Invalid direction: {direction}")
+
+    def neighbors_with_dir(self) -> Iterator[tuple[Point, Direction]]:
+        yield from (
+            (self.left, Direction.LEFT),
+            (self.right, Direction.RIGHT),
+            (self.up, Direction.UP),
+            (self.down, Direction.DOWN),
+        )
+
+    def neighbors(self) -> Iterator[Point]:
+        yield from (p for p, _ in self.neighbors_with_dir())
+
+    def neighbors8_with_dir(self) -> Iterator[tuple[Point, Direction]]:
+        yield from (
+            (self.left, Direction.LEFT),
+            (self.right, Direction.RIGHT),
+            (self.up, Direction.UP),
+            (self.down, Direction.DOWN),
+            (self.upper_left, Direction.UPPER_LEFT),
+            (self.upper_right, Direction.UPPER_RIGHT),
+            (self.bottom_left, Direction.LOWER_LEFT),
+            (self.bottom_right, Direction.LOWER_RIGHT),
+        )
+
+    def neighbors8(self) -> Iterator[Point]:
+        yield from (p for p, _ in self.neighbors8_with_dir())
 
     @property
     def left(self) -> Point:
@@ -237,12 +263,12 @@ class Grid(Generic[T]):
     ) -> T | None:
         if not p:
             return None
-        return self.get(p.point_at_direction(direction), default)
+        return self.get(p.neighbor(direction), default)
 
     def swap_direction(self, p: Point | None, direction: Direction) -> Point | None:
         if not p:
             return None
-        p2 = p.point_at_direction(direction)
+        p2 = p.neighbor(direction)
         if self.get(p2):
             return self.swap(p, p2)
         else:
@@ -328,36 +354,29 @@ class Grid(Generic[T]):
     def neighbors(
         self,
         p: Point,
-        *,
-        include_diagonals: bool = False,
-        include_self: bool = False,
     ) -> Iterator[T]:
-        for neighbor in self.neighbors_coordinates(
-            p, include_diagonals=include_diagonals, include_self=include_self
-        ):
-            yield self.at(neighbor)
+        for neighbor in p.neighbors():
+            v = self.get(neighbor)
+            if v:
+                yield v
 
-    def neighbors_coordinates(
-        self,
-        p: Point,
-        *,
-        include_diagonals: bool = False,
-        include_self: bool = False,
-    ) -> Iterator[Point]:
-        if include_diagonals:
-            dirs = self._DIRS_8
-        else:
-            dirs = self._DIRS
+    def neighbors_with_dir(self, p: Point) -> Iterator[tuple[T, Direction]]:
+        for neighbor, direction in p.neighbors_with_dir():
+            v = self.get(neighbor)
+            if v:
+                yield v, direction
 
-        if include_self:
-            self_dx_xy = [(0, 0)]
-        else:
-            self_dx_xy = []
+    def neighbors8(self, p: Point) -> Iterator[T]:
+        for neighbor in p.neighbors8():
+            v = self.get(neighbor)
+            if v:
+                yield v
 
-        for dx, dy in dirs + self_dx_xy:
-            nx, ny = p.x + dx, p.y + dy
-            if 0 <= nx < self.w and 0 <= ny < self.h:
-                yield Point(nx, ny)
+    def neighbors8_with_dir(self, p: Point) -> Iterator[tuple[T, Direction]]:
+        for neighbor, direction in p.neighbors8_with_dir():
+            v = self.get(neighbor)
+            if v:
+                yield v, direction
 
     def display(self) -> None:
         table = Table(show_header=False, show_lines=True)

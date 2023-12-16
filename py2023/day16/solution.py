@@ -44,7 +44,7 @@ class Solver(BaseSolver):
 
             seen_states.add(current_state)
 
-            new_position = current_position.point_at_direction(current_direction)
+            new_position = current_position.neighbor(current_direction)
             obstacle = grid.get(new_position)
             for new_direction in self._bounce_beam(obstacle, current_direction):
                 queue.append((new_position, new_direction))
