@@ -145,12 +145,12 @@ class Solver(BaseSolver):
             boundary_points.add((Point(j, grid.h), Direction.UP))
 
         ans = 0
-        for p, d in boundary_points:
+        for start_point, d in boundary_points:
             visited_points = set()
-            move_in_grid(grid, p, d, visited_points)
+            move_in_grid(grid, start_point, d, visited_points)
             only_points = set()
             for p, _ in visited_points:
                 only_points.add(p)
-            only_points.remove(Point(-1, 0))
+            only_points.remove(start_point)
             ans = max(ans, len(only_points))
         return ans
