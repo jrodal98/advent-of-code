@@ -67,7 +67,7 @@ class Solver(BaseSolver):
         for p, c in grid.iter(reverse):
             if c != "O":
                 continue
-            while grid.get_direction(p, direction) == ".":
-                p = grid.swap_direction(p, direction)
+            while grid.get_neighbor(p, direction) == ".":
+                p = grid.swap(p, direction)
 
         return grid.transpose() if transposed else grid

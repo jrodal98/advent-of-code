@@ -39,7 +39,7 @@ class Solver(BaseSolver):
 
     def _get_valid_transitions(self, grid: Grid, coord: Point) -> list[Point]:
         transitions = []
-        for c, d in coord.neighbors_with_dir():
+        for c, d in coord.neighbors_with_direction():
             if self._is_valid_transition(grid.get(c), d):
                 transitions.append(c)
 

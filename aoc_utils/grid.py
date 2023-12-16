@@ -146,7 +146,7 @@ class Point:
             case _:
                 raise ValueError(f"Invalid direction: {direction}")
 
-    def neighbors_with_dir(self) -> Iterator[tuple[Point, Direction]]:
+    def neighbors_with_direction(self) -> Iterator[tuple[Point, Direction]]:
         yield from (
             (self.left, Direction.LEFT),
             (self.right, Direction.RIGHT),
@@ -155,9 +155,9 @@ class Point:
         )
 
     def neighbors(self) -> Iterator[Point]:
-        yield from (p for p, _ in self.neighbors_with_dir())
+        yield from (p for p, _ in self.neighbors_with_direction())
 
-    def neighbors8_with_dir(self) -> Iterator[tuple[Point, Direction]]:
+    def neighbors8_with_direction(self) -> Iterator[tuple[Point, Direction]]:
         yield from (
             (self.left, Direction.LEFT),
             (self.right, Direction.RIGHT),
@@ -170,7 +170,7 @@ class Point:
         )
 
     def neighbors8(self) -> Iterator[Point]:
-        yield from (p for p, _ in self.neighbors8_with_dir())
+        yield from (p for p, _ in self.neighbors8_with_direction())
 
     @property
     def left(self) -> Point:
@@ -258,23 +258,16 @@ class Grid(Generic[T]):
                 x, y = i % self.w, i // self.w
                 yield Point(x, y), cell
 
-    def get_direction(
+    def get_neighbor(
         self, p: Point | None, direction: Direction, default: T | None = None
     ) -> T | None:
         if not p:
             return None
         return self.get(p.neighbor(direction), default)
 
-    def swap_direction(self, p: Point | None, direction: Direction) -> Point | None:
-        if not p:
-            return None
-        p2 = p.neighbor(direction)
-        if self.get(p2):
-            return self.swap(p, p2)
-        else:
-            return None
-
-    def swap(self, p1: Point, p2: Point) -> Point:
+    def swap(self, p1: Point, p2: Point | Direction) -> Point:
+        if isinstance(p2, Direction):
+            p2 = p1.neighbor(p2)
         self.data[p1.y * self.w + p1.x], self.data[p2.y * self.w + p2.x] = (
             self.data[p2.y * self.w + p2.x],
             self.data[p1.y * self.w + p1.x],
@@ -360,8 +353,8 @@ class Grid(Generic[T]):
             if v:
                 yield v
 
-    def neighbors_with_dir(self, p: Point) -> Iterator[tuple[T, Direction]]:
-        for neighbor, direction in p.neighbors_with_dir():
+    def neighbors_with_direction(self, p: Point) -> Iterator[tuple[T, Direction]]:
+        for neighbor, direction in p.neighbors_with_direction():
             v = self.get(neighbor)
             if v:
                 yield v, direction
@@ -372,20 +365,24 @@ class Grid(Generic[T]):
             if v:
                 yield v
 
-    def neighbors8_with_dir(self, p: Point) -> Iterator[tuple[T, Direction]]:
-        for neighbor, direction in p.neighbors8_with_dir():
+    def neighbors8_with_direction(self, p: Point) -> Iterator[tuple[T, Direction]]:
+        for neighbor, direction in p.neighbors8_with_direction():
             v = self.get(neighbor)
             if v:
                 yield v, direction
 
-    def display(self) -> None:
-        table = Table(show_header=False, show_lines=True)
-        for _ in range(self.w):
-            table.add_column()
-        for row in self.iter_rows():
-            table.add_row(*map(str, row))
-        console = Console()
-        console.print(table)
+    def display(self, rich: bool = True) -> None:
+        if rich:
+            table = Table(show_header=False, show_lines=True)
+            for _ in range(self.w):
+                table.add_column()
+            for row in self.iter_rows():
+                table.add_row(*map(str, row))
+            console = Console()
+            console.print(table)
+        else:
+            for row in self.iter_rows():
+                print("".join(map(str, row)))
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Grid):
@@ -399,4 +396,3 @@ class Grid(Generic[T]):
 if __name__ == "__main__":
     grid = Grid.from_lines("123\n456\n789")
     grid.display()
-    grid.rotate().display()
