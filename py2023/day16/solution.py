@@ -5,6 +5,8 @@ from typing import Iterable
 from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.grid import Direction, Grid, Point
 
+from mpire import WorkerPool
+
 
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
@@ -21,10 +23,11 @@ class Solver(BaseSolver):
             boundary_states.add((Point(j, -1), Direction.DOWN))
             boundary_states.add((Point(j, grid.h), Direction.UP))
 
-        ans = 0
-        for start_point, d in boundary_states:
-            ans = max(ans, self._shoot_light_into_grid(grid, start_point, d))
-        return ans
+        with WorkerPool(n_jobs=8, shared_objects=grid) as pool:
+            results = pool.map(
+                self._shoot_light_into_grid, boundary_states, progress_bar=True
+            )
+        return max(results)
 
     def _shoot_light_into_grid(
         self,
