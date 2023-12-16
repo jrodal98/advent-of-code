@@ -3,4 +3,4 @@ part1:
     output: 46
 part2:
   - input: sample1.txt
-    output:
+    output: 51

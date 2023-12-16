@@ -135,4 +135,22 @@ class Solver(BaseSolver):
         return len(only_points)
 
     def _part2(self) -> Solution:
-        raise NotImplementedError
+        grid = Grid.from_lines(self.data)
+        boundary_points = set()
+        for i in range(grid.h):
+            boundary_points.add((Point(-1, i), Direction.RIGHT))
+            boundary_points.add((Point(grid.w, i), Direction.LEFT))
+        for j in range(grid.w):
+            boundary_points.add((Point(j, -1), Direction.DOWN))
+            boundary_points.add((Point(j, grid.h), Direction.UP))
+
+        ans = 0
+        for p, d in boundary_points:
+            visited_points = set()
+            move_in_grid(grid, p, d, visited_points)
+            only_points = set()
+            for p, _ in visited_points:
+                only_points.add(p)
+            only_points.remove(Point(-1, 0))
+            ans = max(ans, len(only_points))
+        return ans
