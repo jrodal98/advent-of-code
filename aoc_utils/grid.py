@@ -308,6 +308,8 @@ class Grid(Generic[T]):
         return self.data[p.y * self.w + p.x]
 
     def replace(self, p: Point, value: T) -> None:
+        if not self.get(p):
+            return
         self.data[p.y * self.w + p.x] = value
 
     def left(self, p: Point) -> T | None:

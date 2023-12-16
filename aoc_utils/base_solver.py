@@ -33,6 +33,7 @@ class BaseSolver(ABC):
         console: Console | None = None,
         animate: bool = False,
         lag: float = 0,
+        manual_step: bool = False,
     ) -> None:
         self.data = data.rstrip("\r\n")
         self.console = console or CONSOLE
@@ -40,6 +41,8 @@ class BaseSolver(ABC):
         self._animate: bool = animate
         self._lag_in_seconds: float = lag / 1000
         self._live: Live | None = None
+        self._manual_step = manual_step
+        self._started_animation = False
 
     @property
     def grid(self) -> Grid[str]:
@@ -57,15 +60,27 @@ class BaseSolver(ABC):
     ) -> None:
         if not self._animate or not self._live or not self._animation_grid:
             return
-        # maybe pass refresh = True as well
+
+        if self._manual_step and not self._started_animation:
+            self._live.update(str(self._animation_grid), refresh=True)
+
         if point and value:
             self._animation_grid.replace(point, value)
         grid_str = str(self._animation_grid)
+
         if message:
             grid_str = message + "\n\n" + grid_str
         self._live.update(grid_str, refresh=True)
-        if self._lag_in_seconds:
+        if self._manual_step:
+            input()
+        elif self._lag_in_seconds:
             sleep(self._lag_in_seconds)
+        self._started_animation = True
+
+    def _reset_animation(self) -> None:
+        self._live = None
+        self._started_animation = False
+        self._animation_grid = None
 
     def solve_and_submit(
         self, part: ProblemPart, *, day: int | None = None, year: int | None = None
@@ -81,7 +96,7 @@ class BaseSolver(ABC):
                     solution = self.part1()
                 else:
                     solution = self.part2()
-                self._live = None
+                self._reset_animation()
 
             self.console.print(f"{part.name}: {solution}")
 

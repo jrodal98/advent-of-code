@@ -50,6 +50,13 @@ def init(
 
 @cli.command()
 @click.option(
+    "--manual-step",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Manually step through animation",
+)
+@click.option(
     "--lag", default=0, type=float, help="Lag to add to animation (in milliseconds)"
 )
 @click.option("--input", default="", type=str, help="Input file to use")
@@ -96,6 +103,7 @@ def solve(
     animate: bool,
     input: str,
     lag: float,
+    manual_step: bool,
 ) -> None:
     day = day
     year = year
@@ -146,6 +154,7 @@ def solve(
             console=CONSOLE,
             animate=animate,
             lag=lag,
+            manual_step=manual_step,
         ).solve_and_submit(part, day=day, year=year)
         runtime_objects[part] = runtime
 
