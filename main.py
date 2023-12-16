@@ -50,6 +50,17 @@ def init(
 
 @cli.command()
 @click.option(
+    "--lag", default=0, type=float, help="Lag to add to animation (in milliseconds)"
+)
+@click.option("--input", default="", type=str, help="Input file to use")
+@click.option(
+    "--animate",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Animate solution",
+)
+@click.option(
     "--log-locals",
     is_flag=True,
     show_default=True,
@@ -82,6 +93,9 @@ def solve(
     skip_part1: bool,
     skip_part2: bool,
     log_locals: bool,
+    animate: bool,
+    input: str,
+    lag: float,
 ) -> None:
     day = day
     year = year
@@ -94,6 +108,17 @@ def solve(
     solver_kls = solution_module.Solver
 
     runtime_objects = {}
+    if input:
+        p = input
+        if not os.path.exists(p):
+            p = os.path.join(gen_solution_dir(day, year), "data", input)
+        if os.path.exists(p):
+            with open(p) as f:
+                data = f.read()
+        else:
+            data = input
+    else:
+        data = aocd.get_data(day=day, year=year)
     for part, tests in (
         (
             ProblemPart.PART1 if not skip_part1 else None,
@@ -117,7 +142,10 @@ def solve(
             ).make_suite_and_run(tests)
         CONSOLE.print(Markdown("## Solve Puzzle Input"))
         _, runtime = solver_kls(
-            data=aocd.get_data(day=day, year=year)
+            data=data,
+            console=CONSOLE,
+            animate=animate,
+            lag=lag,
         ).solve_and_submit(part, day=day, year=year)
         runtime_objects[part] = runtime
 

@@ -381,8 +381,10 @@ class Grid(Generic[T]):
             console = Console()
             console.print(table)
         else:
-            for row in self.iter_rows():
-                print("".join(map(str, row)))
+            print(str(self))
+
+    def __str__(self) -> str:
+        return "\n".join("".join(map(str, r)) for r in self.iter_rows())
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Grid):
@@ -396,3 +398,4 @@ class Grid(Generic[T]):
 if __name__ == "__main__":
     grid = Grid.from_lines("123\n456\n789")
     grid.display()
+    grid.display(False)

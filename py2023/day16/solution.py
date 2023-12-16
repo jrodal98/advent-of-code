@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
+from copy import deepcopy
 from typing import Iterable
 from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.grid import Direction, Grid, Point
@@ -10,20 +11,19 @@ from mpire import WorkerPool
 
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
-        grid = Grid.from_lines(self.data)
-        return self._shoot_light_into_grid(grid, Point(-1, 0), Direction.RIGHT)
+        self._set_animation_grid(grid=deepcopy(self.grid))
+        return self._shoot_light_into_grid(self.grid, Point(-1, 0), Direction.RIGHT)
 
     def _part2(self) -> Solution:
-        grid = Grid.from_lines(self.data)
         boundary_states = set()
-        for i in range(grid.h):
+        for i in range(self.grid.h):
             boundary_states.add((Point(-1, i), Direction.RIGHT))
-            boundary_states.add((Point(grid.w, i), Direction.LEFT))
-        for j in range(grid.w):
+            boundary_states.add((Point(self.grid.w, i), Direction.LEFT))
+        for j in range(self.grid.w):
             boundary_states.add((Point(j, -1), Direction.DOWN))
-            boundary_states.add((Point(j, grid.h), Direction.UP))
+            boundary_states.add((Point(j, self.grid.h), Direction.UP))
 
-        with WorkerPool(n_jobs=8, shared_objects=grid) as pool:
+        with WorkerPool(n_jobs=8, shared_objects=self.grid) as pool:
             results = pool.map(
                 self._shoot_light_into_grid, boundary_states, progress_bar=True
             )
@@ -45,6 +45,11 @@ class Solver(BaseSolver):
             if current_state in seen_states:
                 continue
 
+            self._update_animation(
+                point=current_position,
+                value="#",
+                message=f"current_state={current_state}",
+            )
             seen_states.add(current_state)
 
             new_position = current_position.neighbor(current_direction)

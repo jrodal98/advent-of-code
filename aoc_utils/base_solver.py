@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
+from contextlib import nullcontext
 import aocd
 
 from abc import ABC, abstractmethod
@@ -8,7 +9,10 @@ from enum import Enum
 from inspect import getsource
 from rich.console import Console
 from urllib3.response import HTTPResponse
+from aoc_utils.grid import Grid, Point
 from aoc_utils.log_runtime import log_runtime, Runtime
+from rich.live import Live
+from time import sleep
 
 from consts import CONSOLE
 
@@ -22,20 +26,68 @@ class ProblemPart(Enum):
 
 
 class BaseSolver(ABC):
-    def __init__(self, data: str, *, console: Console | None = None) -> None:
+    def __init__(
+        self,
+        data: str,
+        *,
+        console: Console | None = None,
+        animate: bool = False,
+        lag: float = 0,
+    ) -> None:
         self.data = data.rstrip("\r\n")
         self.console = console or CONSOLE
+        self._animation_grid: Grid | None = None
+        self._animate: bool = animate
+        self._lag_in_seconds: float = lag / 1000
+        self._live: Live | None = None
+
+    @property
+    def grid(self) -> Grid[str]:
+        return Grid.from_lines(self.data)
+
+    def _set_animation_grid(self, grid: Grid | None) -> None:
+        self._animation_grid = grid or self.grid
+
+    def _update_animation(
+        self,
+        *,
+        point: Point | None = None,
+        value: str | None = None,
+        message: str | None = None,
+    ) -> None:
+        if not self._animate or not self._live or not self._animation_grid:
+            return
+        # maybe pass refresh = True as well
+        if point and value:
+            self._animation_grid.replace(point, value)
+        grid_str = str(self._animation_grid)
+        if message:
+            grid_str = message + "\n\n" + grid_str
+        self._live.update(grid_str, refresh=True)
+        if self._lag_in_seconds:
+            sleep(self._lag_in_seconds)
 
     def solve_and_submit(
         self, part: ProblemPart, *, day: int | None = None, year: int | None = None
     ) -> tuple[Solution, Runtime]:
         with log_runtime(part.name, console=self.console) as runtime:
-            if part is ProblemPart.PART1:
-                solution = self.part1()
-            else:
-                solution = self.part2()
+            with Live(
+                "",
+                console=self.console,
+                auto_refresh=False,
+            ) if self._animate else nullcontext() as live:
+                self._live = live
+                if part is ProblemPart.PART1:
+                    solution = self.part1()
+                else:
+                    solution = self.part2()
+                self._live = None
 
             self.console.print(f"{part.name}: {solution}")
+
+        if self._animate:
+            self.console.print("Not submitting because animation is enabled")
+            return solution, runtime
 
         response = aocd.post.submit(solution, part=part.value, day=day, year=year)
         if isinstance(response, HTTPResponse):
