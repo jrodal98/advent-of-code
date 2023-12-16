@@ -4,6 +4,10 @@
 from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.grid import Direction, Grid, Point
 
+import sys
+
+sys.setrecursionlimit(10000)
+
 
 def move_in_grid(
     grid: Grid,
@@ -19,81 +23,80 @@ def move_in_grid(
         return None
     visited_points.add(hk)
 
-    v = grid.get(point)
+    p = point.point_at_direction(direction)
+    v = grid.get(p)
     match v, direction:
         case None, _:
             return None
         case ".", _:
-            return move_in_grid(
-                grid, point.point_at_direction(direction), direction, visited_points
-            )
+            return move_in_grid(grid, p, direction, visited_points)
         case "/", Direction.RIGHT:
             return move_in_grid(
                 grid,
-                point.point_at_direction(Direction.UP),
+                p,
                 Direction.UP,
                 visited_points,
             )
         case "/", Direction.LEFT:
             return move_in_grid(
                 grid,
-                point.point_at_direction(Direction.DOWN),
+                p,
                 Direction.DOWN,
                 visited_points,
             )
         case "/", Direction.UP:
             return move_in_grid(
                 grid,
-                point.point_at_direction(Direction.RIGHT),
+                p,
                 Direction.RIGHT,
                 visited_points,
             )
         case "/", Direction.DOWN:
             return move_in_grid(
                 grid,
-                point.point_at_direction(Direction.LEFT),
+                p,
                 Direction.LEFT,
                 visited_points,
             )
         case "\\", Direction.LEFT:
             return move_in_grid(
                 grid,
-                point.point_at_direction(Direction.UP),
+                p,
                 Direction.UP,
                 visited_points,
             )
         case "\\", Direction.RIGHT:
             return move_in_grid(
                 grid,
-                point.point_at_direction(Direction.DOWN),
+                p,
                 Direction.DOWN,
                 visited_points,
             )
         case "\\", Direction.DOWN:
             return move_in_grid(
                 grid,
-                point.point_at_direction(Direction.RIGHT),
+                p,
                 Direction.RIGHT,
                 visited_points,
             )
         case "\\", Direction.UP:
             return move_in_grid(
                 grid,
-                point.point_at_direction(Direction.LEFT),
+                p,
                 Direction.LEFT,
                 visited_points,
             )
         case "-", Direction.LEFT | Direction.RIGHT:
             return move_in_grid(
                 grid,
-                point.point_at_direction(direction),
+                p,
                 direction,
                 visited_points,
             )
         case "|", Direction.UP | Direction.DOWN:
             return move_in_grid(
                 grid,
-                point.point_at_direction(direction),
+                p,
                 direction,
                 visited_points,
             )
@@ -101,7 +104,7 @@ def move_in_grid(
             for d in (Direction.UP, Direction.DOWN):
                 move_in_grid(
                     grid,
-                    point.point_at_direction(d),
+                    p,
                     d,
                     visited_points,
                 )
@@ -110,7 +113,7 @@ def move_in_grid(
             for d in (Direction.LEFT, Direction.RIGHT):
                 move_in_grid(
                     grid,
-                    point.point_at_direction(d),
+                    p,
                     d,
                     visited_points,
                 )
@@ -124,8 +127,12 @@ class Solver(BaseSolver):
     def _part1(self) -> Solution:
         grid = Grid.from_lines(self.data)
         visited_points = set()
-        move_in_grid(grid, Point(0, 0), Direction.RIGHT, visited_points)
-        return len(visited_points)
+        move_in_grid(grid, Point(-1, 0), Direction.RIGHT, visited_points)
+        only_points = set()
+        for p, _ in visited_points:
+            only_points.add(p)
+        only_points.remove(Point(-1, 0))
+        return len(only_points)
 
     def _part2(self) -> Solution:
         raise NotImplementedError
