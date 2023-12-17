@@ -56,7 +56,7 @@ class Solver(BaseSolver):
             new_position = current_position.neighbor(current_direction)
             self._update_animation(
                 point=current_position,
-                value="#",
+                value=current_direction.arrow,
                 message=f"{current_state}, energized: {len(unique_positions) - 1} num_active_rays: {len(queue) + 1}",
                 points_to_colors={
                     start_position: "blue",
