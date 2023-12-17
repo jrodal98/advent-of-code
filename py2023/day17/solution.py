@@ -108,7 +108,7 @@ class Solver(BaseSolver):
                     continue
                 cost_so_far = current_cost + next_cost
                 queue.append(
-                    (
+                    (  # pyright: ignore
                         (
                             next_pos,
                             d,
