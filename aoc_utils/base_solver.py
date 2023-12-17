@@ -2,6 +2,7 @@
 # www.jrodal.com
 
 from contextlib import nullcontext
+from functools import cached_property
 from typing import Callable
 import aocd
 
@@ -45,7 +46,7 @@ class BaseSolver(ABC):
         self._manual_step = manual_step
         self._started_animation = False
 
-    @property
+    @cached_property
     def grid(self) -> Grid[str]:
         return Grid.from_lines(self.data)
 
@@ -64,14 +65,14 @@ class BaseSolver(ABC):
     ) -> None:
         points_to_colors = points_to_colors or {point: "green"}
         values_to_colors = values_to_colors or {}
+        message = message or str(point)
         if not self._animate or not self._live or not self._animation_grid:
             return
 
         if self._manual_step and not self._started_animation:
             self._live.update(str(self._animation_grid), refresh=True)
 
-        if point:
-            value = value or "x"
+        if point and value:
             if not isinstance(value, str):
                 value = value(self._animation_grid, point) or "x"
 
