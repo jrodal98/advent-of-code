@@ -420,8 +420,13 @@ class Grid(Generic[T]):
             color = points_to_colors.get(Point(x, y))
             if color:
                 # this is to prevent \[{color}] from being escaped
-                if res[y] and res[y][-1] == "\\":
-                    res[y] += "\\"
+                if res[y]:
+                    if (len(res[y]) == 1 and res[y][-1] == "\\") or (
+                        len(res[y]) >= 2 and res[y][-1] == "\\" and res[y][-2] != "\\"
+                    ):
+                        res[y] += "\\"
+                if cell == "\\":
+                    cell = "\\\\"
                 res[y] += f"[{color}]{cell}[/{color}]"
             else:
                 res[y] += str(cell)
