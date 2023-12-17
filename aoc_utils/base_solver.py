@@ -35,7 +35,7 @@ class BaseSolver(ABC):
         console: Console | None = None,
         animate: bool = False,
         lag: float = 0,
-        manual_step: bool = False,
+        step: bool = False,
     ) -> None:
         self.data = data.rstrip("\r\n")
         self.console = console or CONSOLE
@@ -43,7 +43,7 @@ class BaseSolver(ABC):
         self._animate: bool = animate
         self._lag_in_seconds: float = lag / 1000
         self._live: Live | None = None
-        self._manual_step = manual_step
+        self._step = step
         self._started_animation = False
 
     @cached_property
@@ -69,7 +69,7 @@ class BaseSolver(ABC):
         if not self._animate or not self._live or not self._animation_grid:
             return
 
-        if self._manual_step and not self._started_animation:
+        if self._step and not self._started_animation:
             self._live.update(str(self._animation_grid), refresh=True)
 
         if point and value:
@@ -86,7 +86,7 @@ class BaseSolver(ABC):
         if message:
             grid_str = message + "\n\n" + grid_str
         self._live.update(grid_str, refresh=refresh)
-        if self._manual_step:
+        if self._step:
             input()
         elif self._lag_in_seconds:
             sleep(self._lag_in_seconds)

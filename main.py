@@ -50,7 +50,7 @@ def init(
 
 @cli.command()
 @click.option(
-    "--manual-step",
+    "--step",
     is_flag=True,
     show_default=True,
     default=False,
@@ -103,7 +103,7 @@ def solve(
     animate: bool,
     input: str,
     lag: float,
-    manual_step: bool,
+    step: bool,
 ) -> None:
     day = day
     year = year
@@ -154,7 +154,7 @@ def solve(
             console=CONSOLE,
             animate=animate,
             lag=lag,
-            manual_step=manual_step,
+            step=step,
         ).solve_and_submit(part, day=day, year=year)
         runtime_objects[part] = runtime
 
