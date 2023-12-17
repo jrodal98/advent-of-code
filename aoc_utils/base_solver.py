@@ -2,6 +2,7 @@
 # www.jrodal.com
 
 from contextlib import nullcontext
+from typing import Callable
 import aocd
 
 from abc import ABC, abstractmethod
@@ -55,18 +56,25 @@ class BaseSolver(ABC):
         self,
         *,
         point: Point | None = None,
-        value: str | None = None,
+        value: str | None | Callable[[Grid, Point], str | None] = None,
         message: str | None = None,
+        points_to_colors: dict[Point | None, str] | None = None,
     ) -> None:
+        points_to_colors = points_to_colors or {point: "green"}
         if not self._animate or not self._live or not self._animation_grid:
             return
 
         if self._manual_step and not self._started_animation:
             self._live.update(str(self._animation_grid), refresh=True)
 
-        if point and value:
+        if point:
+            value = value or "x"
+            if not isinstance(value, str):
+                value = value(self._animation_grid, point) or "x"
+
             self._animation_grid.replace(point, value)
-        grid_str = str(self._animation_grid)
+
+        grid_str = self._animation_grid.colored_str(points_to_colors)
 
         if message:
             grid_str = message + "\n\n" + grid_str

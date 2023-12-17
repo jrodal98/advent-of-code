@@ -48,7 +48,7 @@ class Solver(BaseSolver):
 
             self._update_animation(
                 point=current_position,
-                value="#",
+                value=current_direction.arrow,
                 message=f"current_state={current_state}",
             )
             seen_states.add(current_state)

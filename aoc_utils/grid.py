@@ -2,6 +2,7 @@
 # www.jrodal.com
 
 from __future__ import annotations
+from copy import deepcopy
 
 from dataclasses import astuple, dataclass
 from enum import Enum
@@ -24,6 +25,28 @@ class Direction(Enum):
     UPPER_RIGHT = 5
     LOWER_LEFT = 6
     LOWER_RIGHT = 7
+
+    @property
+    def arrow(self) -> str:
+        match self:
+            case self.UP:
+                return "↑"
+            case self.DOWN:
+                return "↓"
+            case self.LEFT:
+                return "←"
+            case self.RIGHT:
+                return "→"
+            case self.UPPER_LEFT:
+                return "↖"
+            case self.UPPER_RIGHT:
+                return "↗"
+            case self.LOWER_LEFT:
+                return "↙"
+            case self.LOWER_RIGHT:
+                return "↘"
+            case _:
+                raise ValueError(f"Invalid direction: {self}")
 
     @property
     def clockwise(self) -> Direction:
@@ -307,9 +330,11 @@ class Grid(Generic[T]):
     def at(self, p: Point) -> T:
         return self.data[p.y * self.w + p.x]
 
-    def replace(self, p: Point, value: T) -> None:
+    def replace(self, p: Point, value: T, color: str | None = None) -> None:
         if not self.get(p):
             return
+        if color and isinstance(value, str):
+            value = f"[{color}]{value}[/]"  # pyright: ignore
         self.data[p.y * self.w + p.x] = value
 
     def left(self, p: Point) -> T | None:
@@ -388,6 +413,20 @@ class Grid(Generic[T]):
     def __str__(self) -> str:
         return "\n".join("".join(map(str, r)) for r in self.iter_rows())
 
+    def colored_str(self, points_to_colors: dict[Point | None, str]) -> str:
+        res = ["" for _ in range(self.h)]
+        for i, cell in enumerate(self.data):
+            x, y = i % self.w, i // self.w
+            color = points_to_colors.get(Point(x, y))
+            if color:
+                # this is to prevent \[{color}] from being escaped
+                if res[y] and res[y][-1] == "\\":
+                    res[y] += "\\"
+                res[y] += f"[{color}]{cell}[/{color}]"
+            else:
+                res[y] += str(cell)
+        return "\n".join(res)
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Grid):
             return False
@@ -395,6 +434,9 @@ class Grid(Generic[T]):
 
     def __hash__(self) -> int:
         return hash(tuple(self.data)) + hash(self.w) - hash(self.h)
+
+    def copy(self) -> "Grid[T]":
+        return deepcopy(self)
 
 
 if __name__ == "__main__":
