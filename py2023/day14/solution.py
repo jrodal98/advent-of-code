@@ -7,8 +7,8 @@ from aoc_utils.grid import Direction, Grid
 
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
-        grid = Grid.from_lines(self.data)
-        grid = self._shift_grid(grid, Direction.UP)
+        self._set_animation_grid()
+        grid = self._shift_grid(self.grid, Direction.UP)
         return self._score_grid(grid)
 
     def _part2(self) -> Solution:
@@ -64,10 +64,12 @@ class Solver(BaseSolver):
         if transposed:
             grid = grid.transpose()
 
-        for p, c in grid.iter(reverse):
+        for i, (p, c) in enumerate(grid.iter(reverse)):
             if c != "O":
                 continue
+            self._update_animation(point=p, refresh=grid.h < 15 or i % 10 == 0)
             while grid.get_neighbor(p, direction) == ".":
                 p = grid.swap(p, direction)
+            self._update_animation(point=p, refresh=grid.h < 15 or i % 10 == 0)
 
         return grid.transpose() if transposed else grid
