@@ -26,6 +26,9 @@ class Direction(Enum):
     LOWER_LEFT = 6
     LOWER_RIGHT = 7
 
+    def __lt__(self, other: Direction) -> bool:
+        return self.value < other.value
+
     @property
     def arrow(self) -> str:
         match self:
@@ -147,6 +150,9 @@ class Point:
 
     def __iter__(self) -> Iterator[int]:
         return iter(astuple(self))
+
+    def __lt__(self, other: Point) -> bool:
+        return (self.y, self.x) < (other.y, other.x)
 
     def neighbor(self, direction: Direction) -> Point:
         match direction:
