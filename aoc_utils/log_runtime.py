@@ -87,7 +87,7 @@ def print_runtime_table(
             / part1_runtime_obj.elapsed_time_seconds
         )
         if ratio < 1:
-            part2_to_part1_ratio = f"{ratio:.2f}x faster"
+            part2_to_part1_ratio = f"{1/ratio:.2f}x faster"
         else:
             part2_to_part1_ratio = f"{ratio:.2f}x slower"
 
