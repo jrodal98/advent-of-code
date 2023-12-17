@@ -27,7 +27,7 @@ class Solver(BaseSolver):
 
             seen[state_key] = current_cost
             if current_pos == Point(grid.w - 1, grid.h - 1):
-                new_cost = current_cost + grid.at(current_pos)
+                new_cost = current_cost
                 best_so_far = min(best_so_far, new_cost)
                 seen[state_key] = best_so_far
                 continue
@@ -42,9 +42,6 @@ class Solver(BaseSolver):
                 if not next_cost:
                     continue
                 cost_so_far = current_cost + next_cost
-                # if cost_so_far > best_so_far:
-                #     continue
-                # best_so_far = cost_so_far
                 queue.append(
                     (
                         (
