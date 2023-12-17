@@ -14,32 +14,35 @@ class Solver(BaseSolver):
         seen = {}
         seen_no_dir = {}
         queue = deque([state])
-        best_so_far = 1050
+        best_so_far = 927
         skipped = 0
         not_skipped = 0
         paths_found = 0
         i = 0
         while queue:
             i += 1
-            state_key, current_cost = queue.popleft()
-            if current_cost >= best_so_far:
-                continue
-            if state_key in seen and current_cost >= seen[state_key]:
-                continue
+            # state_key, current_cost = queue.popleft()
+            state_key, current_cost = queue.pop()
             (
                 current_pos,
                 current_dir,
                 current_steps_straight,
             ) = state_key
+            if current_cost >= best_so_far:
+                seen_no_dir[current_pos] = min(
+                    current_cost, seen_no_dir.get(current_pos, 1000)
+                )
+                continue
+            if state_key in seen and current_cost >= seen[state_key]:
+                continue
 
             distance_to_finish = current_pos.manhattan_distance(
                 Point(grid.w - 1, grid.h - 1)
             )
 
             if (
-                distance_to_finish > 30
-                and current_pos in seen_no_dir
-                and current_cost > seen_no_dir[current_pos] + 15
+                current_pos in seen_no_dir
+                and current_cost > seen_no_dir[current_pos] + 10
             ):
                 seen[state_key] = 10000
                 skipped += 1
@@ -55,12 +58,16 @@ class Solver(BaseSolver):
                 continue
 
             factor = 1
-            if 100 < current_cost < 200:
-                factor = 4
-            elif 300 < current_cost < 600:
-                factor = 3
-            elif current_cost < 600:
-                factor = 2
+            if distance_to_finish > 50:
+                if 100 < current_cost < 200:
+                    factor = 3
+                elif 300 < current_cost < 600:
+                    factor = 2
+
+                if current_cost > 300 and distance_to_finish > 230:
+                    factor = 10
+            # elif current_cost < 600:
+            #     factor = 2
 
             best_possible_score = current_cost + distance_to_finish * factor
             if best_possible_score > best_so_far:
@@ -79,7 +86,9 @@ class Solver(BaseSolver):
                 )
 
             seen[state_key] = current_cost
-            seen_no_dir[current_pos] = current_cost
+            seen_no_dir[current_pos] = min(
+                current_cost, seen_no_dir.get(current_pos, 1000)
+            )
 
             dirs = [current_dir.clockwise, current_dir.counter_clockwise]
             if current_steps_straight < 3:
