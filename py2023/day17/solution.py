@@ -12,9 +12,11 @@ class Solver(BaseSolver):
         state = ((Point(0, 0), Direction.RIGHT, 0), 0)
         seen = {}
         queue = deque([state])
-        best_so_far = float("inf")
+        best_so_far = sum(grid.data)
         while queue:
             state_key, current_cost = queue.popleft()
+            if current_cost >= best_so_far:
+                continue
             if state_key in seen and current_cost >= seen[state_key]:
                 continue
             (
@@ -22,8 +24,6 @@ class Solver(BaseSolver):
                 current_dir,
                 current_steps_straight,
             ) = state_key
-            # if current_cost > best_so_far:
-            #     continue
 
             seen[state_key] = current_cost
             if current_pos == Point(grid.w - 1, grid.h - 1):
