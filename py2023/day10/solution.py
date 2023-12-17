@@ -30,7 +30,7 @@ class Solver(BaseSolver):
     def _get_graph_and_s_pos(self) -> tuple[nx.DiGraph, Point]:
         grid = Grid.from_lines(self.data)
         graph = nx.DiGraph()
-        s_pos = grid.find_cell("S")
+        s_pos = grid.find("S")
         self._replace_s(s_pos, grid)
         for p1, _ in grid.iter():
             for p2 in self._get_valid_transitions(grid, p1):

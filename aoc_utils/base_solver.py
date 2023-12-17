@@ -59,8 +59,10 @@ class BaseSolver(ABC):
         value: str | None | Callable[[Grid, Point], str | None] = None,
         message: str | None = None,
         points_to_colors: dict[Point | None, str] | None = None,
+        values_to_colors: dict[str | None, str] | None = None,
     ) -> None:
         points_to_colors = points_to_colors or {point: "green"}
+        values_to_colors = values_to_colors or {}
         if not self._animate or not self._live or not self._animation_grid:
             return
 
@@ -74,7 +76,7 @@ class BaseSolver(ABC):
 
             self._animation_grid.replace(point, value)
 
-        grid_str = self._animation_grid.colored_str(points_to_colors)
+        grid_str = self._animation_grid.colored_str(points_to_colors, values_to_colors)
 
         if message:
             grid_str = message + "\n\n" + grid_str

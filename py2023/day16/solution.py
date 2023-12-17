@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
-from copy import deepcopy
 from collections import deque
 from typing import Iterable
 from aoc_utils.base_solver import BaseSolver, Solution
@@ -12,7 +11,7 @@ from mpire import WorkerPool
 
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
-        self._set_animation_grid(grid=deepcopy(self.grid))
+        self._set_animation_grid(grid=self.grid.copy())
         return self._shoot_light_into_grid(self.grid, Point(-1, 0), Direction.RIGHT)
 
     def _part2(self) -> Solution:
@@ -46,14 +45,26 @@ class Solver(BaseSolver):
             if current_state in seen_states:
                 continue
 
+            seen_states.add(current_state)
+
+            new_position = current_position.neighbor(current_direction)
             self._update_animation(
                 point=current_position,
                 value=current_direction.arrow,
                 message=f"current_state={current_state}",
+                points_to_colors={
+                    start_position: "blue",
+                    current_position: "green",
+                    new_position: "red",
+                },
+                values_to_colors={
+                    "\\": "cyan",
+                    "-": "cyan",
+                    "|": "cyan",
+                    "/": "cyan",
+                    ".": "black",
+                },
             )
-            seen_states.add(current_state)
-
-            new_position = current_position.neighbor(current_direction)
             obstacle = grid.get(new_position)
             for new_direction in self._bounce_beam(obstacle, current_direction):
                 queue.append((new_position, new_direction))

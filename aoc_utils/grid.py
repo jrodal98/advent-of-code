@@ -361,9 +361,14 @@ class Grid(Generic[T]):
     def upper_right(self, p: Point) -> T | None:
         return self.get(p.upper_right)
 
-    def find_cell(self, value: T) -> Point:
+    def find(self, value: T) -> Point:
         i = self.data.index(value)
         return Point(i % self.w, i // self.w)
+
+    def findall(self, value: T) -> Iterator[Point]:
+        for p, c in self.iter():
+            if c == value:
+                yield p
 
     def get(self, p: Point, default: T | None = None) -> T | None:
         if 0 <= p.x < self.w and 0 <= p.y < self.h:
@@ -413,11 +418,18 @@ class Grid(Generic[T]):
     def __str__(self) -> str:
         return "\n".join("".join(map(str, r)) for r in self.iter_rows())
 
-    def colored_str(self, points_to_colors: dict[Point | None, str]) -> str:
+    def colored_str(
+        self,
+        points_to_colors: dict[Point | None, str] | None = None,
+        values_to_color: dict[str | None, str] | None = None,
+    ) -> str:
+        points_to_colors = points_to_colors or {}
+        values_to_color = values_to_color or {}
+
         res = ["" for _ in range(self.h)]
         for i, cell in enumerate(self.data):
             x, y = i % self.w, i // self.w
-            color = points_to_colors.get(Point(x, y))
+            color = points_to_colors.get(Point(x, y), values_to_color.get(str(cell)))
             if color:
                 # this is to prevent \[{color}] from being escaped
                 if res[y]:
