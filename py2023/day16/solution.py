@@ -70,7 +70,7 @@ class Solver(BaseSolver):
                     "/": "cyan",
                     ".": "black",
                 },
-                refresh=grid.h < 15 or len(seen_states) % 50 == 1,
+                refresh=grid.h < 15 or len(seen_states) % 50 == 1 or len(queue) == 0,
             )
             obstacle = grid.get(new_position)
             for new_direction in self._bounce_beam(obstacle, current_direction):
