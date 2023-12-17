@@ -15,7 +15,7 @@ class Solver(BaseSolver):
         best_so_far = float("inf")
         while queue:
             state_key, current_cost = queue.popleft()
-            if state_key in seen and current_cost > seen[state_key]:
+            if state_key in seen and current_cost >= seen[state_key]:
                 continue
             (
                 current_pos,
@@ -29,7 +29,7 @@ class Solver(BaseSolver):
             if current_pos == Point(grid.w - 1, grid.h - 1):
                 new_cost = current_cost + grid.at(current_pos)
                 best_so_far = min(best_so_far, new_cost)
-                seen[state_key] = new_cost
+                seen[state_key] = best_so_far
                 continue
 
             dirs = [current_dir.clockwise, current_dir.counter_clockwise]
@@ -50,7 +50,7 @@ class Solver(BaseSolver):
                         (
                             next_pos,
                             d,
-                            0 if current_dir is not d else current_steps_straight + 1,
+                            1 if current_dir is not d else current_steps_straight + 1,
                         ),
                         cost_so_far,
                     )
