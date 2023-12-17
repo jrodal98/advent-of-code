@@ -12,7 +12,7 @@ from mpire import WorkerPool
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
         self._set_animation_grid(grid=self.grid.copy())
-        return self._shoot_light_into_grid(self.grid, Point(-1, 0), Direction.RIGHT)
+        return self._shoot_light_into_grid(self.grid, Point(-1, 0), Direction.RIGHT)[2]
 
     def _part2(self) -> Solution:
         boundary_states = set()
@@ -27,14 +27,18 @@ class Solver(BaseSolver):
             results = pool.map(
                 self._shoot_light_into_grid, boundary_states, progress_bar=True
             )
-        return max(results)
+        best = max(results, key=lambda x: x[2])
+        if self._animate:
+            self._set_animation_grid(grid=self.grid.copy())
+            self._shoot_light_into_grid(self.grid, best[0], best[1])[2]
+        return best[2]
 
     def _shoot_light_into_grid(
         self,
         grid: Grid,
-        start_position: Point | None,
+        start_position: Point,
         start_direction: Direction,
-    ) -> int:
+    ) -> tuple[Point | None, Direction, int]:
         seen_states = set()
         unique_positions = set()
         queue = deque([(start_position, start_direction)])
@@ -52,7 +56,7 @@ class Solver(BaseSolver):
             new_position = current_position.neighbor(current_direction)
             self._update_animation(
                 point=current_position,
-                value=current_direction.arrow,
+                value="#",
                 message=f"{current_state}, energized: {len(unique_positions) - 1} num_active_rays: {len(queue) + 1}",
                 points_to_colors={
                     start_position: "blue",
@@ -66,13 +70,13 @@ class Solver(BaseSolver):
                     "/": "cyan",
                     ".": "black",
                 },
-                refresh=True if grid.h < 15 else len(seen_states) % 50 == 1,
+                refresh=grid.h < 15 or len(seen_states) % 50 == 1,
             )
             obstacle = grid.get(new_position)
             for new_direction in self._bounce_beam(obstacle, current_direction):
                 queue.append((new_position, new_direction))
 
-        return len(unique_positions) - 1
+        return (start_position, start_direction, len(unique_positions) - 1)
 
     def _bounce_beam(
         self, obstacle: str | None, current_direction: Direction
