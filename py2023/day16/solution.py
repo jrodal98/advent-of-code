@@ -36,6 +36,7 @@ class Solver(BaseSolver):
         start_direction: Direction,
     ) -> int:
         seen_states = set()
+        unique_positions = set()
         queue = deque([(start_position, start_direction)])
         while queue:
             current_state = queue.popleft()
@@ -46,12 +47,13 @@ class Solver(BaseSolver):
                 continue
 
             seen_states.add(current_state)
+            unique_positions.add(current_position)
 
             new_position = current_position.neighbor(current_direction)
             self._update_animation(
                 point=current_position,
                 value=current_direction.arrow,
-                message=f"current_state={current_state}",
+                message=f"{current_state}, energized: {len(unique_positions) - 1} num_active_rays: {len(queue) + 1}",
                 points_to_colors={
                     start_position: "blue",
                     current_position: "green",
@@ -64,12 +66,13 @@ class Solver(BaseSolver):
                     "/": "cyan",
                     ".": "black",
                 },
+                refresh=True if grid.h < 15 else len(seen_states) % 50 == 1,
             )
             obstacle = grid.get(new_position)
             for new_direction in self._bounce_beam(obstacle, current_direction):
                 queue.append((new_position, new_direction))
 
-        return len({p for p, _ in seen_states}) - 1
+        return len(unique_positions) - 1
 
     def _bounce_beam(
         self, obstacle: str | None, current_direction: Direction

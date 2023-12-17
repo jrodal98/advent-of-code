@@ -403,7 +403,7 @@ class Grid(Generic[T]):
             if v:
                 yield v, direction
 
-    def display(self, rich: bool = True) -> None:
+    def display(self, rich: bool = False) -> None:
         if rich:
             table = Table(show_header=False, show_lines=True)
             for _ in range(self.w):
@@ -459,4 +459,4 @@ class Grid(Generic[T]):
 if __name__ == "__main__":
     grid = Grid.from_lines("123\n456\n789")
     grid.display()
-    grid.display(False)
+    grid.display(True)

@@ -49,7 +49,7 @@ class BaseSolver(ABC):
     def grid(self) -> Grid[str]:
         return Grid.from_lines(self.data)
 
-    def _set_animation_grid(self, grid: Grid | None) -> None:
+    def _set_animation_grid(self, grid: Grid | None = None) -> None:
         self._animation_grid = grid or self.grid
 
     def _update_animation(
@@ -60,6 +60,7 @@ class BaseSolver(ABC):
         message: str | None = None,
         points_to_colors: dict[Point | None, str] | None = None,
         values_to_colors: dict[str | None, str] | None = None,
+        refresh: bool = True,
     ) -> None:
         points_to_colors = points_to_colors or {point: "green"}
         values_to_colors = values_to_colors or {}
@@ -76,11 +77,14 @@ class BaseSolver(ABC):
 
             self._animation_grid.replace(point, value)
 
+        if not refresh:
+            return
+
         grid_str = self._animation_grid.colored_str(points_to_colors, values_to_colors)
 
         if message:
             grid_str = message + "\n\n" + grid_str
-        self._live.update(grid_str, refresh=True)
+        self._live.update(grid_str, refresh=refresh)
         if self._manual_step:
             input()
         elif self._lag_in_seconds:
