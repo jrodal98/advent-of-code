@@ -29,9 +29,6 @@ class Solver(BaseSolver):
             last_position += Direction.from_str(dir_str) * distance
             positions.append(last_position)
 
-        shoelace = positions + [positions[0]]
-
-        area = 0
-        for p1, p2 in zip(shoelace, shoelace[1:]):
-            area += (p1.x * p2.y) - (p1.y * p2.x)
-        return int(abs(area) / 2 + total_distance / 2 + 1)
+        inner = Point.num_inner_points(positions, use_lines=True)
+        # total_distance is equal to the number of boundary points
+        return total_distance + inner

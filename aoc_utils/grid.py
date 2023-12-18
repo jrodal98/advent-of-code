@@ -185,7 +185,7 @@ class Point:
     def manhattan_distance(self, other: Point) -> int:
         return abs(self.x - other.x) + abs(self.y - other.y)
 
-    def euiclean_distance(self, other: Point) -> float:
+    def euclidean_distance(self, other: Point) -> float:
         return sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2)
 
     def __add__(self, other: Point) -> Point:
@@ -278,6 +278,24 @@ class Point:
     @property
     def bottom_right(self) -> Point:
         return Point(self.x + 1, self.y + 1)
+
+    @classmethod
+    def num_inner_points(
+        cls, positions: Iterable[Point], *, use_lines: bool = False
+    ) -> int:
+        shoelace = list(positions)
+        shoelace.append(shoelace[0])
+        area = 0
+        if use_lines:
+            num_points = 0
+            for p1, p2 in zip(shoelace, shoelace[1:]):
+                area += (p1.x * p2.y) - (p1.y * p2.x)
+                num_points += p1.euclidean_distance(p2)
+        else:
+            num_points = len(shoelace) - 1
+            for p1, p2 in zip(shoelace, shoelace[1:]):
+                area += (p1.x * p2.y) - (p1.y * p2.x)
+        return int(area / 2 - num_points / 2 + 1)
 
 
 class Grid(Generic[T]):

@@ -19,13 +19,7 @@ class Solver(BaseSolver):
         graph, _ = self._get_graph_and_s_pos()
 
         path = sorted(list(nx.simple_cycles(graph)), key=lambda s: len(s))[-1]
-
-        shoelace = path + [path[0]]
-
-        area = 0
-        for a, b in zip(shoelace, shoelace[1:]):
-            area += (a.x * b.y) - (a.y * b.x)
-        return int(area / 2 - len(path) / 2 + 1)
+        return Point.num_inner_points(path)
 
     def _get_graph_and_s_pos(self) -> tuple[nx.DiGraph, Point]:
         grid = Grid.from_lines(self.data)
