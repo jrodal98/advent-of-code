@@ -15,7 +15,7 @@ class Solver(BaseSolver):
     def _compute(self, use_hex: bool) -> int:
         last_position = Point(0, 0)
         positions = [last_position]
-        total_distance = 0
+        num_boundary_points = 0
         for line in self.data.splitlines():
             dir_str, distance_str, hex_str = line.split()
             if use_hex:
@@ -23,12 +23,11 @@ class Solver(BaseSolver):
                 dir_str = hex_str[-2]
             else:
                 distance = int(distance_str)
-            total_distance += distance
+            num_boundary_points += distance
 
             dir_str = dir_str.translate(str.maketrans("0123", "RDLU"))
             last_position += Direction.from_str(dir_str) * distance
             positions.append(last_position)
 
-        inner = Point.num_inner_points(positions, use_lines=True)
-        # total_distance is equal to the number of boundary points
-        return total_distance + inner
+        inner_points = Point.num_inner_points(positions, use_lines=True)
+        return num_boundary_points + inner_points
