@@ -77,19 +77,8 @@ class Solver(BaseSolver):
         for p in adjusted_positions:
             grid.replace(p, "#")
 
-        # grid.display()
-        # assert False
-        # escaped = {}
-        # for p, _ in grid.iter():
-        #     can_escape(grid, p, escaped)
-
-        # for p, esc in escaped.items():
-        #     if not esc:
-        #         grid.replace(p, "#")
-
         grid_str = str(grid)
         grid = Grid.from_lines(grid_str, padding="X")
-
         graph = nx.Graph()
 
         for pos, v in grid.iter():
@@ -101,7 +90,6 @@ class Solver(BaseSolver):
                 graph.add_edge(pos, pos.neighbor(direction))
 
         reachable_points = nx.descendants(graph, Point(0, 0))
-        print(reachable_points)
         num_reachable_dots = 0
         for node in reachable_points:
             if grid.at(node) == ".":
@@ -109,13 +97,7 @@ class Solver(BaseSolver):
 
         non_reachable_dots = len(list(grid.findall("."))) - num_reachable_dots
         num_pounds = len(list(grid.findall("#")))
-        print(num_pounds, num_reachable_dots)
-
-        # grid.display()
-
-        # print(len(list(grid.findall("#"))))
         return non_reachable_dots + num_pounds
-        # return len(list(grid.findall("#")))
 
     def _part2(self) -> Solution:
         raise NotImplementedError
