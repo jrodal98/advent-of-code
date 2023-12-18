@@ -29,6 +29,30 @@ class Direction(Enum):
     def __lt__(self, other: Direction) -> bool:
         return self.value < other.value
 
+    def __mul__(self, factor: int) -> Point:
+        match self:
+            case self.UP:
+                return Point(0, -factor)
+            case self.DOWN:
+                return Point(0, factor)
+            case self.LEFT:
+                return Point(-factor, 0)
+            case self.RIGHT:
+                return Point(factor, 0)
+            case self.UPPER_LEFT:
+                return Point(-factor, -factor)
+            case self.UPPER_RIGHT:
+                return Point(factor, -factor)
+            case self.LOWER_LEFT:
+                return Point(-factor, factor)
+            case self.LOWER_RIGHT:
+                return Point(factor, factor)
+            case _:
+                raise ValueError(f"Invalid direction: {self}")
+
+    def __rmul__(self, factor: int) -> Point:
+        return self * factor
+
     @property
     def arrow(self) -> str:
         match self:

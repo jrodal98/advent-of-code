@@ -2,7 +2,7 @@
 # www.jrodal.com
 
 from aoc_utils.base_solver import BaseSolver, Solution
-from aoc_utils.grid import Point
+from aoc_utils.grid import Direction, Point
 
 
 class Solver(BaseSolver):
@@ -27,13 +27,13 @@ class Solver(BaseSolver):
 
             match dir_str:
                 case "R" | "0":
-                    last_position = last_position + Point(distance, 0)
+                    last_position += Direction.RIGHT * distance
                 case "L" | "2":
-                    last_position = last_position - Point(distance, 0)
+                    last_position += Direction.LEFT * distance
                 case "U" | "3":
-                    last_position = last_position + Point(0, distance)
+                    last_position += Direction.UP * distance
                 case "D" | "1":
-                    last_position = last_position - Point(0, distance)
+                    last_position += Direction.DOWN * distance
                 case _:
                     assert False
             positions.append(last_position)
