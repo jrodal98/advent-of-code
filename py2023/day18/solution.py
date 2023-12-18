@@ -5,6 +5,29 @@ from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.grid import Direction, Grid, Point
 
 
+def can_escape(grid: Grid, current_position: Point, escaped: dict[Point, bool]) -> bool:
+    if current_position in escaped:
+        return escaped[current_position]
+
+    escaped[current_position] = False
+
+    v = grid.at(current_position)
+    if v == "#":
+        return False
+
+    neighbors = list(grid.neighbors_with_direction(current_position))
+    if len(neighbors) < 4:
+        escaped[current_position] = True
+        return True
+    for _, dir in neighbors:
+        neighbor_escaped = can_escape(grid, current_position.neighbor(dir), escaped)
+        if neighbor_escaped:
+            escaped[current_position] = True
+            return True
+
+    return False
+
+
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
         last_position = Point(0, 0)
@@ -44,15 +67,22 @@ class Solver(BaseSolver):
         for p in positions:
             adjusted_positions.append(p.translate(min_x, min_y))
 
-        print(adjusted_positions)
         dummy_points = ["." for _ in range(h * w)]
         grid = Grid(dummy_points, w=w, h=h)
         for p in adjusted_positions:
             grid.replace(p, "#")
 
+        escaped = {}
+        for p, _ in grid.iter():
+            can_escape(grid, p, escaped)
+
+        for p, esc in escaped.items():
+            if not esc:
+                grid.replace(p, "#")
+
         grid.display()
 
-        return 0
+        return len(list(grid.findall("#")))
 
     def _part2(self) -> Solution:
         raise NotImplementedError
