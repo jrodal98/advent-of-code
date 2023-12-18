@@ -25,17 +25,8 @@ class Solver(BaseSolver):
                 distance = int(distance_str)
             total_distance += distance
 
-            match dir_str:
-                case "R" | "0":
-                    last_position += Direction.RIGHT * distance
-                case "L" | "2":
-                    last_position += Direction.LEFT * distance
-                case "U" | "3":
-                    last_position += Direction.UP * distance
-                case "D" | "1":
-                    last_position += Direction.DOWN * distance
-                case _:
-                    assert False
+            dir_str = dir_str.translate(str.maketrans("0231", "RLUD"))
+            last_position += Direction.from_str(dir_str) * distance
             positions.append(last_position)
 
         shoelace = positions + [positions[0]]
