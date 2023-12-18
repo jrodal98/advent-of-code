@@ -25,7 +25,7 @@ class Solver(BaseSolver):
                 distance = int(distance_str)
             total_distance += distance
 
-            dir_str = dir_str.translate(str.maketrans("0231", "RLUD"))
+            dir_str = dir_str.translate(str.maketrans("0123", "RDLU"))
             last_position += Direction.from_str(dir_str) * distance
             positions.append(last_position)
 
