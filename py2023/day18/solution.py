@@ -7,52 +7,33 @@ from aoc_utils.grid import Point
 
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
-        last_position = Point(0, 0)
-        positions = [last_position]
-        total_distance = 0
-        for line in self.data.splitlines():
-            d, n, _ = line.split()
-            n = int(n)
-            total_distance += n
-            match d:
-                case "R":
-                    last_position = last_position + Point(n, 0)
-                case "L":
-                    last_position = last_position - Point(n, 0)
-                case "U":
-                    last_position = last_position + Point(0, n)
-                case "D":
-                    last_position = last_position - Point(0, n)
-                case _:
-                    assert False
-            positions.append(last_position)
-
-        shoelace = positions + [positions[0]]
-
-        area = 0
-        for a, b in zip(shoelace, shoelace[1:]):
-            area += (a.x * b.y) - (a.y * b.x)
-        return int(abs(area) / 2 + total_distance / 2 + 1)
+        return self._compute(use_hex=False)
 
     def _part2(self) -> Solution:
+        return self._compute(use_hex=True)
+
+    def _compute(self, use_hex: bool) -> int:
         last_position = Point(0, 0)
         positions = [last_position]
         total_distance = 0
         for line in self.data.splitlines():
-            _, _, hex_str = line.split()
-            distance_encoded = hex_str[2:-2]
-            d = hex_str[-2]
-            n = int(distance_encoded, base=16)
-            total_distance += n
-            match d:
-                case "0":
-                    last_position = last_position + Point(n, 0)
-                case "2":
-                    last_position = last_position - Point(n, 0)
-                case "3":
-                    last_position = last_position + Point(0, n)
-                case "1":
-                    last_position = last_position - Point(0, n)
+            dir_str, distance_str, hex_str = line.split()
+            if use_hex:
+                distance = int(hex_str[2:-2], base=16)
+                dir_str = hex_str[-2]
+            else:
+                distance = int(distance_str)
+            total_distance += distance
+
+            match dir_str:
+                case "R" | "0":
+                    last_position = last_position + Point(distance, 0)
+                case "L" | "2":
+                    last_position = last_position - Point(distance, 0)
+                case "U" | "3":
+                    last_position = last_position + Point(0, distance)
+                case "D" | "1":
+                    last_position = last_position - Point(0, distance)
                 case _:
                     assert False
             positions.append(last_position)
@@ -60,6 +41,6 @@ class Solver(BaseSolver):
         shoelace = positions + [positions[0]]
 
         area = 0
-        for a, b in zip(shoelace, shoelace[1:]):
-            area += (a.x * b.y) - (a.y * b.x)
+        for p1, p2 in zip(shoelace, shoelace[1:]):
+            area += (p1.x * p2.y) - (p1.y * p2.x)
         return int(abs(area) / 2 + total_distance / 2 + 1)
