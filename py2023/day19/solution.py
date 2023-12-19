@@ -10,7 +10,6 @@ class Solver(BaseSolver):
         workflows_strs, ratings = self.data.split("\n\n")
         ratings = [[int(x) for x in re.findall(r"\d+", r)] for r in ratings.split()]
 
-        # px{a<2006:qkq,m>2090:A,rfg}
         workflow_to_rule = {}
         for ws in workflows_strs.split():
             workflow_name, _, rule = ws.partition("{")  # }
@@ -63,7 +62,6 @@ class Solver(BaseSolver):
         workflows_strs, ratings = self.data.split("\n\n")
         ratings = [[int(x) for x in re.findall(r"\d+", r)] for r in ratings.split()]
 
-        # px{a<2006:qkq,m>2090:A,rfg}
         workflow_to_rule = {}
         for ws in workflows_strs.split():
             workflow_name, _, rule = ws.partition("{")  # }
@@ -72,11 +70,17 @@ class Solver(BaseSolver):
         total = 0
         states_to_check: list[
             tuple[
-                tuple[int, int], tuple[int, int], tuple[int, int], tuple[int, int], str
+                tuple[int, int],
+                tuple[int, int],
+                tuple[int, int],
+                tuple[int, int],
+                str,
+                str,
             ]
-        ] = [((1, 4000), (1, 4000), (1, 4000), (1, 4000), "in")]
+        ] = [((1, 4000), (1, 4000), (1, 4000), (1, 4000), "in", "in")]
         while states_to_check:
-            x, m, a, s, workflow = states_to_check.pop()
+            x, m, a, s, workflow, from_workflow = states_to_check.pop()
+            print(f"{from_workflow} -> {workflow}: {x=}, {m=}, {a=}, {s=}")
             if workflow == "R":
                 continue
             elif workflow == "A":
@@ -94,7 +98,7 @@ class Solver(BaseSolver):
                 elif ">" in rule:
                     operator = ">"
                 else:
-                    states_to_check.append((x, m, a, s, rule))
+                    states_to_check.append((x, m, a, s, rule, workflow))
                     break
 
                 letter, operator, comp_value_and_next_wf = rule.partition(operator)
@@ -106,7 +110,9 @@ class Solver(BaseSolver):
                         min_x, max_x = x
                         # condition is met, check next workflow
                         if min_x > comp_value:
-                            states_to_check.append((x, m, a, s, next_workflow))
+                            states_to_check.append(
+                                (x, m, a, s, next_workflow, workflow)
+                            )
                             break
                         # condition is not met in any scenario, check next rule
                         elif max_x <= comp_value:
@@ -114,18 +120,20 @@ class Solver(BaseSolver):
                         else:
                             # x no longer meets condition
                             states_to_check.append(
-                                ((min_x, comp_value), m, a, s, workflow)
+                                ((min_x, comp_value), m, a, s, workflow, workflow)
                             )
                             # x always meets condition
                             states_to_check.append(
-                                ((comp_value + 1, max_x), m, a, s, workflow)
+                                ((comp_value + 1, max_x), m, a, s, workflow, workflow)
                             )
                             break
                     case "x", "<":
                         min_x, max_x = x
                         # condition is met, check next workflow
                         if max_x < comp_value:
-                            states_to_check.append((x, m, a, s, next_workflow))
+                            states_to_check.append(
+                                (x, m, a, s, next_workflow, workflow)
+                            )
                             break
                         # condition is not met in any scenario, check next rule
                         elif min_x >= comp_value:
@@ -133,104 +141,115 @@ class Solver(BaseSolver):
                         else:
                             # x always meets the condition
                             states_to_check.append(
-                                ((min_x, comp_value - 1), m, a, s, workflow)
+                                ((min_x, comp_value - 1), m, a, s, workflow, workflow)
                             )
                             # x never meets the condition
                             states_to_check.append(
-                                ((comp_value, max_x), m, a, s, workflow)
+                                ((comp_value, max_x), m, a, s, workflow, workflow)
                             )
                             break
                     case "m", ">":
                         min_m, max_m = m
                         if min_m > comp_value:
-                            states_to_check.append((x, m, a, s, next_workflow))
+                            states_to_check.append(
+                                (x, m, a, s, next_workflow, workflow)
+                            )
                             break
                         elif max_m <= comp_value:
                             continue
                         else:
                             states_to_check.append(
-                                (x, (min_m, comp_value), a, s, workflow)
+                                (x, (min_m, comp_value), a, s, workflow, workflow)
                             )
                             states_to_check.append(
-                                (x, (comp_value + 1, max_m), a, s, workflow)
+                                (x, (comp_value + 1, max_m), a, s, workflow, workflow)
                             )
                             break
                     case "m", "<":
                         min_m, max_m = m
                         if max_m < comp_value:
-                            states_to_check.append((x, m, a, s, next_workflow))
+                            states_to_check.append(
+                                (x, m, a, s, next_workflow, workflow)
+                            )
                             break
                         elif min_m >= comp_value:
                             continue
                         else:
                             states_to_check.append(
-                                (x, (min_m, comp_value - 1), a, s, workflow)
+                                (x, (min_m, comp_value - 1), a, s, workflow, workflow)
                             )
                             states_to_check.append(
-                                (x, (comp_value, max_m), a, s, workflow)
+                                (x, (comp_value, max_m), a, s, workflow, workflow)
                             )
                             break
                     case "a", ">":
                         min_a, max_a = a
                         if min_a > comp_value:
-                            states_to_check.append((x, m, a, s, next_workflow))
+                            states_to_check.append(
+                                (x, m, a, s, next_workflow, workflow)
+                            )
                             break
                         elif max_a <= comp_value:
                             continue
                         else:
                             states_to_check.append(
-                                (x, m, (min_a, comp_value), s, workflow)
+                                (x, m, (min_a, comp_value), s, workflow, workflow)
                             )
                             states_to_check.append(
-                                (x, m, (comp_value + 1, max_a), s, workflow)
+                                (x, m, (comp_value + 1, max_a), s, workflow, workflow)
                             )
                             break
                     case "a", "<":
                         min_a, max_a = a
                         if max_a < comp_value:
-                            states_to_check.append((x, m, a, s, next_workflow))
+                            states_to_check.append(
+                                (x, m, a, s, next_workflow, workflow)
+                            )
                             break
                         elif min_a >= comp_value:
                             continue
                         else:
                             states_to_check.append(
-                                (x, m, (min_a, comp_value - 1), s, workflow)
+                                (x, m, (min_a, comp_value - 1), s, workflow, workflow)
                             )
                             states_to_check.append(
-                                (x, m, (comp_value, max_a), s, workflow)
+                                (x, m, (comp_value, max_a), s, workflow, workflow)
                             )
                             break
                     case "s", ">":
                         min_s, max_s = s
                         if min_s > comp_value:
-                            states_to_check.append((x, m, a, s, next_workflow))
+                            states_to_check.append(
+                                (x, m, a, s, next_workflow, workflow)
+                            )
                             break
                         elif max_s <= comp_value:
                             continue
                         else:
                             states_to_check.append(
-                                (x, m, a, (min_s, comp_value), workflow)
+                                (x, m, a, (min_s, comp_value), workflow, workflow)
                             )
                             states_to_check.append(
-                                (x, m, a, (comp_value + 1, max_s), workflow)
+                                (x, m, a, (comp_value + 1, max_s), workflow, workflow)
                             )
                             break
                     case "s", "<":
                         min_s, max_s = s
                         if max_s < comp_value:
-                            states_to_check.append((x, m, a, s, next_workflow))
+                            states_to_check.append(
+                                (x, m, a, s, next_workflow, workflow)
+                            )
                             break
                         elif min_s >= comp_value:
                             continue
                         else:
                             states_to_check.append(
-                                (x, m, a, (min_s, comp_value - 1), workflow)
+                                (x, m, a, (min_s, comp_value - 1), workflow, workflow)
                             )
                             states_to_check.append(
-                                (x, m, a, (comp_value, max_s), workflow)
+                                (x, m, a, (comp_value, max_s), workflow, workflow)
                             )
                             break
                     case _, _:
                         assert False
-
         return total
