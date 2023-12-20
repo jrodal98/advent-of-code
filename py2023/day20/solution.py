@@ -25,25 +25,44 @@ class Solver(BaseSolver):
                 module_states[from_module[1:]] = False
             else:
                 conjunctions[from_module[1:]] = modules
-                module_states[from_module[1:]] = {m: False for m in modules}
+                module_states[from_module[1:]] = {}
 
-        print(broadcaster, flip_flops, conjunctions)
+        for k, modules in flip_flops.items():
+            for m in modules:
+                if m in conjunctions:
+                    module_states[m][k] = False
+        for k, modules in conjunctions.items():
+            for m in modules:
+                if m in conjunctions:
+                    module_states[m][k] = False
+        # for m in broadcaster:
+        #     if m in conjunctions:
+        #         module_states[m]["broadcaster"] = True
 
         signals_to_process: deque[tuple[str, str, bool]] = deque(
-            [("broadcaster", "broadcaster", False)]
+            [("broadcaster", "button", False)]
         )
         low_pulses = 0
         high_pulses = 0
         button_presses = 0
-        while button_presses < 1000:
-            if not signals_to_process:
-                for flip_flop in flip_flops.keys():
-                    if module_states[flip_flop]:
-                        signals_to_process.append(("broadcaster", "broadcaster", False))
-                        break
-                if not signals_to_process:
-                    break
-            current_module, input_module, input_signal = signals_to_process.popleft()
+        while button_presses < 1000 or signals_to_process:
+            if signals_to_process:
+                (
+                    current_module,
+                    input_module,
+                    input_signal,
+                ) = signals_to_process.popleft()
+            else:
+                current_module, input_module, input_signal = (
+                    "broadcaster",
+                    "button",
+                    False,
+                )
+            # print(
+            #     f"{input_module} -{'high' if input_signal else 'low'}-> {current_module}"
+            # )
+            # print(module_states)
+
             if current_module in flip_flops:
                 if input_signal:
                     continue
@@ -60,8 +79,11 @@ class Solver(BaseSolver):
                         low_pulses += 1
 
             elif current_module in conjunctions:
-                module_states[current_module][input_module] = True
-                output_signal = all(module_states[current_module].values())
+                if input_module in module_states[current_module]:
+                    module_states[current_module][input_module] = input_signal
+                output_signal = not all(module_states[current_module].values())
+                # Then, if it remembers high pulses for all inputs, it sends a low pulse;
+                # otherwise, it sends a high pulse.
 
                 for next_module in conjunctions[current_module]:
                     signals_to_process.append(
@@ -74,9 +96,11 @@ class Solver(BaseSolver):
 
             else:
                 button_presses += 1
+                low_pulses += 1
                 for next_module in broadcaster:
                     signals_to_process.append((next_module, current_module, False))
                     low_pulses += 1
+        print(button_presses, low_pulses, high_pulses)
         return low_pulses * high_pulses
 
     def _part2(self) -> Solution:
