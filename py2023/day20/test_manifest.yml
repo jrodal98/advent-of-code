@@ -1,6 +1,6 @@
 part1:
-  # - input: sample1.txt
-  #   output: 32000000
+  - input: sample1.txt
+    output: 32000000
   - input: sample2.txt
     output: 11687500
 part2:
