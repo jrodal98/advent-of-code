@@ -23,7 +23,7 @@ class Solver(BaseSolver):
             elif from_module[0] == "%":
                 flip_flops[from_module[1:]] = modules
                 module_states[from_module[1:]] = False
-            else:
+            elif from_module[0] == "&":
                 conjunctions[from_module[1:]] = modules
                 module_states[from_module[1:]] = {}
 
@@ -59,9 +59,8 @@ class Solver(BaseSolver):
                     False,
                 )
             # print(
-            #     f"{input_module} -{'high' if input_signal else 'low'}-> {current_module}"
+            #     f"{input_module} -{'high' if input_signal else 'low'}-> {current_module}, {button_presses=}"
             # )
-            # print(module_states)
 
             if current_module in flip_flops:
                 if input_signal:
@@ -94,7 +93,7 @@ class Solver(BaseSolver):
                     else:
                         low_pulses += 1
 
-            else:
+            elif current_module == "broadcaster":
                 button_presses += 1
                 low_pulses += 1
                 for next_module in broadcaster:
