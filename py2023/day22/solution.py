@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
-from typing import Iterator
-
 
 from aoc_utils.base_solver import BaseSolver, Solution
 from dataclasses import dataclass
@@ -20,19 +18,10 @@ class Point3D:
         return cls(int(x), int(y), int(z))
 
 
-def get_identifier() -> Iterator[str]:
-    for c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
-        yield c
-
-
-IDENTIFIERS = get_identifier()
-
-
 @dataclass(frozen=True)
 class Brick:
     p1: Point3D
     p2: Point3D
-    identifier: str = "unknown"
 
     @classmethod
     def from_string(cls, s: str) -> "Brick":
@@ -40,7 +29,6 @@ class Brick:
         return cls(
             Point3D.from_string(p1),
             Point3D.from_string(p2),
-            next(IDENTIFIERS, "unknown"),
         )
 
     def __lt__(self, other: "Brick") -> bool:
@@ -55,55 +43,28 @@ class Brick:
             and other.p1.y <= self.p2.y
         )
 
+    def drop(self) -> "Brick":
+        return Brick(
+            Point3D(self.p1.x, self.p1.y, self.p1.z - 1),
+            Point3D(self.p2.x, self.p2.y, self.p2.z - 1),
+        )
+
 
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
-        bricks = [Brick.from_string(s) for s in self.data.splitlines()]
-        bricks.sort()
-        for i, brick in enumerate(bricks):
-            while brick.p1.z > 1 and not any(
-                brick.on_top_of_other_brick(b) for b in bricks[:i]
-            ):
-                brick = Brick(
-                    Point3D(brick.p1.x, brick.p1.y, brick.p1.z - 1),
-                    Point3D(brick.p2.x, brick.p2.y, brick.p2.z - 1),
-                    brick.identifier,
-                )
-            bricks[i] = brick
-
-        brick_is_on_map = {}
-        brick_supports_map = {}
-
-        for i in range(len(bricks)):
-            for j in range(len(bricks)):
-                if i != j and bricks[i].on_top_of_other_brick(bricks[j]):
-                    brick_is_on_map.setdefault(bricks[i], []).append(bricks[j])
-                    brick_supports_map.setdefault(bricks[j], []).append(bricks[i])
-
-        ans = 0
-        for brick in bricks:
-            bricks_it_supports = brick_supports_map.get(brick, [])
-            can_disintegrate = True
-            for b in bricks_it_supports:
-                if len(brick_is_on_map[b]) == 1:
-                    can_disintegrate = False
-                    break
-            ans += int(can_disintegrate)
-
-        return ans
+        return list(self._brick_fall_counts().values()).count(0)
 
     def _part2(self) -> Solution:
+        return sum(self._brick_fall_counts().values())
+
+    def _brick_fall_counts(self) -> dict[Brick, int]:
         bricks = [Brick.from_string(s) for s in self.data.splitlines()]
         bricks.sort()
         for i, brick in enumerate(bricks):
             while brick.p1.z > 1 and not any(
                 brick.on_top_of_other_brick(b) for b in bricks[:i]
             ):
-                brick = Brick(
-                    Point3D(brick.p1.x, brick.p1.y, brick.p1.z - 1),
-                    Point3D(brick.p2.x, brick.p2.y, brick.p2.z - 1),
-                    brick.identifier,
-                )
+                brick = brick.drop()
             bricks[i] = brick
 
         brick_is_on_map = {}
@@ -115,12 +76,12 @@ class Solver(BaseSolver):
                     brick_is_on_map.setdefault(bricks[i], set()).add(bricks[j])
                     brick_supports_map.setdefault(bricks[j], set()).add(bricks[i])
 
-        bricks.sort(reverse=True)
-
-        return sum(
-            calc_bricks_that_would_fall(b, brick_is_on_map, brick_supports_map, set())
+        return {
+            b: calc_bricks_that_would_fall(
+                b, brick_is_on_map, brick_supports_map, set()
+            )
             for b in bricks
-        )
+        }
 
 
 def calc_bricks_that_would_fall(
