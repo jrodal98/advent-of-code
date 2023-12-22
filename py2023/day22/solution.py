@@ -3,7 +3,6 @@
 
 from typing import Iterator
 
-from rich.progress import track
 
 from aoc_utils.base_solver import BaseSolver, Solution
 from dataclasses import dataclass
@@ -45,21 +44,9 @@ class Brick:
         )
 
     def __lt__(self, other: "Brick") -> bool:
-        return self.p1.z < other.p1.z
-
-    #     1,0,1~1,2,1   <- A
-    #     0,0,2~2,0,2   <- B
-    #     0,2,3~2,2,3   <- C
+        return max(self.p1.z, self.p2.z) < max(other.p1.z, other.p2.z)
 
     def on_top_of_other_brick(self, other: "Brick") -> bool:
-        # xs1,ys1,zs1 = self.start
-        # xe1,ye1,ze1 = self.end
-        # xs2,ys2,zs2 = other.start
-        # xe2,ye2,ze2 = other.end
-
-        # return (xs1<=xe2 and xs2<=xe1 and
-        #         ys1<=ye2 and ys2<=ye1 and
-        #         zs1<=ze2 and zs2<=ze1)
         return (
             self.p1.z == other.p2.z + 1
             and self.p1.x <= other.p2.x
@@ -119,17 +106,34 @@ class Solver(BaseSolver):
                 )
             bricks[i] = brick
 
-        ans = 0
-        for i in track(range(len(bricks))):
-            bricks_to_check = bricks[:i] + bricks[i + 1 :]
-            fell = False
-            for j, brick in enumerate(bricks_to_check):
-                if brick.p1.z > 1 and not any(
-                    brick.on_top_of_other_brick(b) for b in bricks_to_check[:j]
-                ):
-                    fell = True
-                    break
-            if not fell:
-                ans += 1
+        brick_is_on_map = {}
+        brick_supports_map = {}
 
-        return ans
+        for i in range(len(bricks)):
+            for j in range(len(bricks)):
+                if i != j and bricks[i].on_top_of_other_brick(bricks[j]):
+                    brick_is_on_map.setdefault(bricks[i], set()).add(bricks[j])
+                    brick_supports_map.setdefault(bricks[j], set()).add(bricks[i])
+
+        bricks.sort(reverse=True)
+
+        return sum(
+            calc_bricks_that_would_fall(b, brick_is_on_map, brick_supports_map, set())
+            for b in bricks
+        )
+
+
+def calc_bricks_that_would_fall(
+    brick: Brick,
+    brick_is_on_map,
+    brick_supports_map,
+    fallen_bricks,
+) -> int:
+    fallen_bricks.add(brick)
+    bricks_it_supports = brick_supports_map.get(brick, set())
+    for b in bricks_it_supports:
+        if not brick_is_on_map[b] - fallen_bricks:
+            calc_bricks_that_would_fall(
+                b, brick_is_on_map, brick_supports_map, fallen_bricks
+            )
+    return len(fallen_bricks) - 1
