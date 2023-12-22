@@ -77,24 +77,23 @@ class Solver(BaseSolver):
                     brick_supports_map.setdefault(bricks[j], set()).add(bricks[i])
 
         return {
-            b: calc_bricks_that_would_fall(
+            b: self._calc_bricks_that_would_fall(
                 b, brick_is_on_map, brick_supports_map, set()
             )
             for b in bricks
         }
 
-
-def calc_bricks_that_would_fall(
-    brick: Brick,
-    brick_is_on_map,
-    brick_supports_map,
-    fallen_bricks,
-) -> int:
-    fallen_bricks.add(brick)
-    bricks_it_supports = brick_supports_map.get(brick, set())
-    for b in bricks_it_supports:
-        if not brick_is_on_map[b] - fallen_bricks:
-            calc_bricks_that_would_fall(
-                b, brick_is_on_map, brick_supports_map, fallen_bricks
-            )
-    return len(fallen_bricks) - 1
+    def _calc_bricks_that_would_fall(
+        self,
+        brick: Brick,
+        brick_is_on_map: dict[Brick, set[Brick]],
+        brick_supports_map: dict[Brick, set[Brick]],
+        fallen_bricks: set[Brick],
+    ) -> int:
+        fallen_bricks.add(brick)
+        for b in brick_supports_map.get(brick, set()):
+            if not brick_is_on_map[b] - fallen_bricks:
+                self._calc_bricks_that_would_fall(
+                    b, brick_is_on_map, brick_supports_map, fallen_bricks
+                )
+        return len(fallen_bricks) - 1
