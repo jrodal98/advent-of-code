@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
-from rich.progress import track
 from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.grid import Direction, Grid, Point
 import networkx as nx
@@ -47,7 +46,7 @@ class Solver(BaseSolver):
             if len(list(self.grid.neighbors(source, disqualify="#"))) > 2:
                 junctions.add(source)
 
-        graph = nx.DiGraph()
+        graph = nx.Graph()
         for source in junctions:
             queue: deque[tuple[Point, int]] = deque([(source, 0)])
             seen = set()
@@ -64,10 +63,35 @@ class Solver(BaseSolver):
                 ):
                     queue.append((neighbor_p, dist + 1))
 
-        all_paths = nx.all_simple_paths(
-            graph, Point(1, 0), Point(self.grid.w - 2, self.grid.h - 1)
+        return self.graph_dfs(
+            graph, Point(1, 0), Point(self.grid.w - 2, self.grid.h - 1), set(), 0
         )
-        ans = 0
-        for p in track(all_paths):
-            ans = max(ans, nx.path_weight(graph, p, weight="weight"))
-        return ans
+
+    def graph_dfs(
+        self,
+        graph: nx.Graph,
+        current_position: Point,
+        target_position: Point,
+        visited: set[Point],
+        steps: int,
+    ) -> Solution:
+        if current_position == target_position:
+            return steps
+
+        longest_path_length = -1
+        visited.add(current_position)
+        for new_position in graph.neighbors(current_position):
+            if new_position not in visited:
+                longest_path_length = max(
+                    longest_path_length,
+                    self.graph_dfs(
+                        graph,
+                        new_position,
+                        target_position,
+                        visited,
+                        steps
+                        + graph.get_edge_data(current_position, new_position)["weight"],
+                    ),
+                )
+        visited.remove(current_position)
+        return longest_path_length
