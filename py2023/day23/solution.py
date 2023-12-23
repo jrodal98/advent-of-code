@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
+from rich.progress import track
 from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.grid import Direction, Grid, Point
 import networkx as nx
@@ -72,8 +73,6 @@ class Solver(BaseSolver):
             graph, Point(1, 0), Point(self.grid.w - 2, self.grid.h - 1)
         )
         ans = 0
-        for i, p in enumerate(all_paths):
+        for p in track(all_paths):
             ans = max(ans, nx.path_weight(graph, p, weight="weight"))
-            if i % 1000 == 0:
-                print(ans)
         return ans
