@@ -57,7 +57,8 @@ class Solver(BaseSolver):
             self._update_animation(
                 point=current_position,
                 value=current_direction.arrow,
-                message=f"{current_state}, energized: {len(unique_positions) - 1} num_active_rays: {len(queue) + 1}",
+                message=f"{current_state}, energized: {len(unique_positions) - 1} "
+                f"num_active_rays: {len(queue) + 1}",
                 points_to_colors={
                     start_position: "blue",
                     current_position: "green",

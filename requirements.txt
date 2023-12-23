@@ -4,3 +4,4 @@ rich~=13.7.0
 pyyaml
 numpy
 networkx
+mpire
