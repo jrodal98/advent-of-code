@@ -7,7 +7,6 @@ import shutil
 import click
 import aocd
 
-from enum import Enum
 
 from rich.markdown import Markdown
 from rich.traceback import install
@@ -21,14 +20,7 @@ from consts import YEAR, DAY, CONSOLE
 
 
 def gen_solution_dir(day: int, year: int) -> str:
-    return os.path.join(f"py{year}", f"day{day}")
-
-
-class Task(Enum):
-    RUN_PART1_TESTS = "Running Part1 tests"
-    SOLVE_PART1 = "Solving Part1"
-    RUN_PART2_TESTS = "Running Part2 tests"
-    SOLVE_PART2 = "Solving Part2"
+    return os.path.join(f"py{year}", f"day{day:02}")
 
 
 @click.group()
