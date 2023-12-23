@@ -401,7 +401,7 @@ class Grid(Generic[T]):
         return self.data[p.y * self.w + p.x]
 
     def replace(self, p: Point, value: T, color: str | None = None) -> None:
-        if not self.get(p):
+        if self.get(p) is None:
             return
         if color and isinstance(value, str):
             value = f"[{color}]{value}[/]"  # pyright: ignore
