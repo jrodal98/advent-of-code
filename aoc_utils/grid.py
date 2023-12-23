@@ -397,8 +397,11 @@ class Grid(Generic[T]):
     def cols(self) -> list[list[T]]:
         return [list(c) for c in self.iter_cols()]
 
-    def at(self, p: Point) -> T:
-        return self.data[p.y * self.w + p.x]
+    def at(self, p: Point, *, allow_overflow: bool = False) -> T:
+        x, y = p
+        if allow_overflow:
+            x, y = x % self.w, y % self.h
+        return self.data[y * self.w + x]
 
     def replace(self, p: Point, value: T, color: str | None = None) -> None:
         if self.get(p) is None:
@@ -440,9 +443,11 @@ class Grid(Generic[T]):
             if c == value:
                 yield p
 
-    def get(self, p: Point, default: T | None = None) -> T | None:
-        if 0 <= p.x < self.w and 0 <= p.y < self.h:
-            return self.at(p)
+    def get(
+        self, p: Point, default: T | None = None, *, allow_overflow: bool = False
+    ) -> T | None:
+        if (0 <= p.x < self.w and 0 <= p.y < self.h) or allow_overflow:
+            return self.at(p, allow_overflow=allow_overflow)
         else:
             return default
 
@@ -455,10 +460,12 @@ class Grid(Generic[T]):
             if v:
                 yield v
 
-    def neighbors_with_direction(self, p: Point) -> Iterator[tuple[T, Direction]]:
+    def neighbors_with_direction(
+        self, p: Point, *, disqualify: str | None = None, allow_overflow: bool = False
+    ) -> Iterator[tuple[T, Direction]]:
         for neighbor, direction in p.neighbors_with_direction():
-            v = self.get(neighbor)
-            if v:
+            v = self.get(neighbor, allow_overflow=allow_overflow)
+            if v is not None and v != disqualify:
                 yield v, direction
 
     def neighbors8(self, p: Point) -> Iterator[T]:
