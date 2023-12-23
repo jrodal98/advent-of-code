@@ -54,7 +54,7 @@ class Solver(BaseSolver):
             if steps_taken == maximum_steps_allowed:
                 continue
 
-            for _, neighbor_p, _ in self.grid.neighbors(
+            for neighbor_p, _, _ in self.grid.neighbors(
                 current_place, disqualify="#", allow_overflow=allow_overflow
             ):
                 places_to_go.append(

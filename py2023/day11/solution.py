@@ -36,6 +36,5 @@ class Solver(BaseSolver):
                 for j in range(x, grid.w):
                     x_translation[j] += expansion - 1
 
-        for p, cell in grid.iter():
-            if cell == "#":
-                yield p.translate(x_translation[p.x], y_translation[p.y])
+        for p, _ in grid.iter(qualify="#"):
+            yield p.translate(x_translation[p.x], y_translation[p.y])

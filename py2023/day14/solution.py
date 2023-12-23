@@ -64,9 +64,7 @@ class Solver(BaseSolver):
         if transposed:
             grid = grid.transpose()
 
-        for i, (p, c) in enumerate(grid.iter(reverse)):
-            if c != "O":
-                continue
+        for i, (p, _) in enumerate(grid.iter(reverse, qualify="O")):
             self._update_animation(point=p, refresh=grid.h < 15 or i % 10 == 0)
             while grid.get_neighbor(p, direction) == ".":
                 p = grid.swap(p, direction)

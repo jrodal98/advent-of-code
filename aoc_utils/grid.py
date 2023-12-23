@@ -343,15 +343,23 @@ class Grid(Generic[T]):
             rows.append([padding] * len(rows[0]))
         return cls([cell for row in rows for cell in row], w=len(rows[0]), h=len(rows))
 
-    def iter(self, reverse: bool = False) -> Iterator[tuple[Point, T]]:
+    def iter(
+        self,
+        reverse: bool = False,
+        disqualify: str | None = None,
+        qualify: str | None = None,
+    ) -> Iterator[tuple[Point, T]]:
         if reverse:
             for i in reversed(range(len(self.data))):
                 x, y = i % self.w, i // self.w
-                yield Point(x, y), self.data[i]
+                cell = self.data[i]
+                if cell != disqualify and (not qualify or cell == qualify):
+                    yield Point(x, y), cell
         else:
             for i, cell in enumerate(self.data):
                 x, y = i % self.w, i // self.w
-                yield Point(x, y), cell
+                if cell != disqualify and (not qualify or cell == qualify):
+                    yield Point(x, y), cell
 
     def get_neighbor(
         self, p: Point | None, direction: Direction, default: T | None = None
@@ -458,15 +466,16 @@ class Grid(Generic[T]):
         p: Point,
         *,
         disqualify: str | None = None,
+        qualify: str | None = None,
         allow_overflow: bool = False,
         include_diagonal: bool = False,
-    ) -> Iterator[tuple[T, Point, Direction]]:
+    ) -> Iterator[tuple[Point, T, Direction]]:
         for neighbor, direction in p.neighbors_with_direction(
             include_diagonal=include_diagonal
         ):
             v = self.get(neighbor, allow_overflow=allow_overflow)
-            if v is not None and v != disqualify:
-                yield v, neighbor, direction
+            if v is not None and v != disqualify and (not qualify or v == qualify):
+                yield neighbor, v, direction
 
     def display(self, rich: bool = False) -> None:
         if rich:
