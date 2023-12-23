@@ -7,6 +7,10 @@ from collections import deque
 
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
+        if self._is_unit_test:
+            target_steps = 6
+        else:
+            target_steps = 64
         visited = set()
         visited_at_six = set()
         places_to_go = deque([(self.grid.find("S"), 0)])
@@ -17,7 +21,7 @@ class Solver(BaseSolver):
             if (current_place, steps_taken) in visited:
                 continue
             visited.add((current_place, steps_taken))
-            if steps_taken == 64:
+            if steps_taken == target_steps:
                 visited_at_six.add(current_place)
                 continue
 

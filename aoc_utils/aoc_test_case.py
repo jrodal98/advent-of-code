@@ -83,7 +83,7 @@ class AOCTestCase(unittest.TestCase, ABC):
                 if len(test_input) == 0:
                     continue
 
-                solver = self._SOLVER(test_input)
+                solver = self._SOLVER(test_input, is_unit_test=True)
                 match self._PROBLEM_PART:
                     case ProblemPart.PART1:
                         solution = solver.part1()

@@ -36,6 +36,7 @@ class BaseSolver(ABC):
         animate: bool = False,
         lag: float = 0,
         step: bool = False,
+        is_unit_test: bool = False,
     ) -> None:
         self.data = data.rstrip("\r\n")
         self.console = console or CONSOLE
@@ -45,6 +46,7 @@ class BaseSolver(ABC):
         self._live: Live | None = None
         self._step = step
         self._started_animation = False
+        self._is_unit_test = is_unit_test
 
     @cached_property
     def grid(self) -> Grid[str]:
