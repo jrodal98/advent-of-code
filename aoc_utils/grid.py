@@ -221,31 +221,33 @@ class Point:
             case _:
                 raise ValueError(f"Invalid direction: {direction}")
 
-    def neighbors_with_direction(self) -> Iterator[tuple[Point, Direction]]:
+    def neighbors_with_direction(
+        self, *, include_diagonal: bool = False
+    ) -> Iterator[tuple[Point, Direction]]:
+        if include_diagonal:
+            yield from (
+                (self.left, Direction.LEFT),
+                (self.right, Direction.RIGHT),
+                (self.up, Direction.UP),
+                (self.down, Direction.DOWN),
+                (self.upper_left, Direction.UPPER_LEFT),
+                (self.upper_right, Direction.UPPER_RIGHT),
+                (self.bottom_left, Direction.LOWER_LEFT),
+                (self.bottom_right, Direction.LOWER_RIGHT),
+            )
+        else:
+            yield from (
+                (self.left, Direction.LEFT),
+                (self.right, Direction.RIGHT),
+                (self.up, Direction.UP),
+                (self.down, Direction.DOWN),
+            )
+
+    def neighbors(self, *, include_diagonal: bool = False) -> Iterator[Point]:
         yield from (
-            (self.left, Direction.LEFT),
-            (self.right, Direction.RIGHT),
-            (self.up, Direction.UP),
-            (self.down, Direction.DOWN),
+            p
+            for p, _ in self.neighbors_with_direction(include_diagonal=include_diagonal)
         )
-
-    def neighbors(self) -> Iterator[Point]:
-        yield from (p for p, _ in self.neighbors_with_direction())
-
-    def neighbors8_with_direction(self) -> Iterator[tuple[Point, Direction]]:
-        yield from (
-            (self.left, Direction.LEFT),
-            (self.right, Direction.RIGHT),
-            (self.up, Direction.UP),
-            (self.down, Direction.DOWN),
-            (self.upper_left, Direction.UPPER_LEFT),
-            (self.upper_right, Direction.UPPER_RIGHT),
-            (self.bottom_left, Direction.LOWER_LEFT),
-            (self.bottom_right, Direction.LOWER_RIGHT),
-        )
-
-    def neighbors8(self) -> Iterator[Point]:
-        yield from (p for p, _ in self.neighbors8_with_direction())
 
     @property
     def left(self) -> Point:
@@ -454,31 +456,17 @@ class Grid(Generic[T]):
     def neighbors(
         self,
         p: Point,
-    ) -> Iterator[T]:
-        for neighbor in p.neighbors():
-            v = self.get(neighbor)
-            if v:
-                yield v
-
-    def neighbors_with_direction(
-        self, p: Point, *, disqualify: str | None = None, allow_overflow: bool = False
-    ) -> Iterator[tuple[T, Direction]]:
-        for neighbor, direction in p.neighbors_with_direction():
+        *,
+        disqualify: str | None = None,
+        allow_overflow: bool = False,
+        include_diagonal: bool = False,
+    ) -> Iterator[tuple[T, Point, Direction]]:
+        for neighbor, direction in p.neighbors_with_direction(
+            include_diagonal=include_diagonal
+        ):
             v = self.get(neighbor, allow_overflow=allow_overflow)
             if v is not None and v != disqualify:
-                yield v, direction
-
-    def neighbors8(self, p: Point) -> Iterator[T]:
-        for neighbor in p.neighbors8():
-            v = self.get(neighbor)
-            if v:
-                yield v
-
-    def neighbors8_with_direction(self, p: Point) -> Iterator[tuple[T, Direction]]:
-        for neighbor, direction in p.neighbors8_with_direction():
-            v = self.get(neighbor)
-            if v:
-                yield v, direction
+                yield v, neighbor, direction
 
     def display(self, rich: bool = False) -> None:
         if rich:

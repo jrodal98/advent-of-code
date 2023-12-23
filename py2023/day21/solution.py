@@ -54,12 +54,12 @@ class Solver(BaseSolver):
             if steps_taken == maximum_steps_allowed:
                 continue
 
-            for _, direction in self.grid.neighbors_with_direction(
+            for _, neighbor_p, _ in self.grid.neighbors(
                 current_place, disqualify="#", allow_overflow=allow_overflow
             ):
                 places_to_go.append(
                     (
-                        current_place.neighbor(direction),
+                        neighbor_p,
                         steps_taken + 1,
                     )
                 )

@@ -65,9 +65,10 @@ class Solver(BaseSolver):
                 if current_pos != source and current_pos in junctions:
                     graph.add_edge(source, current_pos, weight=dist)
                     continue
-                for n, d in self.grid.neighbors_with_direction(current_pos):
-                    if n != "#":
-                        queue.append((current_pos.neighbor(d), dist + 1))
+                for _, neighbor_p, _ in self.grid.neighbors(
+                    current_pos, disqualify="#"
+                ):
+                    queue.append((neighbor_p, dist + 1))
 
         all_paths = nx.all_simple_paths(
             graph, Point(1, 0), Point(self.grid.w - 2, self.grid.h - 1)
