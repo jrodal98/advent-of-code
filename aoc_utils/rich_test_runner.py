@@ -11,9 +11,8 @@ from rich.traceback import Traceback
 from typing import Type
 
 
-
 class RichTestResult(unittest.TextTestResult):
-    def _exc_info_to_string(self, err, test):
+    def _exc_info_to_string(self, err, _):
         exctype, value, tb = err
         file = StringIO()
         console = Console(
