@@ -154,13 +154,13 @@ class Direction(Enum):
     @classmethod
     def from_str(cls, s: str) -> Direction:
         match s.upper():
-            case "L" | "LEFT" | "WEST" | "W":
+            case "L" | "LEFT" | "WEST" | "W" | "<":
                 return Direction.LEFT
-            case "U" | "UP" | "NORTH" | "N":
+            case "U" | "UP" | "NORTH" | "N" | "^":
                 return Direction.UP
-            case "R" | "RIGHT" | "EAST" | "E":
+            case "R" | "RIGHT" | "EAST" | "E" | ">":
                 return Direction.RIGHT
-            case "D" | "DOWN" | "SOUTH" | "S":
+            case "D" | "DOWN" | "SOUTH" | "S" | "V":
                 return Direction.DOWN
             case "UL" | "UPPER LEFT" | "NW" | "NORTHWEST":
                 return Direction.UPPER_LEFT
