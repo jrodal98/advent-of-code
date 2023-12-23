@@ -1,72 +1,66 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
-from aoc_utils.base_solver import BaseSolver, Solution
+import numpy as np
+
 from collections import deque
+
+from aoc_utils.base_solver import BaseSolver, Solution
+from aoc_utils.grid import Point
 
 
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
         if self._is_unit_test:
-            target_steps = 6
+            return self._compute_num_visited_after_steps(
+                target_steps=6, allow_overflow=False
+            )[0]
         else:
-            target_steps = 64
-        visited = set()
-        visited_at_six = set()
-        places_to_go = deque([(self.grid.find("S"), 0)])
-        while places_to_go:
-            if not places_to_go:
-                break
-            current_place, steps_taken = places_to_go.popleft()
-            if (current_place, steps_taken) in visited:
-                continue
-            visited.add((current_place, steps_taken))
-            if steps_taken == target_steps:
-                visited_at_six.add(current_place)
-                continue
-
-            for neighbor, direction in self.grid.neighbors_with_direction(
-                current_place
-            ):
-                if neighbor in (".", "S"):
-                    places_to_go.append(
-                        (
-                            current_place.neighbor(direction),
-                            steps_taken + 1,  # pyright: ignore
-                        )
-                    )
-        return len(visited_at_six)
+            return self._compute_num_visited_after_steps(
+                target_steps=64, allow_overflow=False
+            )[0]
 
     def _part2(self) -> Solution:
         if self._is_unit_test:
-            target_steps = 100
-        else:
-            target_steps = 26501365
+            return self._compute_num_visited_after_steps(
+                target_steps=100, allow_overflow=True
+            )[0]
+        v1, v2, v3 = self._compute_num_visited_after_steps(
+            target_steps=[65, 65 + 131, 65 + 131 * 2], allow_overflow=True
+        )
+
+        # shamelessly stolen from https://gist.github.com/dllu/0ca7bfbd10a199f69bcec92f067ec94c
+        vandermonde = np.matrix([[0, 0, 1], [1, 1, 1], [4, 2, 1]])
+        b = np.array([v1, v2, v3])
+        x = np.linalg.solve(vandermonde, b).astype(np.int64)
+        n = 202300
+        return x[0] * n * n + x[1] * n + x[2]
+
+    def _compute_num_visited_after_steps(
+        self, target_steps: int | list[int], allow_overflow: bool
+    ) -> list[int]:
+        if isinstance(target_steps, int):
+            target_steps = [target_steps]
+
+        maximum_steps_allowed = max(target_steps)
+
         visited = set()
-        visited_at_six = set()
-        places_to_go = deque([(self.grid.find("S"), 0)])
+        places_to_go: deque[tuple[Point, int]] = deque([(self.grid.find("S"), 0)])
         while places_to_go:
-            if not places_to_go:
-                break
             current_place, steps_taken = places_to_go.popleft()
             if (current_place, steps_taken) in visited:
                 continue
             visited.add((current_place, steps_taken))
-            if steps_taken == target_steps:
-                visited_at_six.add(current_place)
+            if steps_taken == maximum_steps_allowed:
                 continue
 
-            # TODO: need to add the "allow_overflow" logic to neighbors
             for _, direction in self.grid.neighbors_with_direction(
-                current_place, disqualify="#", allow_overflow=True
+                current_place, disqualify="#", allow_overflow=allow_overflow
             ):
                 places_to_go.append(
                     (
                         current_place.neighbor(direction),
-                        steps_taken + 1,  # pyright: ignore
+                        steps_taken + 1,
                     )
                 )
-        if self._is_unit_test:
-            return len(visited_at_six)
-
-        return 0
+        return [sum(steps == target for _, steps in visited) for target in target_steps]
