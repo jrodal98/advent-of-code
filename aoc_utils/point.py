@@ -169,6 +169,14 @@ class Point:
     x: int
     y: int
 
+    @property
+    def row(self) -> int:
+        return self.y
+
+    @property
+    def col(self) -> int:
+        return self.x
+
     def translate(self, dx: int = 0, dy: int = 0) -> Point:
         return Point(self.x + dx, self.y + dy)
 
