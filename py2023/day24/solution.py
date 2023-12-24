@@ -108,7 +108,7 @@ class Solver(BaseSolver):
             solver.add(x + vx * t == line.x + line.vx * t)
             solver.add(y + vy * t == line.y + line.vy * t)
             solver.add(z + vz * t == line.z + line.vz * t)
-        _ = solver.check()
+        assert solver.check() == z3.sat
         model = solver.model()
         ans = model.eval(x + y + z)
         return int(str(ans))
