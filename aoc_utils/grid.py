@@ -121,7 +121,7 @@ class Grid(Generic[T]):
         return [list(c) for c in self.iter_cols()]
 
     def at(self, p: Point, *, allow_overflow: bool = False) -> T:
-        x, y = p
+        x, y = p.x, p.y
         if allow_overflow:
             x, y = x % self.w, y % self.h
         return self.data[y * self.w + x]
