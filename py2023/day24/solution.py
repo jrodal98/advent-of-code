@@ -94,16 +94,16 @@ class Solver(BaseSolver):
 
         # shamelessly stolen from https://github.com/mebeim/aoc/blob/master/2023/original_solutions/day24.py
         x, y, z, vx, vy, vz = (
-            z3.Int("x"),
-            z3.Int("y"),
-            z3.Int("z"),
-            z3.Int("vx"),
-            z3.Int("vy"),
-            z3.Int("vz"),
+            z3.Real("x"),
+            z3.Real("y"),
+            z3.Real("z"),
+            z3.Real("vx"),
+            z3.Real("vy"),
+            z3.Real("vz"),
         )
         solver = z3.Solver()
         for i, line in enumerate(lines):
-            t = z3.Int(f"T{i}")
+            t = z3.Real(f"T{i}")
             solver.add(t >= 0)
             solver.add(x + vx * t == line.x + line.vx * t)
             solver.add(y + vy * t == line.y + line.vy * t)
