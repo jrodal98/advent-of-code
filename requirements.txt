@@ -5,3 +5,4 @@ pyyaml
 numpy
 networkx
 mpire
+z3-solver

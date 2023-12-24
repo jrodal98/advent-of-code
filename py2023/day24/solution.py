@@ -5,14 +5,17 @@ from dataclasses import dataclass
 from aoc_utils.base_solver import BaseSolver, Solution
 
 from itertools import combinations
+import z3
 
 
 @dataclass
-class Line2D:
+class Line:
     x: int
     y: int
+    z: int
     vx: int
     vy: int
+    vz: int
 
     @property
     def slope(self) -> float:
@@ -22,7 +25,7 @@ class Line2D:
     def y_intercept(self) -> float:
         return self.y - self.slope * self.x
 
-    def intersect(self, other: "Line2D") -> tuple[float, float]:
+    def intersect(self, other: "Line") -> tuple[float, float]:
         x = (other.y_intercept - self.y_intercept) / (self.slope - other.slope)
         y = self.slope * x + self.y_intercept
         return x, y
@@ -37,8 +40,7 @@ class Solver(BaseSolver):
             x, y, z = int(x), int(y), int(z)
             vx, vy, vz = velocity_str.split(", ")
             vx, vy, vz = int(vx), int(vy), int(vz)
-            lines.append(Line2D(x, y, vx, vy))
-        print(lines)
+            lines.append(Line(x, y, z, vx, vy, vz))
 
         if self._is_unit_test:
             min_xy = 7
@@ -81,4 +83,32 @@ class Solver(BaseSolver):
         return ans
 
     def _part2(self) -> Solution:
-        raise NotImplementedError
+        lines = []
+        for line in self.data.splitlines():
+            position_str, velocity_str = line.split(" @ ")
+            x, y, z = position_str.split(", ")
+            x, y, z = int(x), int(y), int(z)
+            vx, vy, vz = velocity_str.split(", ")
+            vx, vy, vz = int(vx), int(vy), int(vz)
+            lines.append(Line(x, y, z, vx, vy, vz))
+
+        # shamelessly stolen from https://github.com/mebeim/aoc/blob/master/2023/original_solutions/day24.py
+        x, y, z, vx, vy, vz = (
+            z3.Int("x"),
+            z3.Int("y"),
+            z3.Int("z"),
+            z3.Int("vx"),
+            z3.Int("vy"),
+            z3.Int("vz"),
+        )
+        solver = z3.Solver()
+        for i, line in enumerate(lines):
+            t = z3.Int(f"T{i}")
+            solver.add(t >= 0)
+            solver.add(x + vx * t == line.x + line.vx * t)
+            solver.add(y + vy * t == line.y + line.vy * t)
+            solver.add(z + vz * t == line.z + line.vz * t)
+        _ = solver.check()
+        model = solver.model()
+        ans = model.eval(x + y + z)
+        return int(str(ans))
