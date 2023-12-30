@@ -12,8 +12,8 @@ fn problem1(input: &str) -> u32 {
         .map(|line| {
             let dimensions: Vec<u32> = line.splitn(3, 'x').map(|d| d.parse().unwrap()).collect();
             let (l, w, h) = (dimensions[0], dimensions[1], dimensions[2]);
-            let (s1, s2, s3) = (l * w, l * h, w * h);
-            2 * (s1 + s2 + s3) + min(min(s1, s2), s3)
+            let (a1, a2, a3) = (l * w, l * h, w * h);
+            2 * (a1 + a2 + a3) + min(min(a1, a2), a3)
         })
         .sum()
 }
