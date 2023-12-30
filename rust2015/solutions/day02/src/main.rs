@@ -7,26 +7,27 @@ fn main() {
 }
 
 fn problem1(input: &str) -> u32 {
-    let mut ans = 0;
-    for line in input.lines() {
-        let dimensions: Vec<u32> = line.splitn(3, 'x').map(|d| d.parse().unwrap()).collect();
-        let (l, w, h) = (dimensions[0], dimensions[1], dimensions[2]);
-        let (s1, s2, s3) = (l * w, l * h, w * h);
-        ans += 2 * (s1 + s2 + s3) + min(min(s1, s2), s3);
-    }
-    ans
+    input
+        .lines()
+        .map(|line| {
+            let dimensions: Vec<u32> = line.splitn(3, 'x').map(|d| d.parse().unwrap()).collect();
+            let (l, w, h) = (dimensions[0], dimensions[1], dimensions[2]);
+            let (s1, s2, s3) = (l * w, l * h, w * h);
+            2 * (s1 + s2 + s3) + min(min(s1, s2), s3)
+        })
+        .sum()
 }
 
 fn problem2(input: &str) -> u32 {
-    let mut ans = 0;
-    for line in input.lines() {
-        let dimensions: Vec<u32> = line.splitn(3, 'x').map(|d| d.parse().unwrap()).collect();
-        let (l, w, h) = (dimensions[0], dimensions[1], dimensions[2]);
-        let (p1, p2, p3) = (l + w, l + h, w + h);
-        ans += 2 * min(min(p1, p2), p3);
-        ans += l * w * h;
-    }
-    ans
+    input
+        .lines()
+        .map(|line| {
+            let dimensions: Vec<u32> = line.splitn(3, 'x').map(|d| d.parse().unwrap()).collect();
+            let (l, w, h) = (dimensions[0], dimensions[1], dimensions[2]);
+            let (p1, p2, p3) = (l + w, l + h, w + h);
+            2 * min(min(p1, p2), p3) + l * w * h
+        })
+        .sum()
 }
 
 #[cfg(test)]
