@@ -4,24 +4,23 @@ fn main() {
     println!("Problem 2: {}", problem2(input));
 }
 
-fn problem1(input: &str) -> u32 {
+fn find_hash_with_leading_zeros(input: &str, num_zeros: usize) -> u32 {
     let mut i = 0;
+    let target = "0".repeat(num_zeros);
     loop {
-        if &format!("{:x}", md5::compute(format!("{}{}", input, i)))[..5] == "00000" {
+        if &format!("{:x}", md5::compute(format!("{}{}", input, i)))[..num_zeros] == target {
             return i;
         }
         i += 1;
     }
 }
 
+fn problem1(input: &str) -> u32 {
+    find_hash_with_leading_zeros(input, 5)
+}
+
 fn problem2(input: &str) -> u32 {
-    let mut i = 0;
-    loop {
-        if &format!("{:x}", md5::compute(format!("{}{}", input, i)))[..6] == "000000" {
-            return i;
-        }
-        i += 1;
-    }
+    find_hash_with_leading_zeros(input, 6)
 }
 
 #[cfg(test)]
