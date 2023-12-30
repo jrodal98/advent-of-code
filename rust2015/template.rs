@@ -12,16 +12,21 @@ fn problem2(input: &str) -> u32 {
     unimplemented!()
 }
 
-#[test]
-fn test_problem1() {
-    let input = include_str!("../data/sample.txt");
-    let res = problem1(input);
-    assert_eq!(res, PART1_SAMPLE_SOLUTION);
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn test_problem2() {
-    let input = include_str!("../data/sample.txt");
-    let res = problem2(input);
-    assert_eq!(res, 0);
+    #[test]
+    fn test_problem1() {
+        let input = include_str!("../data/sample.txt");
+        let res = problem1(input);
+        assert_eq!(res, PART1_SAMPLE_SOLUTION);
+    }
+
+    #[test]
+    fn test_problem2() {
+        let input = include_str!("../data/sample.txt");
+        let res = problem2(input);
+        assert_eq!(res, 0);
+    }
 }
