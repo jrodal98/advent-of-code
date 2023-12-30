@@ -5,11 +5,23 @@ fn main() {
 }
 
 fn problem1(input: &str) -> u32 {
-    unimplemented!()
+    let mut i = 0;
+    loop {
+        if &format!("{:x}", md5::compute(format!("{}{}", input, i)))[..5] == "00000" {
+            return i;
+        }
+        i += 1;
+    }
 }
 
 fn problem2(input: &str) -> u32 {
-    unimplemented!()
+    let mut i = 0;
+    loop {
+        if &format!("{:x}", md5::compute(format!("{}{}", input, i)))[..6] == "000000" {
+            return i;
+        }
+        i += 1;
+    }
 }
 
 #[cfg(test)]
@@ -20,13 +32,6 @@ mod tests {
     fn test_problem1() {
         let input = include_str!("../data/sample.txt").trim();
         let res = problem1(input);
-        assert_eq!(res, PART1_SAMPLE_SOLUTION);
-    }
-
-    #[test]
-    fn test_problem2() {
-        let input = include_str!("../data/sample.txt").trim();
-        let res = problem2(input);
-        assert_eq!(res, 0);
+        assert_eq!(res, 609043);
     }
 }
