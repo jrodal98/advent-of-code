@@ -144,3 +144,4 @@ cython_debug/
 media
 static
 **/*puzzle.txt
+**/*input.txt
