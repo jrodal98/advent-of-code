@@ -8,19 +8,18 @@ fn problem1(input: &str) -> u32 {
     input
         .lines()
         .map(|line| {
-            let mut chars = line[1..line.len() - 1].chars().peekable();
+            let mut chars = line[1..line.len() - 1].chars();
             let mut num_special = 2;
             while let Some(c) = chars.next() {
                 if c != '\\' {
                     continue;
                 }
-                match *chars.peek().unwrap() {
+                match chars.next().unwrap() {
                     '\\' | '"' => {
-                        chars.next();
                         num_special += 1;
                     }
                     'x' => {
-                        chars.nth(2); // consume x and next two chars
+                        chars.nth(1); // consume 2 chars after x
                         num_special += 3;
                     }
                     _ => unreachable!(),
