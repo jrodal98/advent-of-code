@@ -9,14 +9,15 @@ fn main() {
     println!("Problem 2: {}", problem2(input));
 }
 
-fn shortest_path<'a>(
+fn score_path<'a>(
     graph: &'a HashMap<&'a str, Vec<(&'a str, u32)>>,
     visited: &mut HashSet<&'a &'a str>,
     current_node: &'a &'a str,
     score: u32,
     best_score: u32,
+    shortest_path: bool,
 ) -> u32 {
-    if score >= best_score {
+    if shortest_path && score >= best_score {
         return u32::MAX;
     }
 
@@ -31,17 +32,26 @@ fn shortest_path<'a>(
             continue;
         }
         // visit
-        best_score = std::cmp::min(
+        let path_score = score_path(
+            graph,
+            visited,
+            next_node,
+            score + *weight,
             best_score,
-            shortest_path(graph, visited, next_node, score + *weight, best_score),
+            shortest_path,
         );
+        best_score = if shortest_path {
+            std::cmp::min(best_score, path_score)
+        } else {
+            std::cmp::max(best_score, path_score)
+        };
         // unvisit
         visited.remove(next_node);
     }
     best_score
 }
 
-fn problem1(input: &str) -> u32 {
+fn solve_problem(input: &str, shortest_path: bool) -> u32 {
     let mut graph: HashMap<&str, Vec<(&str, u32)>> = HashMap::new();
     for line in input.lines() {
         let mut tokens = line.split_whitespace();
@@ -51,16 +61,20 @@ fn problem1(input: &str) -> u32 {
         graph.entry(from).or_default().push((to, weight));
         graph.entry(to).or_default().push((from, weight));
     }
-    let mut best_score = u32::MAX;
+    let mut best_score = if shortest_path { u32::MAX } else { 0 };
     for node in graph.keys() {
         let mut visited = HashSet::from([node]);
-        best_score = shortest_path(&graph, &mut visited, node, 0, best_score);
+        best_score = score_path(&graph, &mut visited, node, 0, best_score, shortest_path);
     }
     best_score
 }
 
+fn problem1(input: &str) -> u32 {
+    solve_problem(input, true)
+}
+
 fn problem2(input: &str) -> u32 {
-    unimplemented!()
+    solve_problem(input, false)
 }
 
 #[cfg(test)]
@@ -78,6 +92,6 @@ mod tests {
     fn test_problem2() {
         let input = include_str!("../data/sample.txt").trim();
         let res = problem2(input);
-        assert_eq!(res, 0);
+        assert_eq!(res, 982);
     }
 }
