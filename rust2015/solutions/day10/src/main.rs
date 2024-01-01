@@ -11,14 +11,11 @@ fn solve(input: &str, num_iterations: usize) -> usize {
         let mut next_answer_string = String::new();
         while let Some(c) = chars.next() {
             let mut num_c = 1;
-            while let Some(maybe_match) = chars.peek() {
-                if maybe_match != &c {
-                    break;
-                }
+            while chars.peek() == Some(&c) {
                 num_c += 1;
                 chars.next();
             }
-            next_answer_string.push(char::from_digit(num_c, 10).unwrap());
+            next_answer_string.push_str(&num_c.to_string());
             next_answer_string.push(c);
         }
         answer_string = next_answer_string;
