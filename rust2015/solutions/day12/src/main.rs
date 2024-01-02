@@ -1,4 +1,5 @@
 use regex::Regex;
+use serde_json::Value::{self, Array, Number, Object};
 
 fn main() {
     let input = include_str!("../data/input.txt").trim();
@@ -14,23 +15,19 @@ fn problem1(input: &str) -> i64 {
         .sum()
 }
 
-fn sum_of_object(value: &serde_json::Value) -> i64 {
-    match value {
-        serde_json::Value::Object(object) => {
-            if object.values().any(|v| v.as_str() == Some("red")) {
-                0
-            } else {
-                object.values().map(sum_of_object).sum()
-            }
-        }
-        serde_json::Value::Array(array) => array.iter().map(sum_of_object).sum(),
-        serde_json::Value::Number(n) => n.as_i64().unwrap_or(0),
-        _ => 0,
-    }
-}
-
 fn problem2(input: &str) -> i64 {
     sum_of_object(&serde_json::from_str(input).unwrap())
+}
+
+fn sum_of_object(value: &Value) -> i64 {
+    match value {
+        Object(object) if !object.values().any(|v| v.as_str() == Some("red")) => {
+            object.values().map(sum_of_object).sum()
+        }
+        Array(array) => array.iter().map(sum_of_object).sum(),
+        Number(n) => n.as_i64().unwrap_or(0),
+        _ => 0,
+    }
 }
 
 #[cfg(test)]
