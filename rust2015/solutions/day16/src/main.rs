@@ -2,51 +2,78 @@ use std::str::FromStr;
 
 use anyhow::{Context, Result};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Default)]
 struct Aunt {
-    children: u32,
-    cats: u32,
-    samoyeds: u32,
-    pomeranians: u32,
-    akitas: u32,
-    vizslas: u32,
-    goldfish: u32,
-    trees: u32,
-    cars: u32,
-    perfumes: u32,
+    children: Option<u32>,
+    cats: Option<u32>,
+    samoyeds: Option<u32>,
+    pomeranians: Option<u32>,
+    akitas: Option<u32>,
+    vizslas: Option<u32>,
+    goldfish: Option<u32>,
+    trees: Option<u32>,
+    cars: Option<u32>,
+    perfumes: Option<u32>,
 }
 
 impl Aunt {
     fn target_aunt() -> Self {
         Self {
-            children: 3,
-            cats: 7,
-            samoyeds: 2,
-            pomeranians: 3,
-            akitas: 0,
-            vizslas: 0,
-            goldfish: 5,
-            trees: 3,
-            cars: 2,
-            perfumes: 1,
+            children: Some(3),
+            cats: Some(7),
+            samoyeds: Some(2),
+            pomeranians: Some(3),
+            akitas: Some(0),
+            vizslas: Some(0),
+            goldfish: Some(5),
+            trees: Some(3),
+            cars: Some(2),
+            perfumes: Some(1),
         }
     }
 
     fn with_field(mut self, field: &str, value: u32) -> Self {
         match field {
-            "children" => self.children = value,
-            "cats" => self.cats = value,
-            "samoyeds" => self.samoyeds = value,
-            "pomeranians" => self.pomeranians = value,
-            "akitas" => self.akitas = value,
-            "vizslas" => self.vizslas = value,
-            "goldfish" => self.goldfish = value,
-            "trees" => self.trees = value,
-            "cars" => self.cars = value,
-            "perfumes" => self.perfumes = value,
+            "children" => self.children = Some(value),
+            "cats" => self.cats = Some(value),
+            "samoyeds" => self.samoyeds = Some(value),
+            "pomeranians" => self.pomeranians = Some(value),
+            "akitas" => self.akitas = Some(value),
+            "vizslas" => self.vizslas = Some(value),
+            "goldfish" => self.goldfish = Some(value),
+            "trees" => self.trees = Some(value),
+            "cars" => self.cars = Some(value),
+            "perfumes" => self.perfumes = Some(value),
             _ => panic!("Invalid field"),
         };
         self
+    }
+
+    fn is_target_aunt(&self, use_ranges: bool) -> bool {
+        let target = Self::target_aunt();
+        if use_ranges {
+            (self.children.is_none() || self.children == target.children)
+                && (self.cats.is_none() || self.cats > target.cats)
+                && (self.samoyeds.is_none() || self.samoyeds == target.samoyeds)
+                && (self.pomeranians.is_none() || self.pomeranians < target.pomeranians)
+                && (self.akitas.is_none() || self.akitas == target.akitas)
+                && (self.vizslas.is_none() || self.vizslas == target.vizslas)
+                && (self.goldfish.is_none() || self.goldfish < target.goldfish)
+                && (self.trees.is_none() || self.trees > target.trees)
+                && (self.cars.is_none() || self.cars == target.cars)
+                && (self.perfumes.is_none() || self.perfumes == target.perfumes)
+        } else {
+            (self.children.is_none() || self.children == target.children)
+                && (self.cats.is_none() || self.cats == target.cats)
+                && (self.samoyeds.is_none() || self.samoyeds == target.samoyeds)
+                && (self.pomeranians.is_none() || self.pomeranians == target.pomeranians)
+                && (self.akitas.is_none() || self.akitas == target.akitas)
+                && (self.vizslas.is_none() || self.vizslas == target.vizslas)
+                && (self.goldfish.is_none() || self.goldfish == target.goldfish)
+                && (self.trees.is_none() || self.trees == target.trees)
+                && (self.cars.is_none() || self.cars == target.cars)
+                && (self.perfumes.is_none() || self.perfumes == target.perfumes)
+        }
     }
 }
 
@@ -54,7 +81,7 @@ impl FromStr for Aunt {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self> {
-        let aunt = Aunt::target_aunt();
+        let aunt = Aunt::default();
         let (_, fields) = s
             .split_once(": ")
             .context("Invalid input: failed to parse fields")?;
@@ -79,31 +106,21 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn problem1(input: &str) -> Result<u32> {
+fn solve(input: &str, use_ranges: bool) -> Result<u32> {
     Ok(input
         .lines()
         .map(|line| line.parse::<Aunt>().unwrap())
         .enumerate()
-        .find(|(_, aunt)| *aunt == Aunt::target_aunt())
-        .unwrap()
+        .find(|(_, aunt)| aunt.is_target_aunt(use_ranges))
+        .context("Could not find target aunt")?
         .0 as u32
         + 1)
 }
 
-fn problem2(input: &str) -> Result<u32> {
-    unimplemented!()
+fn problem1(input: &str) -> Result<u32> {
+    solve(input, false)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use anyhow::Result;
-
-    #[test]
-    fn test_problem2() -> Result<()> {
-        let input = include_str!("../data/sample.txt").trim();
-        let res = problem2(input)?;
-        assert_eq!(res, 0);
-        Ok(())
-    }
+fn problem2(input: &str) -> Result<u32> {
+    solve(input, true)
 }
