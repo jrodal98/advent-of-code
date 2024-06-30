@@ -7,6 +7,7 @@ fn main() {
 }
 
 struct Ingredient {
+    #[allow(dead_code)]
     name: String,
     capacity: i32,
     durability: i32,
@@ -19,14 +20,22 @@ impl FromStr for Ingredient {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let (name, ingredients) = s.split_once(": ").unwrap();
-        let properties: Vec<i32> = ingredients
+        let (name, ingredients) = s.split_once(": ").ok_or("Invalid input format")?;
+        let properties: Result<Vec<i32>, _> = ingredients
             .split(", ")
             .map(|ingredient_with_property| {
-                let (_, property_str) = ingredient_with_property.split_once(" ").unwrap();
-                property_str.parse::<i32>().unwrap()
+                let (_, property_str) = ingredient_with_property
+                    .split_once(" ")
+                    .ok_or("Invalid property format")?;
+                property_str.parse::<i32>().map_err(|_| "Invalid number")
             })
             .collect();
+        let properties = properties?;
+
+        if properties.len() != 5 {
+            return Err("Invalid number of properties".into());
+        }
+
         Ok(Self {
             name: name.to_string(),
             capacity: properties[0],
@@ -40,14 +49,10 @@ impl FromStr for Ingredient {
 
 impl Ingredient {
     fn score(ingredients: &[Self], amounts: &[u32], exact_calorie: Option<i32>) -> u32 {
-        let mut capacity = 0;
-        let mut durability = 0;
-        let mut flavor = 0;
-        let mut texture = 0;
-        let mut calories = 0;
+        let (mut capacity, mut durability, mut flavor, mut texture, mut calories) = (0, 0, 0, 0, 0);
 
-        for (ingredient, amount_u32) in ingredients.iter().zip(amounts) {
-            let amount = *amount_u32 as i32;
+        for (ingredient, &amount) in ingredients.iter().zip(amounts) {
+            let amount = amount as i32;
             capacity += ingredient.capacity * amount;
             durability += ingredient.durability * amount;
             flavor += ingredient.flavor * amount;
@@ -68,34 +73,38 @@ impl Ingredient {
 fn solve(input: &str, exact_calorie: Option<i32>) -> u32 {
     let ingredients: Vec<Ingredient> = input
         .lines()
-        .map(|ingredient| ingredient.parse().unwrap())
+        .map(|line| line.parse().expect("Invalid ingredient format"))
         .collect();
-    let mut score = 0;
+    let mut max_score = 0;
 
-    if ingredients.len() == 2 {
-        for i in 0..=100 {
-            score = score.max(Ingredient::score(
-                &ingredients,
-                &[i, 100 - i],
-                exact_calorie,
-            ));
+    match ingredients.len() {
+        2 => {
+            for i in 0..=100 {
+                max_score = max_score.max(Ingredient::score(
+                    &ingredients,
+                    &[i, 100 - i],
+                    exact_calorie,
+                ));
+            }
         }
-    } else {
-        for a in 0..=100 {
-            for b in 0..=100 - a {
-                for c in 0..=100 - a - b {
-                    let d = 100 - a - b - c;
-                    score = score.max(Ingredient::score(
-                        &ingredients,
-                        &[a, b, c, d],
-                        exact_calorie,
-                    ));
+        4 => {
+            for a in 0..=100 {
+                for b in 0..=100 - a {
+                    for c in 0..=100 - a - b {
+                        let d = 100 - a - b - c;
+                        max_score = max_score.max(Ingredient::score(
+                            &ingredients,
+                            &[a, b, c, d],
+                            exact_calorie,
+                        ));
+                    }
                 }
             }
         }
+        _ => panic!("Unsupported number of ingredients"),
     }
 
-    score
+    max_score
 }
 
 fn problem1(input: &str) -> u32 {
