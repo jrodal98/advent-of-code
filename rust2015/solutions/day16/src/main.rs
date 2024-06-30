@@ -51,29 +51,36 @@ impl Aunt {
 
     fn is_target_aunt(&self, use_ranges: bool) -> bool {
         let target = Self::target_aunt();
-        if use_ranges {
-            (self.children.is_none() || self.children == target.children)
-                && (self.cats.is_none() || self.cats > target.cats)
-                && (self.samoyeds.is_none() || self.samoyeds == target.samoyeds)
-                && (self.pomeranians.is_none() || self.pomeranians < target.pomeranians)
-                && (self.akitas.is_none() || self.akitas == target.akitas)
-                && (self.vizslas.is_none() || self.vizslas == target.vizslas)
-                && (self.goldfish.is_none() || self.goldfish < target.goldfish)
-                && (self.trees.is_none() || self.trees > target.trees)
-                && (self.cars.is_none() || self.cars == target.cars)
-                && (self.perfumes.is_none() || self.perfumes == target.perfumes)
-        } else {
-            (self.children.is_none() || self.children == target.children)
-                && (self.cats.is_none() || self.cats == target.cats)
-                && (self.samoyeds.is_none() || self.samoyeds == target.samoyeds)
-                && (self.pomeranians.is_none() || self.pomeranians == target.pomeranians)
-                && (self.akitas.is_none() || self.akitas == target.akitas)
-                && (self.vizslas.is_none() || self.vizslas == target.vizslas)
-                && (self.goldfish.is_none() || self.goldfish == target.goldfish)
-                && (self.trees.is_none() || self.trees == target.trees)
-                && (self.cars.is_none() || self.cars == target.cars)
-                && (self.perfumes.is_none() || self.perfumes == target.perfumes)
-        }
+        (self.children.is_none() || self.children == target.children)
+            && (self.cats.is_none()
+                || if use_ranges {
+                    self.cats > target.cats
+                } else {
+                    self.cats == target.cats
+                })
+            && (self.samoyeds.is_none() || self.samoyeds == target.samoyeds)
+            && (self.pomeranians.is_none()
+                || if use_ranges {
+                    self.pomeranians < target.pomeranians
+                } else {
+                    self.pomeranians == target.pomeranians
+                })
+            && (self.akitas.is_none() || self.akitas == target.akitas)
+            && (self.vizslas.is_none() || self.vizslas == target.vizslas)
+            && (self.goldfish.is_none()
+                || if use_ranges {
+                    self.goldfish < target.goldfish
+                } else {
+                    self.goldfish == target.goldfish
+                })
+            && (self.trees.is_none()
+                || if use_ranges {
+                    self.trees > target.trees
+                } else {
+                    self.trees == target.trees
+                })
+            && (self.cars.is_none() || self.cars == target.cars)
+            && (self.perfumes.is_none() || self.perfumes == target.perfumes)
     }
 }
 
@@ -109,7 +116,7 @@ fn main() -> Result<()> {
 fn solve(input: &str, use_ranges: bool) -> Result<u32> {
     Ok(input
         .lines()
-        .map(|line| line.parse::<Aunt>().unwrap())
+        .map(|line| line.parse::<Aunt>().expect("Failed to parse Aunt"))
         .enumerate()
         .find(|(_, aunt)| aunt.is_target_aunt(use_ranges))
         .context("Could not find target aunt")?
