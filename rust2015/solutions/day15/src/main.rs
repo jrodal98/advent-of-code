@@ -1,9 +1,11 @@
+use anyhow::{Context, Result};
 use std::str::FromStr;
 
-fn main() {
+fn main() -> Result<()> {
     let input = include_str!("../data/input.txt").trim();
-    println!("Problem 1: {}", problem1(input));
-    println!("Problem 2: {}", problem2(input));
+    println!("Problem 1: {}", problem1(input)?);
+    println!("Problem 2: {}", problem2(input)?);
+    Ok(())
 }
 
 struct Ingredient {
@@ -17,23 +19,22 @@ struct Ingredient {
 }
 
 impl FromStr for Ingredient {
-    type Err = String;
+    type Err = anyhow::Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let (name, ingredients) = s.split_once(": ").ok_or("Invalid input format")?;
-        let properties: Result<Vec<i32>, _> = ingredients
+    fn from_str(s: &str) -> Result<Self> {
+        let (name, ingredients) = s.split_once(": ").context("Invalid input format")?;
+        let properties = ingredients
             .split(", ")
             .map(|ingredient_with_property| {
                 let (_, property_str) = ingredient_with_property
                     .split_once(" ")
-                    .ok_or("Invalid property format")?;
-                property_str.parse::<i32>().map_err(|_| "Invalid number")
+                    .context("Invalid property format")?;
+                property_str.parse().context("Invalid number")
             })
-            .collect();
-        let properties = properties?;
+            .collect::<Result<Vec<i32>>>()?;
 
         if properties.len() != 5 {
-            return Err("Invalid number of properties".into());
+            return Err(anyhow::anyhow!("Invalid number of properties"));
         }
 
         Ok(Self {
@@ -70,11 +71,11 @@ impl Ingredient {
     }
 }
 
-fn solve(input: &str, exact_calorie: Option<i32>) -> u32 {
+fn solve(input: &str, exact_calorie: Option<i32>) -> Result<u32> {
     let ingredients: Vec<Ingredient> = input
         .lines()
-        .map(|line| line.parse().expect("Invalid ingredient format"))
-        .collect();
+        .map(|line| line.parse().context("Invalid ingredient format"))
+        .collect::<Result<Vec<Ingredient>>>()?;
     let mut max_score = 0;
 
     match ingredients.len() {
@@ -101,35 +102,38 @@ fn solve(input: &str, exact_calorie: Option<i32>) -> u32 {
                 }
             }
         }
-        _ => panic!("Unsupported number of ingredients"),
+        _ => return Err(anyhow::anyhow!("Unsupported number of ingredients")),
     }
 
-    max_score
+    Ok(max_score)
 }
 
-fn problem1(input: &str) -> u32 {
+fn problem1(input: &str) -> Result<u32> {
     solve(input, None)
 }
 
-fn problem2(input: &str) -> u32 {
+fn problem2(input: &str) -> Result<u32> {
     solve(input, Some(500))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use anyhow::Result;
 
     #[test]
-    fn test_problem1() {
+    fn test_problem1() -> Result<()> {
         let input = include_str!("../data/sample.txt").trim();
-        let res = problem1(input);
+        let res = problem1(input)?;
         assert_eq!(res, 62842880);
+        Ok(())
     }
 
     #[test]
-    fn test_problem2() {
+    fn test_problem2() -> Result<()> {
         let input = include_str!("../data/sample.txt").trim();
-        let res = problem2(input);
+        let res = problem2(input)?;
         assert_eq!(res, 57600000);
+        Ok(())
     }
 }
