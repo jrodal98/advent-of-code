@@ -55,11 +55,20 @@ impl FromStr for Aunt {
 
     fn from_str(s: &str) -> Result<Self> {
         let aunt = Aunt::target_aunt();
-        let (_, fields) = s.split_once(": ").context("Invalid input")?;
-        Ok(fields.split(", ").fold(aunt, |aunt, field_and_value| {
-            let (field, value) = field_and_value.split_once(": ").unwrap();
-            aunt.with_field(field, value.parse().unwrap())
-        }))
+        let (_, fields) = s
+            .split_once(": ")
+            .context("Invalid input: failed to parse fields")?;
+        fields.split(", ").try_fold(aunt, |aunt, field_and_value| {
+            let (field, value) = field_and_value
+                .split_once(": ")
+                .context("Invalid input: failed to parse field_and_value")?;
+            Ok(aunt.with_field(
+                field,
+                value
+                    .parse()
+                    .context("Invalid input: failed to parse value into int")?,
+            ))
+        })
     }
 }
 
