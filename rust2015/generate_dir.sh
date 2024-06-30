@@ -19,6 +19,7 @@ directory_name="${solutions}/${day_dir_base}$day_num_zero_padded"
 mkdir "$directory_name"
 cd "$directory_name" || exit
 cargo init
+cargo add anyhow
 mkdir data
 
 sample_file="data/sample.txt"
