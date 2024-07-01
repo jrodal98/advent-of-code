@@ -32,7 +32,7 @@ impl FromStr for Machine {
 }
 
 impl Machine {
-    fn distinct_molecules(&self, mut molecules: Vec<String>) -> u32 {
+    fn step(&self, mut molecules: Vec<String>) -> HashSet<String> {
         let mut new_molecules: HashSet<String> = HashSet::new();
         let num_molecules = molecules.len();
         for i in 0..num_molecules {
@@ -45,7 +45,40 @@ impl Machine {
                 molecules[i] = original;
             }
         }
-        new_molecules.len() as u32
+        new_molecules
+    }
+
+    fn make_medicine(&self, target_molecule: &str) -> Result<u32> {
+        let mut molecules: HashSet<String> = self
+            .replacements
+            .get("e")
+            .context("No e")?
+            .clone()
+            .into_iter()
+            .collect();
+        let mut already_transformed: HashSet<String> = HashSet::new();
+        for step in 2..usize::MAX {
+            if step % 5 == 0 {
+                println!("step: {}, num molecules: {}", step, molecules.len());
+            }
+            let mut new_molecules: HashSet<String> = HashSet::new();
+            for molecule in molecules {
+                let individual_molecules = extract_molecules(&molecule)?;
+                let transformed_molecules = self.step(individual_molecules);
+                for m in transformed_molecules {
+                    if m == target_molecule {
+                        return Ok(step as u32);
+                    } else if already_transformed.contains(&m) {
+                        continue;
+                    } else if m.len() < target_molecule.len() {
+                        already_transformed.insert(m.clone());
+                        new_molecules.insert(m);
+                    }
+                }
+            }
+            molecules = new_molecules;
+        }
+        unreachable!();
     }
 }
 
@@ -68,11 +101,14 @@ fn problem1(input: &str) -> Result<u32> {
     let (machine_str, molecule_str) = input.split_once("\n\n").context("Invalid puzzle input")?;
     let machine: Machine = machine_str.parse()?;
     let molecules = extract_molecules(molecule_str)?;
-    Ok(machine.distinct_molecules(molecules))
+    Ok(machine.step(molecules).len() as u32)
 }
 
 fn problem2(input: &str) -> Result<u32> {
-    unimplemented!()
+    let (machine_str, target_molecule) =
+        input.split_once("\n\n").context("Invalid puzzle input")?;
+    let machine: Machine = machine_str.parse()?;
+    machine.make_medicine(target_molecule)
 }
 
 #[cfg(test)]
@@ -92,7 +128,7 @@ mod tests {
     fn test_problem2() -> Result<()> {
         let input = include_str!("../data/sample.txt").trim();
         let res = problem2(input)?;
-        assert_eq!(res, 0);
+        assert_eq!(res, 3);
         Ok(())
     }
 
