@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 
 fn main() -> Result<()> {
     let input = include_str!("../data/input.txt").trim();
@@ -12,6 +12,7 @@ fn main() -> Result<()> {
 #[derive(Clone)]
 struct Grid {
     rows: Vec<Vec<bool>>,
+    corners_always_on: bool,
 }
 
 impl FromStr for Grid {
@@ -22,7 +23,10 @@ impl FromStr for Grid {
             .lines()
             .map(|line| line.chars().map(|c| c == '#').collect())
             .collect();
-        Ok(Self { rows })
+        Ok(Self {
+            rows,
+            corners_always_on: false,
+        })
     }
 }
 
@@ -46,16 +50,32 @@ impl Grid {
                 .into_iter()
                 .filter(|v| *v)
                 .count();
-                self.rows[row][col] = (cell && (num_neighbors_on == 2 || num_neighbors_on == 3))
+                self.rows[row][col] = (self.corners_always_on
+                    && (row == 0 && col == 0
+                        || row == 0 && col == grid_size - 1
+                        || row == grid_size - 1 && col == 0
+                        || row == grid_size - 1 && col == grid_size - 1))
+                    || (cell && (num_neighbors_on == 2 || num_neighbors_on == 3))
                     || (!cell && num_neighbors_on == 3);
             }
         }
     }
+
+    fn set_corners_always_on(&mut self, corners_always_on: bool) {
+        let grid_size = self.rows.len();
+        self.corners_always_on = corners_always_on;
+        self.rows[0][0] = corners_always_on || self.rows[0][0];
+        self.rows[0][grid_size - 1] = corners_always_on || self.rows[0][grid_size - 1];
+        self.rows[grid_size - 1][0] = corners_always_on || self.rows[grid_size - 1][0];
+        self.rows[grid_size - 1][grid_size - 1] =
+            corners_always_on || self.rows[grid_size - 1][grid_size - 1];
+    }
 }
 
-fn problem1(input: &str) -> Result<u32> {
+fn solve(input: &str, corners_always_on: bool) -> Result<u32> {
     let steps = if cfg!(test) { 4 } else { 100 };
     let mut grid: Grid = input.parse()?;
+    grid.set_corners_always_on(corners_always_on);
     for _ in 0..steps {
         grid.step();
     }
@@ -63,8 +83,12 @@ fn problem1(input: &str) -> Result<u32> {
     Ok(num_cells_on as u32)
 }
 
+fn problem1(input: &str) -> Result<u32> {
+    solve(input, false)
+}
+
 fn problem2(input: &str) -> Result<u32> {
-    Ok(0)
+    solve(input, true)
 }
 
 #[cfg(test)]
@@ -84,7 +108,7 @@ mod tests {
     fn test_problem2() -> Result<()> {
         let input = include_str!("../data/sample.txt").trim();
         let res = problem2(input)?;
-        assert_eq!(res, 0);
+        assert_eq!(res, 14);
         Ok(())
     }
 }
