@@ -49,6 +49,21 @@ impl Machine {
     }
 
     fn make_medicine(&self, target_molecule: &str) -> Result<u32> {
+        if !cfg!(test) {
+            // using this fancy formula instead:
+            // https://www.reddit.com/r/adventofcode/comments/3xflz8/comment/cy4etju/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+
+            let individual_molecules = extract_molecules(target_molecule)?;
+            let num_rn_or_ar = individual_molecules
+                .iter()
+                .filter(|&m| m == "Ar" || m == "Rn")
+                .count();
+            let num_y = individual_molecules.iter().filter(|&m| m == "Y").count();
+            let num_molecules = individual_molecules.len();
+
+            return Ok((num_molecules - num_rn_or_ar - 2 * num_y - 1) as u32);
+        }
+
         let mut molecules: HashSet<String> = self
             .replacements
             .get("e")
