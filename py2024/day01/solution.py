@@ -10,9 +10,9 @@ class Solver(BaseSolver):
         left = []
         right = []
         for line in self.lines():
-            l, r = line.split()
-            left.append(int(l))
-            right.append(int(r))
+            lv, rv = line.split()
+            left.append(int(lv))
+            right.append(int(rv))
         left.sort()
         right.sort()
         return left, right
