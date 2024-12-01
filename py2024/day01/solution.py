@@ -2,38 +2,26 @@
 # www.jrodal.com
 
 from aoc_utils.base_solver import BaseSolver, Solution
+from collections import Counter
 
 
 class Solver(BaseSolver):
-    def _part1(self) -> Solution:
-        lines = self.data.splitlines()
+    def _get_lists(self) -> tuple[list[int], list[int]]:
         left = []
         right = []
-        for line in lines:
+        for line in self.lines():
             l, r = line.split()
             left.append(int(l))
             right.append(int(r))
         left.sort()
         right.sort()
-        s = 0
-        for a, b in zip(left, right):
-            s += abs(a - b)
-        return s
+        return left, right
+
+    def _part1(self) -> Solution:
+        left, right = self._get_lists()
+        return sum(abs(a - b) for a, b in zip(left, right))
 
     def _part2(self) -> Solution:
-        lines = self.data.splitlines()
-        left = []
-        right = []
-        for line in lines:
-            l, r = line.split()
-            left.append(int(l))
-            right.append(int(r))
-        left.sort()
-        right.sort()
-
-        s = 0
-        for a in left:
-            for b in right:
-                if a == b:
-                    s += a
-        return s
+        left, right = self._get_lists()
+        right_counts = Counter(right)
+        return sum(v * right_counts[v] for v in left)

@@ -55,6 +55,9 @@ class BaseSolver(ABC):
     def _set_animation_grid(self, grid: Grid | None = None) -> None:
         self._animation_grid = grid or self.grid
 
+    def lines(self) -> list[str]:
+        return self.data.splitlines()
+
     def _update_animation(
         self,
         *,
@@ -103,11 +106,15 @@ class BaseSolver(ABC):
         self, part: ProblemPart, *, day: int | None = None, year: int | None = None
     ) -> tuple[Solution, Runtime]:
         with log_runtime(part.name, console=self.console) as runtime:
-            with Live(
-                "",
-                console=self.console,
-                auto_refresh=False,
-            ) if self._animate else nullcontext() as live:
+            with (
+                Live(
+                    "",
+                    console=self.console,
+                    auto_refresh=False,
+                )
+                if self._animate
+                else nullcontext() as live
+            ):
                 self._live = live
                 if part is ProblemPart.PART1:
                     solution = self.part1()
@@ -154,9 +161,7 @@ class BaseSolver(ABC):
         return "raise NotImplementedError" in code.strip().splitlines()[-1]
 
     @abstractmethod
-    def _part1(self) -> Solution:
-        ...
+    def _part1(self) -> Solution: ...
 
     @abstractmethod
-    def _part2(self) -> Solution:
-        ...
+    def _part2(self) -> Solution: ...
