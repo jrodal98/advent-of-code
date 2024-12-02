@@ -1,6 +1,6 @@
 # Advent of code
 
-https://adventofcode.com/2023
+https://adventofcode.com/2024
 
 # How to use repository
 
