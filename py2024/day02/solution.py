@@ -5,7 +5,27 @@ from aoc_utils.base_solver import BaseSolver, Solution
 
 
 class Solver(BaseSolver):
+    def _is_level_safe(self, level: str) -> bool:
+        nums = [int(n) for n in level.split()]
+        has_increased = False
+        has_decreased = False
+        for prev, cur in zip(nums, nums[1:]):
+            diff = abs(cur - prev)
+            if diff < 1 or diff > 3:
+                return False
+
+            has_increased = has_increased or cur > prev
+            has_decreased = has_decreased or cur < prev
+
+            if has_increased and has_decreased:
+                return False
+
+        return True
+
     def _part1(self) -> Solution:
+        return sum(self._is_level_safe(level) for level in self.lines())
+
+    def _part1_orig(self) -> Solution:
         safe = 0
         for line in self.lines():
             all_increasing = True
