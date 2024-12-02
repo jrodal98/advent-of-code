@@ -25,27 +25,6 @@ class Solver(BaseSolver):
     def _part1(self) -> Solution:
         return sum(self._is_level_safe(level) for level in self.lines())
 
-    def _part1_orig(self) -> Solution:
-        safe = 0
-        for line in self.lines():
-            all_increasing = True
-            all_decreasing = True
-            safe_dropoff = True
-            last_num = None
-            for num in [int(n) for n in line.split()]:
-                if last_num is None:
-                    last_num = num
-                    continue
-                all_increasing = all_increasing and (num > last_num)
-                all_decreasing = all_decreasing and (num < last_num)
-                diff = abs(num - last_num)
-                safe_dropoff = safe_dropoff and diff in (1, 2, 3)
-                last_num = num
-            if safe_dropoff and (all_increasing or all_decreasing):
-                safe += 1
-
-        return safe
-
     def _part2(self) -> Solution:
         safe = 0
         for line in self.lines():
