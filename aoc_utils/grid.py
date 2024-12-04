@@ -81,6 +81,19 @@ class Grid(Generic[T]):
             return None
         return self.get(p.neighbor(direction), default)
 
+    def walk_directions(
+        self,
+        p,
+        directions: Iterable[Direction],
+        default: T | None = None,
+        include_start: bool = False,
+    ) -> Iterator[T | None]:
+        if include_start:
+            yield self.get(p, default)
+        for direction in directions:
+            p = p.neighbor(direction)
+            yield self.get(p, default)
+
     def swap(self, p1: Point, p2: Point | Direction) -> Point:
         if isinstance(p2, Direction):
             p2 = p1.neighbor(p2)
