@@ -7,17 +7,17 @@ from aoc_utils.point import Direction
 
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
-        ans = 0
-        for point, c in self.grid.iter():
-            if c != "X":
-                continue
-            for direction in list(Direction):
-                if ["M", "A", "S"] == list(
-                    self.grid.walk_directions(point, [direction] * 3, default=".")
-                ):
-                    ans += 1
-
-        return ans
+        return sum(
+            all(
+                expected == actual
+                for expected, actual in zip(
+                    "MAS",
+                    self.grid.walk_directions(point, [direction] * 3, default="."),
+                )
+            )
+            for point, _ in self.grid.iter(qualify="X")
+            for direction in Direction
+        )
 
     def _part2(self) -> Solution:
         ans = 0
