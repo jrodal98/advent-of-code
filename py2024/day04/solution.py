@@ -21,10 +21,7 @@ class Solver(BaseSolver):
 
     def _part2(self) -> Solution:
         ans = 0
-        for point, c in self.grid.iter():
-            if c != "A":
-                continue
-
+        for point, _ in self.grid.iter(qualify="A"):
             upper_left = self.grid.get(point.upper_left, ".")
             bottom_right = self.grid.get(point.bottom_right, ".")
 
