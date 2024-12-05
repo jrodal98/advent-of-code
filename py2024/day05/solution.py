@@ -14,25 +14,26 @@ class Solver(BaseSolver):
     def _part2(self) -> Solution:
         return self._compute_scores()[1]
 
+    @functools.cache
     def _compute_scores(self) -> tuple[int, int]:
         rules, updates = self.data.split("\n\n")
         rule_dict = defaultdict(set)
 
         for rule in rules.splitlines():
             before, after = rule.split("|")
-            rule_dict[int(before)].add(int(after))
+            rule_dict[before].add(after)
 
         in_order_score = 0
         out_of_order_score = 0
 
         for update in updates.splitlines():
-            unsorted_nums = [int(n) for n in update.split(",")]
+            unsorted_nums = [n for n in update.split(",")]
             sorted_nums = sorted(
                 unsorted_nums,
                 key=functools.cmp_to_key(lambda a, b: -int(b in rule_dict[a])),
             )
 
-            score = sorted_nums[len(sorted_nums) // 2]
+            score = int(sorted_nums[len(sorted_nums) // 2])
 
             if unsorted_nums == sorted_nums:
                 in_order_score += score
