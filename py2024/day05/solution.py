@@ -9,43 +9,12 @@ import functools
 
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
-        rules, updates = self.data.split("\n\n")
-        rule_dict = defaultdict(set)
-
-        for rule in rules.splitlines():
-            before, after = rule.split("|")
-            rule_dict[int(before)].add(int(after))
-
-        ans = 0
-        for update in updates.splitlines():
-            nums = [int(n) for n in update.split(",")]
-            if self._is_in_order(nums, rule_dict):
-                ans += nums[len(nums) // 2]
-        return ans
-
-    def _is_in_order(
-        self, nums: list[int], rule_dict: defaultdict[int, set[int]]
-    ) -> bool:
-        for i, num in enumerate(nums):
-            nums_after = nums[i + 1 :]
-            if any(num in rule_dict[n] for n in nums_after):
-                return False
-        return True
-
-    def _sort_nums(
-        self, nums: list[int], rule_dict: defaultdict[int, set[int]]
-    ) -> list[int]:
-        def compare(a, b):
-            if b in rule_dict[a]:
-                return -1
-            else:
-                return 0
-
-        x = sorted(nums, key=functools.cmp_to_key(compare))
-        print(nums, x)
-        return x
+        return self._compute_scores()[0]
 
     def _part2(self) -> Solution:
+        return self._compute_scores()[1]
+
+    def _compute_scores(self) -> tuple[int, int]:
         rules, updates = self.data.split("\n\n")
         rule_dict = defaultdict(set)
 
@@ -53,11 +22,20 @@ class Solver(BaseSolver):
             before, after = rule.split("|")
             rule_dict[int(before)].add(int(after))
 
-        ans = 0
-        for update in updates.splitlines():
-            nums = [int(n) for n in update.split(",")]
+        in_order_score = 0
+        out_of_order_score = 0
 
-            if not self._is_in_order(nums, rule_dict):
-                nums = self._sort_nums(nums, rule_dict)
-                ans += nums[len(nums) // 2]
-        return ans
+        for update in updates.splitlines():
+            unsorted_nums = [int(n) for n in update.split(",")]
+            sorted_nums = sorted(
+                unsorted_nums,
+                key=functools.cmp_to_key(lambda a, b: -int(b in rule_dict[a])),
+            )
+
+            score = sorted_nums[len(sorted_nums) // 2]
+
+            if unsorted_nums == sorted_nums:
+                in_order_score += score
+            else:
+                out_of_order_score += score
+        return in_order_score, out_of_order_score
