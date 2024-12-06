@@ -5,44 +5,47 @@ from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.grid import Grid
 from aoc_utils.point import Direction, Point
 
-import functools
+from dataclasses import dataclass
+
+
+@dataclass
+class Result:
+    seen: set[Point]
+    possible_obstacles: set[tuple[Point, Direction]]
+    cycle: bool
 
 
 def walk(
     grid: Grid, pos: Point, dir: Direction, new_obstacle: Point | None = None
-) -> tuple[set[Point], set[tuple[Point, Direction]]] | None:
+) -> Result:
     seen = set()
     seen_with_dir = set()
-    check_for_loops = set()
+    possible_obstacles = set()
     while (pos, dir) not in seen_with_dir:
         seen.add(pos)
         seen_with_dir.add((pos, dir))
         neighbor_pos = pos.neighbor(dir)
         match "#" if neighbor_pos == new_obstacle else grid.get(neighbor_pos):
             case None:
-                return seen, check_for_loops
+                return Result(seen, possible_obstacles, False)
             case "#":
                 dir = dir.clockwise
             case _:
                 new_pos = pos.neighbor(dir)
                 if new_pos not in seen:
-                    check_for_loops.add((pos, dir))
+                    possible_obstacles.add((pos, dir))
                 pos = new_pos
-    return None
+    return Result(seen, possible_obstacles, True)
 
 
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
-        return len(self._helper()[0])
+        return len(walk(self.grid, self.grid.find("^"), Direction.UP).seen)
 
     def _part2(self) -> Solution:
         return sum(
-            not walk(self.grid, pos, dir.clockwise, new_obstacle=pos.neighbor(dir))
-            for pos, dir in self._helper()[1]
+            walk(self.grid, pos, dir.clockwise, new_obstacle=pos.neighbor(dir)).cycle
+            for pos, dir in walk(
+                self.grid, self.grid.find("^"), Direction.UP
+            ).possible_obstacles
         )
-
-    @functools.cache
-    def _helper(self) -> tuple[set[Point], set[tuple[Point, Direction]]]:
-        pos = self.grid.find("^")
-        dir = Direction.UP
-        return walk(self.grid, pos, dir) or (set(), set())
