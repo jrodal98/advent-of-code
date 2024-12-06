@@ -20,12 +20,17 @@ class Solver(BaseSolver):
                 case _:
                     pos = pos.neighbor(dir)
 
-    def _check_if_loopable(
-        self, pos: Point, dir: Direction, seen_with_dir: set[tuple[Point, Direction]]
-    ) -> bool:
-        while (pos, dir) not in seen_with_dir:
-            seen_with_dir.add((pos, dir))
-            match self.grid.get_neighbor(pos, dir):
+    def _check_if_loopable(self, pos: Point, dir: Direction) -> bool:
+        new_obstacle = pos.neighbor(dir)
+        dir = dir.clockwise
+        seen = set()
+        while (pos, dir) not in seen:
+            seen.add((pos, dir))
+            if pos.neighbor(dir) == new_obstacle:
+                v = "#"
+            else:
+                v = self.grid.get_neighbor(pos, dir)
+            match v:
                 case None:
                     return False
                 case "#":
@@ -35,31 +40,23 @@ class Solver(BaseSolver):
         return True
 
     def _part2(self) -> Solution:
-        starting_pos = self.grid.find("^")
-        pos = starting_pos
+        pos = self.grid.find("^")
         dir = Direction.UP
         seen = set()
-        seen_with_dir = set()
-        new_obstructions = set()
-        allow_obstruction = True
-        moved = True
+        check_for_loops = set()
+        ans = 0
         while True:
             seen.add(pos)
-            seen_with_dir.add((pos, dir))
             match self.grid.get_neighbor(pos, dir):
                 case None:
-                    return len(new_obstructions)
+                    return sum(
+                        self._check_if_loopable(pos, dir)
+                        for pos, dir in check_for_loops
+                    )
                 case "#":
                     dir = dir.clockwise
                 case _:
                     new_pos = pos.neighbor(dir)
-                    if (
-                        new_pos not in seen
-                        and new_pos not in new_obstructions
-                        and new_pos != starting_pos
-                    ):
-                        self.grid.replace(new_pos, "#")
-                        if self._check_if_loopable(pos, dir.clockwise, set()):
-                            new_obstructions.add(new_pos)
-                        self.grid.replace(new_pos, ".")
+                    if new_pos not in seen:
+                        check_for_loops.add((pos, dir))
                     pos = new_pos
