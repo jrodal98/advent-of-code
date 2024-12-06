@@ -42,6 +42,7 @@ class Solver(BaseSolver):
         seen_with_dir = set()
         new_obstructions = set()
         allow_obstruction = True
+        moved = True
         while True:
             seen.add(pos)
             seen_with_dir.add((pos, dir))
@@ -49,14 +50,11 @@ class Solver(BaseSolver):
                 case None:
                     return len(new_obstructions)
                 case "#":
-                    allow_obstruction = (
-                        self.grid.get(pos.neighbor(dir.counter_clockwise)) != "#"
-                    )
                     dir = dir.clockwise
                 case _:
                     new_pos = pos.neighbor(dir)
                     if (
-                        allow_obstruction
+                        new_pos not in seen
                         and new_pos not in new_obstructions
                         and new_pos != starting_pos
                     ):
