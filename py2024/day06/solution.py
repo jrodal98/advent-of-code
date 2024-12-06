@@ -7,6 +7,8 @@ from aoc_utils.point import Direction, Point
 
 from dataclasses import dataclass
 
+from mpire import WorkerPool, cpu_count
+
 
 @dataclass
 class Result:
@@ -43,9 +45,12 @@ class Solver(BaseSolver):
         return len(walk(self.grid, self.grid.find("^"), Direction.UP).seen)
 
     def _part2(self) -> Solution:
-        return sum(
-            walk(self.grid, pos, dir.clockwise, new_obstacle=pos.neighbor(dir)).cycle
+        worker_args = [
+            (pos, dir.clockwise, pos.neighbor(dir))
             for pos, dir in walk(
                 self.grid, self.grid.find("^"), Direction.UP
             ).possible_obstacles
-        )
+        ]
+        with WorkerPool(shared_objects=self.grid) as pool:
+            results = pool.map(walk, worker_args, progress_bar=True)
+        return sum(r.cycle for r in results)
