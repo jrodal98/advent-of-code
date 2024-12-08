@@ -19,15 +19,15 @@ class Solver(BaseSolver):
         for p, v in self.grid.iter(disqualify="."):
             positions[v].append(p)
 
-        antinodes = set()
-        for points in positions.values():
-            for p1, p2 in combinations(points, 2):
-                line = Line(p1, p2)
-                antinodes |= set(
-                    line.iter(
-                        exclude_start=part1,
-                        continue_while=self.grid.inbounds,
-                        max_steps=1 if part1 else None,
-                    ),
+        return len(
+            {
+                antinode
+                for points in positions.values()
+                for p1, p2 in combinations(points, 2)
+                for antinode in Line(p1, p2).iter(
+                    exclude_start=part1,
+                    continue_while=self.grid.inbounds,
+                    max_steps=1 if part1 else None,
                 )
-        return len(antinodes)
+            }
+        )
