@@ -143,7 +143,7 @@ class Grid(Generic[T]):
         if self.get(p) is None:
             return
         if color and isinstance(value, str):
-            value = f"[{color}]{value}[/]"  # pyright: ignore
+            value = f"[{color}]{value}[/{color}]"  # pyright: ignore
         self.data[p.y * self.w + p.x] = value
 
     def left(self, p: Point) -> T | None:

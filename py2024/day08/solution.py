@@ -4,10 +4,17 @@
 from aoc_utils.base_solver import BaseSolver, Solution
 from collections import defaultdict
 from itertools import combinations
+from aoc_utils.line import Line
 
 
 class Solver(BaseSolver):
     def _part1(self) -> Solution:
+        return self._solver(True)
+
+    def _part2(self) -> Solution:
+        return self._solver(False)
+
+    def _solver(self, part1: bool) -> Solution:
         positions = defaultdict(list)
         for p, v in self.grid.iter(disqualify="."):
             positions[v].append(p)
@@ -15,40 +22,12 @@ class Solver(BaseSolver):
         antinodes = set()
         for points in positions.values():
             for p1, p2 in combinations(points, 2):
-                dx = p2.x - p1.x
-                dy = p2.y - p1.y
-                for p in p1, p2:
-                    for m in (1, -1):
-                        new_point = p.translate(m * dx, m * dy)
-                        if new_point not in (p1, p2) and self.grid.inbounds(new_point):
-                            antinodes.add(new_point)
-        return len(antinodes)
-
-    def _part2(self) -> Solution:
-        positions = defaultdict(list)
-        for p, v in self.grid.iter(disqualify="."):
-            positions[v].append(p)
-
-        antinodes = set()
-        for all_points in positions.values():
-            for p1, p2 in combinations(all_points, 2):
-                antinodes.add(p1)
-                antinodes.add(p2)
-                dx = p2.x - p1.x
-                dy = p2.y - p1.y
-                points = [p1, p2]
-                visited = set()
-                while points:
-                    new_points = []
-                    for p in points:
-                        visited.add(p)
-                        for m in (1, -1):
-                            new_point = p.translate(m * dx, m * dy)
-                            if new_point not in visited and self.grid.inbounds(
-                                new_point
-                            ):
-                                new_points.append(new_point)
-                                antinodes.add(new_point)
-                                visited.add(new_point)
-                    points = new_points
+                line = Line(p1, p2)
+                antinodes |= set(
+                    line.iter(
+                        exclude_start=part1,
+                        continue_while=self.grid.inbounds,
+                        max_steps=1 if part1 else None,
+                    ),
+                )
         return len(antinodes)
