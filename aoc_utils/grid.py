@@ -187,6 +187,9 @@ class Grid(Generic[T]):
         else:
             return default
 
+    def inbounds(self, p: Point) -> bool:
+        return 0 <= p.x < self.w and 0 <= p.y < self.h
+
     def neighbors(
         self,
         p: Point,
