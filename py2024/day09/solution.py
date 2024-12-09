@@ -56,11 +56,10 @@ class Solver(BaseSolver):
                 res.append(None)
         all_nums = all_nums[::-1]
         for id, window_size, starting_index in all_nums:
-            for i, window in [
-                (z, res[z : z + window_size]) for z in range(len(res) - window_size + 1)
-            ]:
+            for i in range(len(res) - window_size + 1):
                 if i >= starting_index:
                     break
+                window = res[i : i + window_size]
                 if all(v is None for v in window):
                     res[starting_index : starting_index + window_size] = [
                         None
