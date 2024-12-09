@@ -49,22 +49,21 @@ class Solver(BaseSolver):
         res = []
         all_nums = []
         for i, (files_count, free_space) in enumerate(zip(files_counts, free_spaces)):
-            all_nums.append((i, files_count))
+            all_nums.append((i, files_count, len(res)))
             for _ in range(files_count):
                 res.append(i)
             for _ in range(free_space):
                 res.append(None)
         all_nums = all_nums[::-1]
-        for id, window_size in all_nums:
+        for id, window_size, starting_index in all_nums:
             for i, window in [
                 (z, res[z : z + window_size]) for z in range(len(res) - window_size + 1)
             ]:
-                if any(v == id for v in window):
+                if i >= starting_index:
                     break
                 if all(v is None for v in window):
-                    for j in range(len(res)):
-                        if res[j] == id:
-                            res[j] = None
+                    for j in range(window_size):
+                        res[starting_index + j] = None
                     for j in range(window_size):
                         res[i + j] = id
                     break
