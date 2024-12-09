@@ -5,17 +5,24 @@ from aoc_utils.base_solver import BaseSolver, Solution
 
 
 class Solver(BaseSolver):
-    def _part1(self) -> Solution:
+    def _init_filesystem(self) -> tuple[list[int | None], list[tuple[int, int, int]]]:
         numbers = [int(n) for n in self.data]
-        files_counts, free_spaces = numbers[::2], numbers[1::2]
-        if len(files_counts) != len(free_spaces):
+        file_blocks, free_spaces = numbers[::2], numbers[1::2]
+        if len(file_blocks) != len(free_spaces):
             free_spaces.append(0)
         filesystem = []
-        for i, (files_count, free_space) in enumerate(zip(files_counts, free_spaces)):
-            for _ in range(files_count):
-                filesystem.append(i)
+        all_nums = []
+        for id, (num_blocks, free_space) in enumerate(zip(file_blocks, free_spaces)):
+            # id, num_blocks, free_space_after
+            all_nums.append((id, num_blocks, len(filesystem)))
+            for _ in range(num_blocks):
+                filesystem.append(id)
             for _ in range(free_space):
                 filesystem.append(None)
+        return filesystem, all_nums[::-1]
+
+    def _part1(self) -> Solution:
+        filesystem, _ = self._init_filesystem()
 
         left = 0
         right = len(filesystem) - 1
@@ -36,19 +43,7 @@ class Solver(BaseSolver):
         return sum(i * (v or 0) for i, v in enumerate(filesystem))
 
     def _part2(self) -> Solution:
-        numbers = [int(n) for n in self.data]
-        files_counts, free_spaces = numbers[::2], numbers[1::2]
-        if len(files_counts) != len(free_spaces):
-            free_spaces.append(0)
-        filesystem = []
-        all_nums = []
-        for i, (files_count, free_space) in enumerate(zip(files_counts, free_spaces)):
-            all_nums.append((i, files_count, len(filesystem)))
-            for _ in range(files_count):
-                filesystem.append(i)
-            for _ in range(free_space):
-                filesystem.append(None)
-        all_nums = all_nums[::-1]
+        filesystem, all_nums = self._init_filesystem()
         for id, window_size, file_start_index in all_nums:
             for window_start_index in range(len(filesystem) - window_size + 1):
                 if window_start_index >= file_start_index:
