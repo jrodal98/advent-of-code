@@ -8,17 +8,17 @@ class Solver(BaseSolver):
     def _init_filesystem(self) -> tuple[list[int | None], list[tuple[int, int, int]]]:
         numbers = [int(n) for n in self.data]
         filesystem = []
-        all_nums = []
+        block_info = []
 
         # Add a dummy 0 to make the logic below work
         if len(numbers) % 2 == 1:
             numbers.append(0)
         for id, i in enumerate(range(0, len(numbers), 2)):
-            all_nums.append((id, numbers[i], len(filesystem)))
+            block_info.append((id, numbers[i], len(filesystem)))
             filesystem.extend([id] * numbers[i])
             filesystem.extend([None] * numbers[i + 1])
 
-        return filesystem, all_nums[::-1]
+        return filesystem, block_info[::-1]
 
     def _part1(self) -> Solution:
         filesystem, _ = self._init_filesystem()
@@ -42,9 +42,9 @@ class Solver(BaseSolver):
         return sum(i * (v or 0) for i, v in enumerate(filesystem))
 
     def _part2(self) -> Solution:
-        filesystem, all_nums = self._init_filesystem()
+        filesystem, block_info = self._init_filesystem()
         first_none_index = filesystem.index(None)
-        for id, window_size, file_start_index in all_nums:
+        for id, window_size, file_start_index in block_info:
             for window_start_index in range(
                 first_none_index, len(filesystem) - window_size + 1
             ):
