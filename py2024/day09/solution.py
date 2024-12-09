@@ -59,5 +59,3 @@ class Solver(BaseSolver):
                     break
 
         return sum(i * (v or 0) for i, v in enumerate(res))
-
-        return ans
