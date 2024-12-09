@@ -62,10 +62,10 @@ class Solver(BaseSolver):
                 if i >= starting_index:
                     break
                 if all(v is None for v in window):
-                    for j in range(window_size):
-                        res[starting_index + j] = None
-                    for j in range(window_size):
-                        res[i + j] = id
+                    res[starting_index : starting_index + window_size] = [
+                        None
+                    ] * window_size
+                    res[i : i + window_size] = [id] * window_size
                     break
 
         print(res)
