@@ -46,16 +46,18 @@ class Solver(BaseSolver):
             for _ in range(free_space):
                 res.append(None)
         all_nums = all_nums[::-1]
-        for id, window_size, starting_index in all_nums:
-            for i in range(len(res) - window_size + 1):
-                if i >= starting_index:
+        for id, window_size, file_start_index in all_nums:
+            for window_start_index in range(len(res) - window_size + 1):
+                if window_start_index >= file_start_index:
                     break
-                window = res[i : i + window_size]
+                window = res[window_start_index : window_start_index + window_size]
                 if all(v is None for v in window):
-                    res[starting_index : starting_index + window_size] = [
+                    res[file_start_index : file_start_index + window_size] = [
                         None
                     ] * window_size
-                    res[i : i + window_size] = [id] * window_size
+                    res[window_start_index : window_start_index + window_size] = [
+                        id
+                    ] * window_size
                     break
 
         return sum(i * (v or 0) for i, v in enumerate(res))
