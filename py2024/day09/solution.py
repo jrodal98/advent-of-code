@@ -7,20 +7,10 @@ from aoc_utils.base_solver import BaseSolver, Solution
 class Solver(BaseSolver):
     def _init_filesystem(self) -> tuple[list[int | None], list[tuple[int, int, int]]]:
         numbers = [int(n) for n in self.data]
-        # file_blocks, free_spaces = numbers[::2], numbers[1::2]
-        # if len(file_blocks) != len(free_spaces):
-        #     free_spaces.append(0)
-        # filesystem = []
-        # all_nums = []
-        # for id, (num_blocks, free_space) in enumerate(zip(file_blocks, free_spaces)):
-        #     all_nums.append((id, num_blocks, len(filesystem)))
-        #     for _ in range(num_blocks):
-        #         filesystem.append(id)
-        #     for _ in range(free_space):
-        #         filesystem.append(None)
-
         filesystem = []
         all_nums = []
+
+        # Add a dummy 0 to make the logic below work
         if len(numbers) % 2 == 1:
             numbers.append(0)
         for id, i in enumerate(range(0, len(numbers), 2)):
