@@ -43,8 +43,11 @@ class Solver(BaseSolver):
 
     def _part2(self) -> Solution:
         filesystem, all_nums = self._init_filesystem()
+        first_none_index = filesystem.index(None)
         for id, window_size, file_start_index in all_nums:
-            for window_start_index in range(len(filesystem) - window_size + 1):
+            for window_start_index in range(
+                first_none_index, len(filesystem) - window_size + 1
+            ):
                 if window_start_index >= file_start_index:
                     break
                 window = filesystem[
@@ -57,6 +60,7 @@ class Solver(BaseSolver):
                     filesystem[
                         window_start_index : window_start_index + window_size
                     ] = [id] * window_size
+                    first_none_index = filesystem.index(None)
                     break
 
         return sum(i * (v or 0) for i, v in enumerate(filesystem))
