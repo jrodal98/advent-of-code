@@ -59,8 +59,8 @@ class Grid(Generic[T]):
     def iter(
         self,
         reverse: bool = False,
-        disqualify: str | None = None,
-        qualify: str | None = None,
+        disqualify: T | None = None,
+        qualify: T | None = None,
     ) -> Iterator[tuple[Point, T]]:
         if reverse:
             for i in reversed(range(len(self.data))):
