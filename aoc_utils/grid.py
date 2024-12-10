@@ -56,23 +56,48 @@ class Grid(Generic[T]):
             rows.append([padding] * len(rows[0]))
         return cls([cell for row in rows for cell in row], w=len(rows[0]), h=len(rows))
 
+    def _should_include(
+        self,
+        point: Point,
+        cell: T,
+        exclude: T | Callable[[Point, T], bool] | None = None,
+        include: T | Callable[[Point, T], bool] | None = None,
+    ) -> bool:
+        if exclude is not None:
+            if callable(exclude):
+                if exclude(point, cell):
+                    return False
+            elif cell == exclude:
+                return False
+
+        if include is not None:
+            if callable(include):
+                if not include(point, cell):
+                    return False
+            elif cell != include:
+                return False
+
+        return True
+
     def iter(
         self,
         reverse: bool = False,
-        exclude: T | None = None,
-        include: T | None = None,
+        exclude: T | Callable[[Point, T], bool] | None = None,
+        include: T | Callable[[Point, T], bool] | None = None,
     ) -> Iterator[tuple[Point, T]]:
         if reverse:
             for i in reversed(range(len(self.data))):
                 x, y = i % self.w, i // self.w
                 cell = self.data[i]
-                if cell != exclude and (include is None or cell == include):
-                    yield Point(x, y), cell
+                point = Point(x, y)
+                if self._should_include(point, cell, exclude, include):
+                    yield point, cell
         else:
             for i, cell in enumerate(self.data):
                 x, y = i % self.w, i // self.w
-                if cell != exclude and (include is None or cell == include):
-                    yield Point(x, y), cell
+                point = Point(x, y)
+                if self._should_include(point, cell, exclude, include):
+                    yield point, cell
 
     def get_neighbor(
         self, p: Point | None, direction: Direction, default: T | None = None
@@ -194,8 +219,8 @@ class Grid(Generic[T]):
         self,
         p: Point,
         *,
-        exclude: T | None = None,
-        include: T | None = None,
+        exclude: T | Callable[[Point, T], bool] | None = None,
+        include: T | Callable[[Point, T], bool] | None = None,
         allow_overflow: bool = False,
         include_diagonal: bool = False,
     ) -> Iterator[tuple[Point, T, Direction]]:
@@ -203,7 +228,7 @@ class Grid(Generic[T]):
             include_diagonal=include_diagonal
         ):
             v = self.get(neighbor, allow_overflow=allow_overflow)
-            if v is not None and v != exclude and (include is None or v == include):
+            if v is not None and self._should_include(neighbor, v, exclude, include):
                 yield neighbor, v, direction
 
     def display(self, rich: bool = False) -> None:
