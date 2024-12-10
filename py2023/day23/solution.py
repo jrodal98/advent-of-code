@@ -42,8 +42,8 @@ class Solver(BaseSolver):
 
     def _part2(self) -> Solution:
         junctions = {Point(1, 0), Point(self.grid.w - 2, self.grid.h - 1)}
-        for source, _ in self.grid.iter(disqualify="#"):
-            if len(list(self.grid.neighbors(source, disqualify="#"))) > 2:
+        for source, _ in self.grid.iter(exclude="#"):
+            if len(list(self.grid.neighbors(source, exclude="#"))) > 2:
                 junctions.add(source)
 
         graph = nx.Graph()
@@ -58,9 +58,7 @@ class Solver(BaseSolver):
                 if current_pos != source and current_pos in junctions:
                     graph.add_edge(source, current_pos, weight=dist)
                     continue
-                for neighbor_p, _, _ in self.grid.neighbors(
-                    current_pos, disqualify="#"
-                ):
+                for neighbor_p, _, _ in self.grid.neighbors(current_pos, exclude="#"):
                     queue.append((neighbor_p, dist + 1))
 
         return self.graph_dfs(

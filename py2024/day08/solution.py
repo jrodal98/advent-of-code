@@ -16,7 +16,7 @@ class Solver(BaseSolver):
 
     def _solver(self, part1: bool) -> Solution:
         positions = defaultdict(list)
-        for p, v in self.grid.iter(disqualify="."):
+        for p, v in self.grid.iter(exclude="."):
             positions[v].append(p)
 
         return len(

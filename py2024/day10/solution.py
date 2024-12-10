@@ -17,7 +17,7 @@ class Solver(BaseSolver):
     @cache
     def _both(self) -> tuple[int, int]:
         grid = self.grid.transform(int)
-        paths = [self._score(grid, pos, val) for pos, val in grid.iter(qualify=0)]
+        paths = [self._score(grid, pos, val) for pos, val in grid.iter(include=0)]
         return sum(len(set(p)) for p in paths), sum(len(p) for p in paths)
 
     def _score(self, grid: Grid[int], pos: Point, val: int) -> list[Point]:
@@ -27,7 +27,7 @@ class Solver(BaseSolver):
             else [
                 point
                 for neighbor_pos, neighbor_val, _ in grid.neighbors(
-                    pos, qualify=val + 1
+                    pos, include=val + 1
                 )
                 for point in self._score(grid, neighbor_pos, neighbor_val)
             ]

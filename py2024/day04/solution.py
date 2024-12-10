@@ -15,13 +15,13 @@ class Solver(BaseSolver):
                     self.grid.walk_directions(point, [direction] * 3, default="."),
                 )
             )
-            for point, _ in self.grid.iter(qualify="X")
+            for point, _ in self.grid.iter(include="X")
             for direction in Direction
         )
 
     def _part2(self) -> Solution:
         ans = 0
-        for point, _ in self.grid.iter(qualify="A"):
+        for point, _ in self.grid.iter(include="A"):
             upper_left = self.grid.get(point.upper_left, ".")
             bottom_right = self.grid.get(point.bottom_right, ".")
 

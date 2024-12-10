@@ -55,7 +55,7 @@ class Solver(BaseSolver):
                 continue
 
             for neighbor_p, _, _ in self.grid.neighbors(
-                current_place, disqualify="#", allow_overflow=allow_overflow
+                current_place, exclude="#", allow_overflow=allow_overflow
             ):
                 places_to_go.append(
                     (

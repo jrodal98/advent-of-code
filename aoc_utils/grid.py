@@ -59,19 +59,19 @@ class Grid(Generic[T]):
     def iter(
         self,
         reverse: bool = False,
-        disqualify: T | None = None,
-        qualify: T | None = None,
+        exclude: T | None = None,
+        include: T | None = None,
     ) -> Iterator[tuple[Point, T]]:
         if reverse:
             for i in reversed(range(len(self.data))):
                 x, y = i % self.w, i // self.w
                 cell = self.data[i]
-                if cell != disqualify and (qualify is None or cell == qualify):
+                if cell != exclude and (include is None or cell == include):
                     yield Point(x, y), cell
         else:
             for i, cell in enumerate(self.data):
                 x, y = i % self.w, i // self.w
-                if cell != disqualify and (qualify is None or cell == qualify):
+                if cell != exclude and (include is None or cell == include):
                     yield Point(x, y), cell
 
     def get_neighbor(
@@ -194,8 +194,8 @@ class Grid(Generic[T]):
         self,
         p: Point,
         *,
-        disqualify: T | None = None,
-        qualify: T | None = None,
+        exclude: T | None = None,
+        include: T | None = None,
         allow_overflow: bool = False,
         include_diagonal: bool = False,
     ) -> Iterator[tuple[Point, T, Direction]]:
@@ -203,7 +203,7 @@ class Grid(Generic[T]):
             include_diagonal=include_diagonal
         ):
             v = self.get(neighbor, allow_overflow=allow_overflow)
-            if v is not None and v != disqualify and (not qualify or v == qualify):
+            if v is not None and v != exclude and (include is None or v == include):
                 yield neighbor, v, direction
 
     def display(self, rich: bool = False) -> None:
