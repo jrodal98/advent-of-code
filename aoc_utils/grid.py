@@ -194,8 +194,8 @@ class Grid(Generic[T]):
         self,
         p: Point,
         *,
-        disqualify: str | None = None,
-        qualify: str | None = None,
+        disqualify: T | None = None,
+        qualify: T | None = None,
         allow_overflow: bool = False,
         include_diagonal: bool = False,
     ) -> Iterator[tuple[Point, T, Direction]]:
