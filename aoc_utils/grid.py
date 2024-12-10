@@ -66,12 +66,12 @@ class Grid(Generic[T]):
             for i in reversed(range(len(self.data))):
                 x, y = i % self.w, i // self.w
                 cell = self.data[i]
-                if cell != disqualify and (not qualify or cell == qualify):
+                if cell != disqualify and (qualify is None or cell == qualify):
                     yield Point(x, y), cell
         else:
             for i, cell in enumerate(self.data):
                 x, y = i % self.w, i // self.w
-                if cell != disqualify and (not qualify or cell == qualify):
+                if cell != disqualify and (qualify is None or cell == qualify):
                     yield Point(x, y), cell
 
     def get_neighbor(
