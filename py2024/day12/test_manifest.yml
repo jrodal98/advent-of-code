@@ -10,5 +10,11 @@ part2:
     output: 80
   - input: AAAA
     output: 16
-  # - input: sample2.txt
-  #   output: 436
+  - input: sample2.txt
+    output: 436
+  - input: sample3.txt
+    output: 1206
+  - input: sample4.txt
+    output: 236
+  - input: sample5.txt
+    output: 368
