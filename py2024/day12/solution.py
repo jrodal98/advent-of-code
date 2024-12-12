@@ -30,11 +30,15 @@ class Solver(BaseSolver):
             while queue:
                 p = queue.pop()
                 region.add(p)
-                for neighbor in p.neighbors():
-                    if neighbor in region:
-                        continue
-                    if self.grid.get(neighbor) == value:
-                        queue.append(neighbor)
+                queue.extend(
+                    [
+                        neighbor_p
+                        for neighbor_p, _, _ in self.grid.neighbors(
+                            p, exclude=lambda p, v: p in region or v != value
+                        )
+                    ]
+                )
+
             seen |= region
             yield region
 
