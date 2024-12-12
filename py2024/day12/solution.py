@@ -2,7 +2,7 @@
 # www.jrodal.com
 
 from aoc_utils.base_solver import BaseSolver, Solution
-from aoc_utils.point import Direction, Point
+from aoc_utils.point import Point
 
 
 class Solver(BaseSolver):
