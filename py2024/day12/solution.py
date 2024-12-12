@@ -24,17 +24,17 @@ class Solver(BaseSolver):
 
     def _extract_regions(self) -> Iterator[set[Point]]:
         seen = set()
-        for point, value in self.grid.iter(exclude=lambda p, _: p in seen):
+        for region_start, value in self.grid.iter(exclude=lambda p, _: p in seen):
             region = set()
-            queue = [point]
+            queue = [region_start]
             while queue:
-                p = queue.pop()
-                region.add(p)
+                point = queue.pop()
+                region.add(point)
                 queue.extend(
                     [
                         neighbor_p
                         for neighbor_p, _, _ in self.grid.neighbors(
-                            p, exclude=lambda p, v: p in region or v != value
+                            point, exclude=lambda p, v: p in region or v != value
                         )
                     ]
                 )
