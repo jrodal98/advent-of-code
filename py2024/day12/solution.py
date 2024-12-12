@@ -17,9 +17,9 @@ class Solver(BaseSolver):
     def _compute_score(
         self, scoring_function: Callable[[set[Point]], Iterator[Point]]
     ) -> int:
-        regions = self._extract_regions()
         return sum(
-            len(region) * len(list(scoring_function(region))) for region in regions
+            len(region) * len(list(scoring_function(region)))
+            for region in self._extract_regions()
         )
 
     def _extract_regions(self) -> list[set[Point]]:
