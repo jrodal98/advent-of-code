@@ -65,18 +65,17 @@ class Solver(BaseSolver):
             num_sides += exterior_corners
 
             # count interior corners
-            if exterior_corners == 0:
-                if p.left in region and p.down in region:
-                    num_sides += 1
+            if p.left in region and p.down in region:
+                num_sides += 1
 
-                if p.right in region and p.down in region:
-                    num_sides += 1
+            if p.right in region and p.down in region:
+                num_sides += 1
 
-                if p.left in region and p.up in region:
-                    num_sides += 1
+            if p.left in region and p.up in region:
+                num_sides += 1
 
-                if p.right in region and p.up in region:
-                    num_sides += 1
+            if p.right in region and p.up in region:
+                num_sides += 1
 
         return area * num_sides
 
