@@ -2,11 +2,26 @@
 # www.jrodal.com
 
 from collections.abc import Iterator
+from typing import Callable
 from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.point import Direction, Point
 
 
 class Solver(BaseSolver):
+    def _part1(self) -> Solution:
+        return self._compute_score(scoring_function=self._extract_perimeter)
+
+    def _part2(self) -> Solution:
+        return self._compute_score(scoring_function=self._extract_corners)
+
+    def _compute_score(
+        self, scoring_function: Callable[[set[Point]], Iterator[Point]]
+    ) -> int:
+        regions = self._extract_regions()
+        return sum(
+            len(region) * len(list(scoring_function(region))) for region in regions
+        )
+
     def _extract_regions(self) -> list[set[Point]]:
         seen = set()
         regions = []
@@ -43,12 +58,6 @@ class Solver(BaseSolver):
 
         for p in perimeter:
             for direction in Direction.dir4():
-                ############################### INTERIOR CORNERS ####################################
-                if (
-                    p.neighbor(direction) in region
-                    and p.neighbor(direction.clockwise) in region
-                ):
-                    yield p
                 ############################### EXTERIOR CORNERS ####################################
                 if (
                     p.neighbor(direction) in perimeter
@@ -56,15 +65,9 @@ class Solver(BaseSolver):
                     and p.neighbor(direction.clockwise8) in region
                 ):
                     yield p
-
-    def _compute_score(self, scoring_function) -> int:
-        regions = self._extract_regions()
-        return sum(
-            len(region) * len(list(scoring_function(region))) for region in regions
-        )
-
-    def _part1(self) -> Solution:
-        return self._compute_score(scoring_function=self._extract_perimeter)
-
-    def _part2(self) -> Solution:
-        return self._compute_score(scoring_function=self._extract_corners)
+                ############################### INTERIOR CORNERS ####################################
+                if (
+                    p.neighbor(direction) in region
+                    and p.neighbor(direction.clockwise) in region
+                ):
+                    yield p
