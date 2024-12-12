@@ -22,9 +22,8 @@ class Solver(BaseSolver):
             for region in self._extract_regions()
         )
 
-    def _extract_regions(self) -> list[set[Point]]:
+    def _extract_regions(self) -> Iterator[set[Point]]:
         seen = set()
-        regions = []
         for point, value in self.grid.iter(exclude=lambda p, _: p in seen):
             region = set()
             queue = [point]
@@ -37,9 +36,7 @@ class Solver(BaseSolver):
                     if self.grid.get(neighbor) == value:
                         queue.append(neighbor)
             seen |= region
-            regions.append(region)
-
-        return regions
+            yield region
 
     @classmethod
     def _extract_perimeter(
