@@ -52,41 +52,18 @@ class Solver(BaseSolver):
 
             num_sides = 0
             for p in perimeter:
-                ############################### EXTERIOR CORNERS ####################################
-                if (
-                    p.left in perimeter
-                    and p.down in perimeter
-                    and p.bottom_left in region
-                ):
-                    num_sides += 1
-
-                if (
-                    p.right in perimeter
-                    and p.down in perimeter
-                    and p.bottom_right in region
-                ):
-                    num_sides += 1
-
-                if p.left in perimeter and p.up in perimeter and p.upper_left in region:
-                    num_sides += 1
-
-                if (
-                    p.right in perimeter
-                    and p.up in perimeter
-                    and p.upper_right in region
-                ):
-                    num_sides += 1
-
-                ############################### INTERIOR CORNERS ####################################
-                for direction in [
-                    Direction.UP,
-                    Direction.DOWN,
-                    Direction.LEFT,
-                    Direction.RIGHT,
-                ]:
+                for direction in Direction.dir4():
+                    ############################### INTERIOR CORNERS ####################################
                     if (
                         p.neighbor(direction) in region
                         and p.neighbor(direction.clockwise) in region
+                    ):
+                        num_sides += 1
+                    ############################### EXTERIOR CORNERS ####################################
+                    if (
+                        p.neighbor(direction) in perimeter
+                        and p.neighbor(direction.clockwise) in perimeter
+                        and p.neighbor(direction.clockwise8) in region
                     ):
                         num_sides += 1
 

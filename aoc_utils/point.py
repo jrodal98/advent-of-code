@@ -65,6 +65,20 @@ class Direction(Enum):
             case _:
                 raise ValueError(f"Invalid direction: {self}")
 
+    @classmethod
+    def dir4(cls) -> Iterator[Direction]:
+        d = cls.LEFT
+        for _ in range(4):
+            d = d.clockwise
+            yield d
+
+    @classmethod
+    def dir8(cls) -> Iterator[Direction]:
+        d = cls.UPPER_LEFT
+        for _ in range(8):
+            d = d.clockwise8
+            yield d
+
     @property
     def clockwise(self) -> Direction:
         match self:
