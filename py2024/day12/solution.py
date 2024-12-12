@@ -2,7 +2,7 @@
 # www.jrodal.com
 
 from aoc_utils.base_solver import BaseSolver, Solution
-from aoc_utils.point import Point
+from aoc_utils.point import Direction, Point
 
 
 class Solver(BaseSolver):
@@ -78,17 +78,17 @@ class Solver(BaseSolver):
                     num_sides += 1
 
                 ############################### INTERIOR CORNERS ####################################
-                if p.left in region and p.down in region:
-                    num_sides += 1
-
-                if p.right in region and p.down in region:
-                    num_sides += 1
-
-                if p.left in region and p.up in region:
-                    num_sides += 1
-
-                if p.right in region and p.up in region:
-                    num_sides += 1
+                for direction in [
+                    Direction.UP,
+                    Direction.DOWN,
+                    Direction.LEFT,
+                    Direction.RIGHT,
+                ]:
+                    if (
+                        p.neighbor(direction) in region
+                        and p.neighbor(direction.clockwise) in region
+                    ):
+                        num_sides += 1
 
             score += area * num_sides
         return score
