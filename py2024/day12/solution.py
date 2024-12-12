@@ -45,20 +45,23 @@ class Solver(BaseSolver):
 
         num_sides = 0
         for p in perimeter:
-            num_local = 0
+            exterior_corners = 0
             if p.left in perimeter and p.down in perimeter:
-                num_local += 1
+                exterior_corners += 1
 
             if p.right in perimeter and p.down in perimeter:
-                num_local += 1
+                exterior_corners += 1
 
             if p.left in perimeter and p.up in perimeter:
-                num_local += 1
+                exterior_corners += 1
 
             if p.right in perimeter and p.up in perimeter:
-                num_local += 1
+                exterior_corners += 1
 
-            if num_local == 0:
+            num_sides += exterior_corners
+
+            # count interior corners
+            if exterior_corners == 0:
                 if p.left in region and p.down in region:
                     num_sides += 1
 
@@ -70,7 +73,6 @@ class Solver(BaseSolver):
 
                 if p.right in region and p.up in region:
                     num_sides += 1
-            num_sides += num_local
 
         # v = self.grid.at(list(region)[0])
         # print(v, area, num_sides)
