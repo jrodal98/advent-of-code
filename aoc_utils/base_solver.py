@@ -59,6 +59,9 @@ class BaseSolver:
     def lines(self) -> list[str]:
         return self.data.splitlines()
 
+    def sections(self) -> list[str]:
+        return self.data.split("\n\n")
+
     def _update_animation(
         self,
         *,

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
+from aoc_utils.helpers import ints
 from aoc_utils.base_solver import BaseSolver, Solution
 from z3 import Int, Optimize, sat
-import re
 
 
 class Solver(BaseSolver):
@@ -11,9 +11,8 @@ class Solver(BaseSolver):
         # We weren't given a part2 test case, so just run part1 again
         conversion_factor = 0 if part1 or self._is_unit_test else 10000000000000
         ans = 0
-        pattern = re.compile(r"\d+")
-        for lines in self.data.split("\n\n"):
-            ax, ay, bx, by, x, y = [int(i) for i in pattern.findall(lines)]
+        for section in self.sections():
+            ax, ay, bx, by, x, y = ints(section)
             ans += self._z3solver(
                 ax, ay, bx, by, x + conversion_factor, y + conversion_factor
             )
