@@ -2,40 +2,7 @@
 # www.jrodal.com
 
 from aoc_utils.base_solver import BaseSolver, Solution
-#
-# from sympy import symbols, Eq, solve
-#
-# def find_min_tokens():
-#     # Define variables
-#     a, b = symbols('a b', integer=True)
-#
-#     # Define the equations
-#     eq1 = Eq(94 * a + 22 * b, 8400)
-#     eq2 = Eq(34 * a + 67 * b, 5400)
-#
-#     # Solve the equations
-#     solution = solve((eq1, eq2), (a, b))
-#
-#     if solution:
-#         # Extract the values of a and b
-#         a = solution[a]
-#         b = solution[b]
-#
-#         # Calculate the total cost
-#         total_cost = 3 * a + b
-#
-#         return a, b, total_cost
-#     else:
-#         return None, None, None
-#
-# # Find and display the results
-# a, b, total_cost = find_min_tokens()
-# if a is not None:
-#     print(f"Button A presses: {a}")
-#     print(f"Button B presses: {b}")
-#     print(f"Minimum tokens needed: {total_cost}")
-# else:
-#     print("No solution found.")
+from z3 import Int, Optimize, sat
 
 
 class Solver(BaseSolver):
@@ -51,6 +18,58 @@ class Solver(BaseSolver):
         if min_tokens == float("inf"):
             return 0
         return min_tokens
+
+    # def _part2_helper(self, ax, ay, bx, by, x, y) -> int:
+    #     # Define z3 integer variables
+    #     a_val = Int("a_val")
+    #     b_val = Int("b_val")
+    #
+    #     # Create an optimizer instance
+    #     opt = Optimize()
+    #
+    #     # Add constraints
+    #     opt.add(ax * a_val + bx * b_val == x)
+    #     opt.add(ay * a_val + by * b_val == y)
+    #     opt.add(a_val >= 0, b_val >= 0)  # Assuming non-negative values for a and b
+    #     opt.add(a_val >= 0, b_val >= 0)  # Assuming non-negative values for a and b
+    #
+    #     # Define the cost function and minimize it
+    #     total_cost = 3 * a_val + b_val
+    #     opt.minimize(total_cost)
+    #
+    #     # Check if the constraints are satisfiable
+    #     if opt.check() == sat:
+    #         model = opt.model()
+    #         return model[total_cost].as_long()
+    #     else:
+    #         return 0  # Return 0 if no solution exists
+
+    def _part2_helper(self, ax, ay, bx, by, x, y) -> int:
+        # Define z3 integer variables
+        a_val = Int("a_val")
+        b_val = Int("b_val")
+
+        # Create an optimizer instance
+        opt = Optimize()
+
+        # Add constraints
+        opt.add(ax * a_val + bx * b_val == x)
+        opt.add(ay * a_val + by * b_val == y)
+        opt.add(a_val >= 0, b_val >= 0)  # Assuming non-negative values for a and b
+
+        # Define the cost function and minimize it
+        total_cost = 3 * a_val + b_val
+        opt.minimize(total_cost)
+
+        # Check if the constraints are satisfiable
+        if opt.check() == sat:
+            model = opt.model()
+            # Extract values from the model to compute the total cost
+            a_val_solution = model[a_val].as_long()
+            b_val_solution = model[b_val].as_long()
+            return 3 * a_val_solution + b_val_solution
+        else:
+            return 0  # Return 0 if no solution exists
 
     def _extract_ints(self, s: str) -> list[int]:
         ints = []
@@ -74,4 +93,17 @@ class Solver(BaseSolver):
         return ans
 
     def _part2(self) -> Solution:
-        raise NotImplementedError
+        ans = 0
+        for line in self.data.split("\n\n"):
+            lines = (
+                line.replace(",", "").replace("+", " ").replace("=", " ").splitlines()
+            )
+            ax, ay = self._extract_ints(lines[0])
+            bx, by = self._extract_ints(lines[1])
+            x, y = self._extract_ints(lines[2])
+            ans += self._part2_helper(
+                ax, ay, bx, by, x + 10000000000000, y + 10000000000000
+            )
+        if ans == 0:
+            raise Exception("you are a dumbass")
+        return ans
