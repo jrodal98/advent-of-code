@@ -7,9 +7,9 @@ import re
 
 
 class Solver(BaseSolver):
-    def _solve(self, part1: bool, is_unit_test: bool) -> Solution:
+    def _solve(self, part1: bool) -> Solution:
         # We weren't given a part2 test case, so just run part1 again
-        conversion_factor = 0 if part1 or is_unit_test else 10000000000000
+        conversion_factor = 0 if part1 or self._is_unit_test else 10000000000000
         ans = 0
         pattern = re.compile(r"\d+")
         for lines in self.data.split("\n\n"):

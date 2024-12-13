@@ -8,11 +8,10 @@ from aoc_utils.point import Direction, Point
 
 
 class Solver(BaseSolver):
-    def _part1(self) -> Solution:
-        return self._compute_score(scoring_function=self._extract_perimeter)
-
-    def _part2(self) -> Solution:
-        return self._compute_score(scoring_function=self._extract_corners)
+    def _solve(self, part1: bool) -> Solution:
+        return self._compute_score(
+            scoring_function=self._extract_perimeter if part1 else self._extract_corners
+        )
 
     def _compute_score(
         self, scoring_function: Callable[[set[Point]], Iterator[Point]]

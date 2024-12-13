@@ -3,7 +3,7 @@
 
 from contextlib import nullcontext
 from functools import cached_property
-from typing import Callable, Iterator
+from typing import Callable
 import aocd
 
 from enum import Enum
@@ -137,14 +137,14 @@ class BaseSolver:
         return solution, runtime
 
     def part1(self) -> Solution:
-        solution = self._solve(part1=True, is_unit_test=self._is_unit_test)
+        solution = self._solve(part1=True)
         try:
             return int(solution)
         except ValueError:
             return str(solution)
 
     def part2(self) -> Solution:
-        solution = self._solve(part1=False, is_unit_test=self._is_unit_test)
+        solution = self._solve(part1=False)
         try:
             return int(solution)
         except ValueError:
@@ -172,9 +172,7 @@ class BaseSolver:
     def _part2(self) -> Solution:
         raise NotImplementedError
 
-    def _solve(self, part1: bool, is_unit_test: bool) -> Solution:
-        # to appease the linter
-        _ = is_unit_test
+    def _solve(self, part1: bool) -> Solution:
         if part1:
             return self._part1()
         else:
