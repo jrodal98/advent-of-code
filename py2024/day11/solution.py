@@ -8,10 +8,7 @@ from functools import cache
 
 class Solver(BaseSolver):
     def _solve(self, part1: bool) -> Solution:
-        return sum(
-            _num_stones(stone, 25 if part1 or self._is_unit_test else 75)
-            for stone in ints(self.data)
-        )
+        return sum(_num_stones(stone, 25 if part1 else 75) for stone in ints(self.data))
 
 
 @cache

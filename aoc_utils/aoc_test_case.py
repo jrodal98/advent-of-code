@@ -36,7 +36,7 @@ class TestCaseFromManifest:
 
         with open(manifest_path) as f:
             manifest = yaml.safe_load(f)
-        return [cls(**test_case) for test_case in manifest[test_section]]
+        return [cls(**test_case) for test_case in manifest.get(test_section, [])]
 
 
 class AOCTestCase(unittest.TestCase, ABC):
