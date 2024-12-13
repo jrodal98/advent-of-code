@@ -2,8 +2,9 @@
 # www.jrodal.com
 
 import re
+from typing import Iterator
 
 
-def ints(s: str, *, include_sign=False) -> list[int]:
+def ints(s: str, *, include_sign=False) -> Iterator[int]:
     pattern = r"[-+]?\d+" if include_sign else r"\d+"
-    return [int(i) for i in re.findall(pattern, s)]
+    return (int(m.group()) for m in re.finditer(pattern, s))
