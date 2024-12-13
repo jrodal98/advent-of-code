@@ -18,16 +18,14 @@ class Solver(BaseSolver):
         if blinks == 0:
             return 1
 
-        blinks -= 1
-
         if stone == 0:
-            return cls._num_stones(1, blinks)
+            return cls._num_stones(1, blinks - 1)
 
         stone_str = str(stone)
         left, right = stone_str[: len(stone_str) // 2], stone_str[len(stone_str) // 2 :]
         if len(left) == len(right):
-            return cls._num_stones(int(left), blinks) + cls._num_stones(
-                int(right), blinks
+            return cls._num_stones(int(left), blinks - 1) + cls._num_stones(
+                int(right), blinks - 1
             )
 
-        return cls._num_stones(stone * 2024, blinks)
+        return cls._num_stones(stone * 2024, blinks - 1)
