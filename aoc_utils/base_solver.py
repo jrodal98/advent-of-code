@@ -3,10 +3,9 @@
 
 from contextlib import nullcontext
 from functools import cached_property
-from typing import Callable
+from typing import Callable, Iterator
 import aocd
 
-from abc import ABC, abstractmethod
 from enum import Enum
 from inspect import getsource
 from rich.console import Console
@@ -27,7 +26,7 @@ class ProblemPart(Enum):
     UNSPECIFIED = None
 
 
-class BaseSolver(ABC):
+class BaseSolver:
     def __init__(
         self,
         data: str,
@@ -47,6 +46,8 @@ class BaseSolver(ABC):
         self._step = step
         self._started_animation = False
         self._is_unit_test = is_unit_test
+        self._is_part1: bool = False
+        self._is_part2: bool = False
 
     @cached_property
     def grid(self) -> Grid[str]:
@@ -136,14 +137,14 @@ class BaseSolver(ABC):
         return solution, runtime
 
     def part1(self) -> Solution:
-        solution = self._part1()
+        solution = self._solve(part1=True, is_unit_test=self._is_unit_test)
         try:
             return int(solution)
         except ValueError:
             return str(solution)
 
     def part2(self) -> Solution:
-        solution = self._part2()
+        solution = self._solve(part1=False, is_unit_test=self._is_unit_test)
         try:
             return int(solution)
         except ValueError:
@@ -151,6 +152,11 @@ class BaseSolver(ABC):
 
     @classmethod
     def is_not_implemented(cls, part: ProblemPart) -> bool:
+        if (
+            "raise NotImplementedError"
+            not in getsource(cls._solve).strip().splitlines()[-1]
+        ):
+            return False
         match part:
             case ProblemPart.PART1:
                 code = getsource(cls._part1)
@@ -160,8 +166,16 @@ class BaseSolver(ABC):
                 raise ValueError(f"Invalid part {part}")
         return "raise NotImplementedError" in code.strip().splitlines()[-1]
 
-    @abstractmethod
-    def _part1(self) -> Solution: ...
+    def _part1(self) -> Solution:
+        raise NotImplementedError
 
-    @abstractmethod
-    def _part2(self) -> Solution: ...
+    def _part2(self) -> Solution:
+        raise NotImplementedError
+
+    def _solve(self, part1: bool, is_unit_test: bool) -> Solution:
+        # to appease the linter
+        _ = is_unit_test
+        if part1:
+            return self._part1()
+        else:
+            return self._part2()

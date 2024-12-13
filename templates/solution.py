@@ -5,8 +5,5 @@ from aoc_utils.base_solver import BaseSolver, Solution
 
 
 class Solver(BaseSolver):
-    def _part1(self) -> Solution:
-        raise NotImplementedError
-
-    def _part2(self) -> Solution:
+    def _solve(self, part1: bool, is_unit_test: bool) -> Solution:
         raise NotImplementedError

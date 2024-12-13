@@ -7,15 +7,9 @@ import re
 
 
 class Solver(BaseSolver):
-    def _part1(self) -> Solution:
-        return self._solve(0)
-
-    def _part2(self) -> Solution:
+    def _solve(self, part1: bool, is_unit_test: bool) -> Solution:
         # We weren't given a part2 test case, so just run part1 again
-        conversion_factor = 0 if self._is_unit_test else 10000000000000
-        return self._solve(conversion_factor)
-
-    def _solve(self, conversion_factor: int = 0) -> int:
+        conversion_factor = 0 if part1 or is_unit_test else 10000000000000
         ans = 0
         pattern = re.compile(r"\d+")
         for lines in self.data.split("\n\n"):
