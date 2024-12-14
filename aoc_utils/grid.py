@@ -18,7 +18,12 @@ U = TypeVar("U")
 
 class Grid(Generic[T]):
     def __init__(
-        self, data: List[T], *, w: int | None = None, h: int | None = None
+        self,
+        data: List[T],
+        *,
+        w: int | None = None,
+        h: int | None = None,
+        allow_overflow: bool = False,
     ) -> None:
         len_data = len(data)
         if w is not None:
@@ -35,6 +40,7 @@ class Grid(Generic[T]):
         assert self.w * self.h == len_data
 
         self.data = data
+        self.allow_overflow = allow_overflow
 
     @classmethod
     def from_lines(
@@ -158,17 +164,32 @@ class Grid(Generic[T]):
     def cols(self) -> list[list[T]]:
         return [list(c) for c in self.iter_cols()]
 
-    def at(self, p: Point, *, allow_overflow: bool = False) -> T:
+    def __getitem__(self, p: Point) -> T:
+        return self.at(p)
+
+    def __setitem__(self, p: Point, value: T) -> None:
+        self.replace(p, value)
+
+    def _allow_overflow(self, allow_overflow: bool | None) -> bool:
+        if allow_overflow is None:
+            return self.allow_overflow
+        return allow_overflow
+
+    def at(self, p: Point, *, allow_overflow: bool | None = None) -> T:
         x, y = p.x, p.y
-        if allow_overflow:
+        if self._allow_overflow(allow_overflow):
             x, y = x % self.w, y % self.h
         return self.data[y * self.w + x]
 
     def replace(
-        self, p: Point, value: T, color: str | None = None, allow_overflow: bool = False
+        self,
+        p: Point,
+        value: T,
+        color: str | None = None,
+        allow_overflow: bool | None = None,
     ) -> None:
         x, y = p.x, p.y
-        if allow_overflow:
+        if self._allow_overflow(allow_overflow):
             x, y = x % self.w, y % self.h
         elif self.get(p) is None:
             return
@@ -210,9 +231,11 @@ class Grid(Generic[T]):
                 yield p
 
     def get(
-        self, p: Point, default: T | None = None, *, allow_overflow: bool = False
+        self, p: Point, default: T | None = None, *, allow_overflow: bool | None = None
     ) -> T | None:
-        if (0 <= p.x < self.w and 0 <= p.y < self.h) or allow_overflow:
+        if (0 <= p.x < self.w and 0 <= p.y < self.h) or (
+            allow_overflow := self._allow_overflow(allow_overflow)
+        ):
             return self.at(p, allow_overflow=allow_overflow)
         else:
             return default

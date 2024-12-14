@@ -18,16 +18,12 @@ class Solver(BaseSolver):
 
         time = 100
 
-        g = Grid(data=[0] * w * h, w=w, h=h)
+        g = Grid(data=[0] * w * h, w=w, h=h, allow_overflow=True)
         for line in self.lines():
             px, py, vx, vy = ints(line, include_sign=True)
             x = px + vx * time
             y = py + vy * time
-            p = Point(x % w, y % h)
-            v = g.get(p) or 0
-            g.replace(p, v + 1)
-        if self._is_unit_test:
-            g.display()
+            g[Point(x, y)] += 1
 
         mid_x, mid_y = w // 2, h // 2
         score = 1
