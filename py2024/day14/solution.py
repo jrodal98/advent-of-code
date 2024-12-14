@@ -8,7 +8,7 @@ from aoc_utils.point import Point
 
 
 class Solver(BaseSolver):
-    def _solve(self, part1: bool) -> Solution:
+    def _part1(self) -> Solution:
         if self._is_unit_test:
             w = 11
             h = 7
@@ -43,3 +43,38 @@ class Solver(BaseSolver):
                     q += g.at(Point(x, y))
             score *= q
         return score
+
+    def _part2(self) -> Solution:
+        w = 101
+        h = 103
+        g = Grid(data=["."] * w * h, w=w, h=h)
+        self._set_animation_grid(g)
+        robots = []
+        for line in self.lines():
+            px, py, vx, vy = ints(line, include_sign=True)
+            robots.append((px, py, vx, vy))
+            g.replace(Point(px, py), "#")
+
+        for i in range(1, 1000000000000000):
+            new_bots = []
+            new_pos = set()
+            all_x = [0] * w
+            for robot in robots:
+                old_x, old_y, vx, vy = robot
+                new_x, new_y = (old_x + vx) % w, (old_y + vy) % h
+                all_x[new_x] += 1
+                new_bots.append((new_x, new_y, vx, vy))
+                new_pos.add(Point(new_x, new_y))
+            max_x = max(all_x)
+            if max_x > 30:
+                for x in range(g.w):
+                    for y in range(g.h):
+                        p = Point(x, y)
+                        if p in new_pos:
+                            g.replace(p, "#")
+                        else:
+                            g.replace(p, ".")
+                self._update_animation(message=f"Time: {i}")
+            robots = new_bots
+            all_x = [0] * w
+        assert False
