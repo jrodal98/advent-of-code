@@ -164,12 +164,17 @@ class Grid(Generic[T]):
             x, y = x % self.w, y % self.h
         return self.data[y * self.w + x]
 
-    def replace(self, p: Point, value: T, color: str | None = None) -> None:
-        if self.get(p) is None:
+    def replace(
+        self, p: Point, value: T, color: str | None = None, allow_overflow: bool = False
+    ) -> None:
+        x, y = p.x, p.y
+        if allow_overflow:
+            x, y = x % self.w, y % self.h
+        elif self.get(p) is None:
             return
         if color and isinstance(value, str):
             value = f"[{color}]{value}[/{color}]"  # pyright: ignore
-        self.data[p.y * self.w + p.x] = value
+        self.data[y * self.w + x] = value
 
     def left(self, p: Point) -> T | None:
         return self.get(p.left)
