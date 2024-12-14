@@ -29,13 +29,13 @@ class Solver(BaseSolver):
         if self._is_unit_test:
             g.display()
 
-        mid_x, mid_y = (w + 1) // 2, (h + 1) // 2
+        mid_x, mid_y = w // 2, h // 2
         score = 1
         for lx, ux, ly, uy in [
             (0, mid_x, 0, mid_y),
-            (0, mid_x, mid_y + 1, h + 1),
-            (mid_x + 1, w + 1, 0, mid_y),
-            (mid_x + 1, w + 1, mid_y + 1, h + 1),
+            (0, mid_x, mid_y + 1, h),
+            (mid_x + 1, w, 0, mid_y),
+            (mid_x + 1, w, mid_y + 1, h),
         ]:
             q = 0
             for x in range(lx, ux):
