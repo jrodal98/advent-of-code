@@ -62,6 +62,9 @@ class Grid(Generic[T]):
             rows.append([padding] * len(rows[0]))
         return cls([cell for row in rows for cell in row], w=len(rows[0]), h=len(rows))
 
+    def fill(self, value: T) -> None:
+        self.data = [value] * self.w * self.h
+
     def _should_include(
         self,
         point: Point,
@@ -104,6 +107,10 @@ class Grid(Generic[T]):
                 point = Point(x, y)
                 if self._should_include(point, cell, exclude, include):
                     yield point, cell
+
+    def __iter__(self) -> Iterator[tuple[Point, T]]:
+        # Call iter without filters or reverse
+        return self.iter()
 
     def get_neighbor(
         self, p: Point | None, direction: Direction, default: T | None = None

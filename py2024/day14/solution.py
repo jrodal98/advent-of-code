@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
+from collections import defaultdict
 from aoc_utils.helpers import ints
 from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.grid import Grid
@@ -43,34 +44,30 @@ class Solver(BaseSolver):
     def _part2(self) -> Solution:
         w = 101
         h = 103
-        g = Grid(data=["."] * w * h, w=w, h=h)
-        self._set_animation_grid(g)
-        robots = []
+        points_to_robots = defaultdict(set)
+        self._set_animation_grid(Grid(data=["."] * w * h, w=w, h=h))
         for line in self.lines():
             px, py, vx, vy = ints(line, include_sign=True)
-            robots.append((px, py, vx, vy))
-            g.replace(Point(px, py), "#")
+            points_to_robots[(px, py)].add((vx, vy))
 
         for i in range(1, 1000000000000000):
-            new_bots = []
-            new_pos = set()
-            all_x = [0] * w
-            for robot in robots:
-                old_x, old_y, vx, vy = robot
-                new_x, new_y = (old_x + vx) % w, (old_y + vy) % h
-                all_x[new_x] += 1
-                new_bots.append((new_x, new_y, vx, vy))
-                new_pos.add(Point(new_x, new_y))
-            max_x = max(all_x)
-            if max_x > 30:
-                for x in range(g.w):
-                    for y in range(g.h):
-                        p = Point(x, y)
-                        if p in new_pos:
-                            g.replace(p, "#")
-                        else:
-                            g.replace(p, ".")
-                self._update_animation(message=f"Time: {i}")
-            robots = new_bots
-            all_x = [0] * w
+            new_points_to_robots = defaultdict(set)
+            unique_x_values = [0] * w
+            for (px, py), robots in points_to_robots.items():
+                for vx, vy in robots:
+                    new_x, new_y = (px + vx) % w, (py + vy) % h
+                    new_points_to_robots[(new_x, new_y)].add((vx, vy))
+                    unique_x_values[new_x] += 1
+            points_to_robots = new_points_to_robots
+            # the logic below is how I actually solved the puzzle
+            if self._animate and max(unique_x_values) > 30:
+                for x, y in points_to_robots.keys():
+                    self._update_animation(point=Point(x, y), value="#", refresh=False)
+                self._update_animation(message=f"Step {i}")
+                for x, y in points_to_robots.keys():
+                    self._update_animation(point=Point(x, y), value=".", refresh=False)
+
+            # This magic tricks gives the answer (the tree appears when no two robots overlap)
+            if len(max(points_to_robots.values(), key=len)) == 1:
+                return i
         assert False

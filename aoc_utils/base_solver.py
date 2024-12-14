@@ -78,7 +78,7 @@ class BaseSolver:
         if not self._animate or not self._live or not self._animation_grid:
             return
 
-        if self._step and not self._started_animation:
+        if refresh and self._step and not self._started_animation:
             self._live.update(str(self._animation_grid), refresh=True)
 
         if point and value:
