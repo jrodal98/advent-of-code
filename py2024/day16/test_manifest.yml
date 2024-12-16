@@ -5,4 +5,6 @@ part1:
     output: 11048
 part2:
   - input: sample1.txt
-    output:
+    output: 45
+  - input: sample2.txt
+    output: 64
