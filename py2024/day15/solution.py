@@ -8,23 +8,24 @@ from aoc_utils.grid import Grid
 
 class Solver(BaseSolver):
     @classmethod
-    def _push(cls, g: Grid, p: Point, d: Direction) -> bool:
-        p += d
-        if all(
-            [
-                g[p] != "["
-                or cls._push(g, p + Direction.RIGHT, d)
-                and cls._push(g, p, d),
-                g[p] != "]"
-                or cls._push(g, p + Direction.LEFT, d)
-                and cls._push(g, p, d),
-                g[p] != "O" or cls._push(g, p, d),
-                g[p] != "#",
-            ]
-        ):
-            g.swap(p, p - d)
-            return True
-        return False
+    def _push(cls, grid: Grid, pos: Point, direction: Direction) -> bool:
+        next_pos = pos + direction
+
+        check = []
+        match grid[next_pos]:
+            case "#":
+                return False
+            case "[":
+                check = [next_pos + Direction.RIGHT, next_pos]
+            case "]":
+                check = [next_pos + Direction.LEFT, next_pos]
+            case "O":
+                check = [next_pos]
+        if not all((cls._push(grid, p, direction) for p in check)):
+            return False
+
+        grid.swap(pos, next_pos)
+        return True
 
     def _solve(self, part1: bool) -> Solution:
         warehouse_map, motions = self.sections()
