@@ -2,8 +2,7 @@
 # www.jrodal.com
 
 from aoc_utils.base_solver import BaseSolver, Solution
-from aoc_utils.grid import Grid
-from aoc_utils.point import Direction, Point
+from aoc_utils.point import Direction
 import networkx as nx
 
 
