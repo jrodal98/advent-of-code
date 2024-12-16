@@ -8,24 +8,44 @@ from aoc_utils.grid import Grid
 
 class Solver(BaseSolver):
     @classmethod
-    def _get_next_pos(cls, grid, cur_pos: Point, direction: Direction) -> Point:
-        next_pos = cur_pos + direction
-        next_val = grid.get(next_pos, "#")
-        if next_val == "#":
-            return cur_pos
-
-        if next_val == "." or cls._get_next_pos(grid, next_pos, direction) != next_pos:
-            return grid.swap(cur_pos, next_pos)
-        else:
-            return cur_pos
+    def _push(cls, g: Grid, p: Point, d: Direction) -> bool:
+        p += d
+        if all(
+            [
+                g[p] != "["
+                or cls._push(g, p + Direction.RIGHT, d)
+                and cls._push(g, p, d),
+                g[p] != "]"
+                or cls._push(g, p + Direction.LEFT, d)
+                and cls._push(g, p, d),
+                g[p] != "O" or cls._push(g, p, d),
+                g[p] != "#",
+            ]
+        ):
+            g.swap(p, p - d)
+            return True
+        return False
 
     def _solve(self, part1: bool) -> Solution:
         warehouse_map, motions = self.sections()
-        grid = Grid.from_lines(warehouse_map.strip())
+        if not part1:
+            warehouse_map = (
+                warehouse_map.replace("#", "##")
+                .replace(".", "..")
+                .replace("O", "[]")
+                .replace("@", "@.")
+            )
+        grid = Grid.from_lines(warehouse_map)
         robot = grid.find("@")
         for direction in (
             Direction.from_str(m) for line in motions.split() for m in line
         ):
-            robot = self._get_next_pos(grid, robot, direction)
+            old_grid = grid.copy()
+            if self._push(grid, robot, direction):
+                robot += direction
+            else:
+                grid = old_grid
 
-        return sum(box_pos.x + 100 * box_pos.y for box_pos, _ in grid.iter(include="O"))
+        return sum(
+            box.x + 100 * box.y for box, _ in grid.iter(include="O" if part1 else "[")
+        )

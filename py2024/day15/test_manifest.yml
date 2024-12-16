@@ -5,4 +5,4 @@ part1:
     output: 2028
 part2:
   - input: sample1.txt
-    output:
+    output: 9021
