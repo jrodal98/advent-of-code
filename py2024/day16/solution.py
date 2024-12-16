@@ -4,40 +4,45 @@
 from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.grid import Grid
 from aoc_utils.point import Direction, Point
-from functools import cache
 
 MAX_COST = 10000000000000000000000000000000000000000000
+
+import sys
+
+sys.setrecursionlimit(100000)
 
 
 def _min_cost(
     grid: Grid,
     direction: Direction,
     start: Point,
-    seen: dict[tuple[Point, Direction], int],
+    end: Point,
+    seen: dict[tuple[Point, Direction], tuple[int, int]],
+    cost: int = 0,
 ) -> int:
+    if start == end:
+        return cost
+    min_cost = MAX_COST
     key = (start, direction)
     if key in seen:
-        return seen[key]
+        seen_acc_cost, min_cost = seen[key]
+        if cost > seen_acc_cost:
+            return min_cost
 
-    min_cost = MAX_COST
-    seen[key] = min_cost
-    for d, cost_factor in [
-        # step
-        (direction, 1),
-        # rotate, then step
-        (direction.clockwise, 1001),
-        # rotate, then step
-        (direction.counter_clockwise, 1001),
-        # # rotate twice, then step - this should never make sense to do
-        (direction.clockwise.clockwise, 2001),
+    seen[key] = (cost, min_cost)
+    if grid.at(neighbor := start.neighbor(direction)) != "#":
+        min_cost = min(
+            min_cost, _min_cost(grid, direction, neighbor, end, seen, cost + 1)
+        )
+
+    for d in [
+        direction.counter_clockwise,
+        direction.clockwise,
     ]:
-        if min_cost < cost_factor:
-            break
-        neighbor = start.neighbor(d)
-        if grid.at(neighbor) != "#":
-            min_cost = min(min_cost, cost_factor + _min_cost(grid, d, neighbor, seen))
+        if min_cost > cost + 1000:
+            min_cost = min(min_cost, _min_cost(grid, d, start, end, seen, cost + 1000))
 
-    seen[key] = min_cost
+    seen[key] = (cost, min_cost)
     return min_cost
 
 
@@ -45,10 +50,4 @@ class Solver(BaseSolver):
     def _solve(self, part1: bool) -> Solution:
         start_node = self.grid.find("S")
         end_node = self.grid.find("E")
-        costs = {(end_node, d): 0 for d in Direction.dir4()}
-        return _min_cost(
-            self.grid,
-            Direction.RIGHT,
-            start_node,
-            costs,
-        )
+        return _min_cost(self.grid, Direction.RIGHT, start_node, end_node, {}, 0)
