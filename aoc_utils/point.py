@@ -155,6 +155,28 @@ class Direction(Enum):
             case _:
                 raise ValueError(f"Invalid direction: {self}")
 
+    @property
+    def point(self) -> Point:
+        match self:
+            case self.UP:
+                return Point(0, -1)
+            case self.UPPER_RIGHT:
+                return Point(1, -1)
+            case self.RIGHT:
+                return Point(1, 0)
+            case self.LOWER_RIGHT:
+                return Point(1, 1)
+            case self.DOWN:
+                return Point(0, 1)
+            case self.LOWER_LEFT:
+                return Point(-1, 1)
+            case self.LEFT:
+                return Point(-1, 0)
+            case self.UPPER_LEFT:
+                return Point(-1, -1)
+            case _:
+                raise ValueError(f"Invalid direction: {self}")
+
     @classmethod
     def from_str(cls, s: str) -> Direction:
         match s.upper():
@@ -175,7 +197,7 @@ class Direction(Enum):
             case "LR" | "LOWER RIGHT" | "SE" | "SOUTHEAST":
                 return Direction.LOWER_RIGHT
             case _:
-                raise ValueError(f"Invalid direction: {s}")
+                raise ValueError(f"Invalid direction: {s=}")
 
 
 @dataclass(frozen=True)
@@ -200,10 +222,14 @@ class Point:
     def euclidean_distance(self, other: Point) -> float:
         return sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2)
 
-    def __add__(self, other: Point) -> Point:
+    def __add__(self, other: Point | Direction) -> Point:
+        if isinstance(other, Direction):
+            other = other.point
         return Point(self.x + other.x, self.y + other.y)
 
-    def __sub__(self, other: Point) -> Point:
+    def __sub__(self, other: Point | Direction) -> Point:
+        if isinstance(other, Direction):
+            other = other.point
         return Point(self.x - other.x, self.y - other.y)
 
     def __iter__(self) -> Iterator[int]:
