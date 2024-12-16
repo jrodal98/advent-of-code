@@ -143,7 +143,9 @@ class Grid(Generic[T]):
 
     def transform(self, func: Callable[[T], U]) -> "Grid[U]":
         transformed_data = [func(cell) for cell in self.data]
-        return Grid[U](transformed_data, w=self.w, h=self.h)
+        return Grid[U](
+            transformed_data, w=self.w, h=self.h, allow_overflow=self.allow_overflow
+        )
 
     def transpose(self) -> "Grid[T]":
         return Grid(
@@ -315,8 +317,13 @@ class Grid(Generic[T]):
     def __hash__(self) -> int:
         return hash(tuple(self.data)) + hash(self.w) - hash(self.h)
 
-    def copy(self) -> "Grid[T]":
-        return deepcopy(self)
+    def copy(self, deep: bool = False) -> "Grid[T]":
+        if deep:
+            return deepcopy(self)
+        else:
+            return Grid(
+                self.data.copy(), w=self.w, h=self.h, allow_overflow=self.allow_overflow
+            )
 
 
 if __name__ == "__main__":

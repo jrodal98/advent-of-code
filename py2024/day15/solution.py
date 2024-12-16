@@ -40,11 +40,17 @@ class Solver(BaseSolver):
         for direction in (
             Direction.from_str(m) for line in motions.split() for m in line
         ):
-            old_grid = grid.copy()
-            if self._push(grid, robot, direction):
-                robot += direction
-            else:
-                grid = old_grid
+            match grid[robot + direction]:
+                case "#":
+                    continue
+                case ".":
+                    robot = grid.swap(robot, direction)
+                case _:
+                    old_grid = grid.copy(deep=False)
+                    if self._push(grid, robot, direction):
+                        robot += direction
+                    else:
+                        grid = old_grid
 
         return sum(
             box.x + 100 * box.y for box, _ in grid.iter(include="O" if part1 else "[")
