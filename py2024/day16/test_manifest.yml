@@ -1,0 +1,8 @@
+part1:
+  - input: sample1.txt
+    output: 7036
+  - input: sample2.txt
+    output: 11048
+part2:
+  - input: sample1.txt
+    output:
