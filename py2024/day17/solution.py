@@ -6,9 +6,9 @@ from aoc_utils.helpers import ints
 
 
 class Computer:
-    def __init__(self, register_a: int, program: list[int]):
+    def __init__(self, program: list[int]):
         self.program = program
-        self.register_a = register_a
+        self.register_a = 0
         self.register_b = 0
         self.register_c = 0
         self.pointer = 0
@@ -71,21 +71,23 @@ class Computer:
         return out
 
     def create_spline(self) -> int:
+        register_a = 0
         for offset in range(len(self.program)):
             desired_output = self.program[-(offset + 1) :]
-            self.register_a = (self.register_a << 3) - 1
-            while self.run(register_a=self.register_a + 1) != desired_output:
-                print(self.register_a)
-                # pass
+            register_a = (register_a << 3) - 1
+            while True:
+                register_a += 1
+                if self.run(register_a=register_a) == desired_output:
+                    break
 
-        return self.register_a
+        return register_a
 
 
 class Solver(BaseSolver):
     def _solve(self, part1: bool) -> Solution:
         registers_str, program_str = self.sections()
         register_a = next(ints(registers_str)) if part1 else 0
-        computer = Computer(register_a, list(ints(program_str)))
+        computer = Computer(list(ints(program_str)))
         if part1:
             return ",".join([str(i) for i in computer.run(register_a)])
         else:
