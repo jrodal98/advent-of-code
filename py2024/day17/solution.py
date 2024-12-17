@@ -3,6 +3,7 @@
 
 from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.helpers import ints
+from math import gcd
 
 
 class Solver(BaseSolver):
@@ -161,26 +162,37 @@ class Solver(BaseSolver):
         registers_str, program_str = self.sections()
         _, register_b, register_c = ints(registers_str.replace("\n", ""))
         program = list(ints(program_str))
-        # a = 35184372088832
-        # a = 35184375208445
+        a = 35184375208445
         # a = 35184398801405
         # a = 35184793065981
         # a = 35186001025533
-        # a = 35204791507453
-        a = 35256331115005
+        # a = 35230561311229
+        # a = 35256331115005
+        # a = 64951734999549
+        # a = 205689223354877
+        # a = 13149140105533949
+        # a = 14744806355343869  # 16
+
+        # a = 5174657147181565
         shared = []
+        check = 13
+        incr = 134217728
         while a < 1000000000000000000000000000000000000000000000000000000000000000:
-            a += 8589934592
+            a += incr
             out = self._try_a(a, register_b, register_c, program, set())
 
-            if out == program:
-                return a
+            # if out == program:
+            #     return a
 
-            if out[:11] == program[:11]:
+            if out[:check] == program[:check]:
                 print(a)
                 shared.append(a)
-                if len(shared) == 3:
+                diffs = set()
+                if len(shared) == 10:
+                    print("------------")
                     for x, y in zip(shared, shared[1:]):
                         print(y - x)
+                        diffs.add(y - x)
+                    print("GCD: ", gcd(*diffs))
                     assert False
         assert False
