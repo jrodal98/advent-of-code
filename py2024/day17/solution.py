@@ -8,65 +8,51 @@ from aoc_utils.helpers import ints
 class Computer:
     def __init__(self, program: list[int]):
         self.program = program
-        self.register_a = 0
-        self.register_b = 0
-        self.register_c = 0
-        self.pointer = 0
 
-    def reset(self, register_a: int) -> None:
-        self.register_a = register_a
-        self.register_b = 0
-        self.register_c = 0
-        self.pointer = 0
+    def _get_combo_operand(self, operand: int, a: int, b: int, c: int) -> int:
+        return [0, 1, 2, 3, a, b, c][operand]
 
-    def _get_combo_operand(self, operand: int) -> int:
-        match operand:
-            case 0 | 1 | 2 | 3:
-                return operand
-            case 4:
-                return self.register_a
-            case 5:
-                return self.register_b
-            case 6:
-                return self.register_c
-            case _:
-                assert False
-
-    def run(self, register_a: int) -> list[int]:
-        self.reset(register_a)
+    def run(
+        self,
+        a: int,
+        b: int = 0,
+        c: int = 0,
+        pointer: int = 0,
+    ) -> list[int]:
         out = []
+        memory = [0, 1, 2, 3, a, b, c, 0, 0]
+        a = 4
+        b = 5
+        c = 6
+        pointer = 7
+        operand = 8
 
-        while self.pointer < len(self.program):
-            opcode, operand = self.program[self.pointer], self.program[self.pointer + 1]
+        while memory[pointer] < len(self.program):
+            opcode, memory[operand] = (
+                self.program[memory[pointer]],
+                self.program[memory[pointer] + 1],
+            )
 
             match opcode:
-                case 0:
-                    self.register_a = self.register_a // (
-                        2 ** self._get_combo_operand(operand)
+                case 0 | 6 | 7:
+                    memory[(opcode % 5) + 4] = memory[a] // (
+                        2 ** memory[memory[operand]]
                     )
                 case 1:
-                    self.register_b ^= operand
+                    memory[b] ^= memory[operand]
                 case 2:
-                    self.register_b = self._get_combo_operand(operand) % 8
+                    memory[b] = memory[memory[operand]] % 8
                 case 3:
-                    if self.register_a:
-                        self.pointer = operand
+                    if memory[a]:
+                        memory[pointer] = memory[operand]
                         continue
                 case 4:
-                    self.register_b ^= self.register_c
+                    memory[b] ^= memory[c]
                 case 5:
-                    out.append(self._get_combo_operand(operand) % 8)
-                case 6:
-                    self.register_b = self.register_a // (
-                        2 ** self._get_combo_operand(operand)
-                    )
-                case 7:
-                    self.register_c = self.register_a // (
-                        2 ** self._get_combo_operand(operand)
-                    )
+                    out.append(memory[memory[operand]] % 8)
                 case _:
                     assert False
-            self.pointer += 2
+            memory[pointer] += 2
 
         return out
 
@@ -77,7 +63,7 @@ class Computer:
             register_a = (register_a << 3) - 1
             while True:
                 register_a += 1
-                if self.run(register_a=register_a) == desired_output:
+                if self.run(register_a) == desired_output:
                     break
 
         return register_a
