@@ -38,43 +38,41 @@ class Computer:
                     memory[(opcode % 5) + 4] = memory[a] // (
                         2 ** memory[memory[operand]]
                     )
-                case 1:
-                    memory[b] ^= memory[operand]
-                case 2:
-                    memory[b] = memory[memory[operand]] % 8
+                case 2 | 5:
+                    res = memory[memory[operand]] % 8
+                    if opcode == 5:
+                        out.append(res)
+                    else:
+                        memory[b] = res
                 case 3:
                     if memory[a]:
                         memory[pointer] = memory[operand]
                         continue
-                case 4:
-                    memory[b] ^= memory[c]
-                case 5:
-                    out.append(memory[memory[operand]] % 8)
                 case _:
-                    assert False
+                    memory[b] ^= memory[operand if opcode == 1 else c]
             memory[pointer] += 2
 
         return out
 
     def create_spline(self) -> int:
-        register_a = 0
+        a = 0
         for offset in range(len(self.program)):
             desired_output = self.program[-(offset + 1) :]
-            register_a = (register_a << 3) - 1
+            a = (a << 3) - 1
             while True:
-                register_a += 1
-                if self.run(register_a) == desired_output:
+                a += 1
+                if self.run(a) == desired_output:
                     break
 
-        return register_a
+        return a
 
 
 class Solver(BaseSolver):
     def _solve(self, part1: bool) -> Solution:
         registers_str, program_str = self.sections()
-        register_a = next(ints(registers_str)) if part1 else 0
+        a = next(ints(registers_str)) if part1 else 0
         computer = Computer(list(ints(program_str)))
         if part1:
-            return ",".join([str(i) for i in computer.run(register_a)])
+            return ",".join([str(i) for i in computer.run(a)])
         else:
             return computer.create_spline()
