@@ -19,6 +19,7 @@ class Solver(BaseSolver):
 class Computer:
     def __init__(self, program: list[int]):
         self.program = program
+        # storing pointers not because it's practical, but because it's fun
         self.a = 4
         self.b = 5
         self.c = 6
@@ -30,6 +31,7 @@ class Computer:
         a_val: int,
     ) -> list[int]:
         out = []
+        # storing memory not because it's practical, but because it's fun
         memory = [0, 1, 2, 3, a_val, 0, 0, 0, 0]
 
         while memory[self.pointer] < len(self.program):
