@@ -22,13 +22,6 @@ class Solver(BaseSolver):
             case _:
                 assert False
 
-    def _part1(self) -> Solution:
-        registers_str, program_str = self.sections()
-        register_a, register_b, register_c = ints(registers_str.replace("\n", ""))
-        program = list(ints(program_str))
-        out = self._run_computer(register_a, register_b, register_c, program)
-        return ",".join([str(i) for i in out])
-
     def _run_computer(
         self,
         register_a: int,
@@ -94,22 +87,29 @@ class Solver(BaseSolver):
             pointer += 2
         return out
 
-    def _part2(self) -> Solution:
+    def _solve(self, part1: bool) -> Solution:
         registers_str, program_str = self.sections()
-        _, register_b, register_c = ints(registers_str.replace("\n", ""))
+        register_a = next(ints(registers_str)) if part1 else 0
+        register_b, register_c = 0, 0
         program = list(ints(program_str))
-        rprog = program.copy()
-        rprog.reverse()
-        N = len(program)
-        register_a = 0
-        for i in range(N):
-            want = program[N - i - 1 :]
-            t = 0
+        if part1:
+            return ",".join(
+                [
+                    str(i)
+                    for i in self._run_computer(
+                        register_a, register_b, register_c, program
+                    )
+                ]
+            )
+
+        for offset in range(len(program)):
+            desired_output = program[-(offset + 1) :]
+            register_a = (register_a << 3) - 1
             while True:
-                aprime = (register_a << 3) + t
-                result = self._run_computer(aprime, register_b, register_c, program)
-                if result == want:
-                    register_a = aprime
+                register_a += 1
+                result = self._run_computer(register_a, register_b, register_c, program)
+
+                if result == desired_output:
                     break
-                t += 1
+
         return register_a
