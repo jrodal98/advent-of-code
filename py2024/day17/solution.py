@@ -5,52 +5,57 @@ from aoc_utils.base_solver import BaseSolver, Solution
 from aoc_utils.helpers import ints
 
 
+class Solver(BaseSolver):
+    def _solve(self, part1: bool) -> Solution:
+        registers_str, program_str = self.sections()
+        a = next(ints(registers_str)) if part1 else 0
+        computer = Computer(list(ints(program_str)))
+        if part1:
+            return ",".join(map(str, computer.run(a)))
+        else:
+            return computer.create_spline()
+
+
 class Computer:
     def __init__(self, program: list[int]):
         self.program = program
-
-    def _get_combo_operand(self, operand: int, a: int, b: int, c: int) -> int:
-        return [0, 1, 2, 3, a, b, c][operand]
+        self.a = 4
+        self.b = 5
+        self.c = 6
+        self.pointer = 7
+        self.operand = 8
 
     def run(
         self,
-        a: int,
-        b: int = 0,
-        c: int = 0,
-        pointer: int = 0,
+        a_val: int,
     ) -> list[int]:
         out = []
-        memory = [0, 1, 2, 3, a, b, c, 0, 0]
-        a = 4
-        b = 5
-        c = 6
-        pointer = 7
-        operand = 8
+        memory = [0, 1, 2, 3, a_val, 0, 0, 0, 0]
 
-        while memory[pointer] < len(self.program):
-            opcode, memory[operand] = (
-                self.program[memory[pointer]],
-                self.program[memory[pointer] + 1],
+        while memory[self.pointer] < len(self.program):
+            opcode, memory[self.operand] = (
+                self.program[memory[self.pointer]],
+                self.program[memory[self.pointer] + 1],
             )
 
             match opcode:
                 case 0 | 6 | 7:
-                    memory[(opcode % 5) + 4] = memory[a] // (
-                        2 ** memory[memory[operand]]
+                    memory[(opcode % 5) + 4] = memory[self.a] // (
+                        2 ** memory[memory[self.operand]]
                     )
                 case 2 | 5:
-                    res = memory[memory[operand]] % 8
+                    res = memory[memory[self.operand]] % 8
                     if opcode == 5:
                         out.append(res)
                     else:
-                        memory[b] = res
+                        memory[self.b] = res
                 case 3:
-                    if memory[a]:
-                        memory[pointer] = memory[operand]
+                    if memory[self.a]:
+                        memory[self.pointer] = memory[self.operand]
                         continue
                 case _:
-                    memory[b] ^= memory[operand if opcode == 1 else c]
-            memory[pointer] += 2
+                    memory[self.b] ^= memory[self.operand if opcode == 1 else self.c]
+            memory[self.pointer] += 2
 
         return out
 
@@ -65,14 +70,3 @@ class Computer:
                     break
 
         return a
-
-
-class Solver(BaseSolver):
-    def _solve(self, part1: bool) -> Solution:
-        registers_str, program_str = self.sections()
-        a = next(ints(registers_str)) if part1 else 0
-        computer = Computer(list(ints(program_str)))
-        if part1:
-            return ",".join([str(i) for i in computer.run(a)])
-        else:
-            return computer.create_spline()
