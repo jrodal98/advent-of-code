@@ -31,18 +31,16 @@ class Solver(BaseSolver):
         if part1:
             return self._shortest_path_to_exit(12 if self._is_unit_test else 1024)
 
-        low, high = 0, len(self.lines()) - 1
-        result = None
+        lines = self.lines()
+        low, high = 0, len(lines) - 1
 
         while low <= high:
             mid = (low + high) // 2
             try:
                 self._shortest_path_to_exit(mid + 1)
             except nx.NetworkXNoPath:
-                result = self.lines()[mid]
                 high = mid - 1
             else:
                 low = mid + 1
 
-        assert result
-        return result
+        return lines[low]
