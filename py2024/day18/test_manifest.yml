@@ -3,4 +3,4 @@ part1:
     output: 22
 part2:
   - input: sample1.txt
-    output:
+    output: "6,1"

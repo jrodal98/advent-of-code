@@ -2,7 +2,7 @@
 # www.jrodal.com
 
 from contextlib import nullcontext
-from functools import cached_property
+from functools import cache, cached_property
 from typing import Callable
 import aocd
 
@@ -56,9 +56,11 @@ class BaseSolver:
     def _set_animation_grid(self, grid: Grid | None = None) -> None:
         self._animation_grid = grid or self.grid
 
+    @cache
     def lines(self) -> list[str]:
         return self.data.splitlines()
 
+    @cache
     def sections(self) -> list[str]:
         return self.data.split("\n\n")
 
