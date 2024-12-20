@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
+from collections import defaultdict
 from aoc_utils.base_solver import BaseSolver, Solution
 import networkx as nx
 
@@ -36,9 +37,24 @@ class Solver(BaseSolver):
                     cheat_edges[(p, reachable_p)] = min(
                         steps, cheat_edges.get((p, reachable_p), 100000000000)
                     )
-        return sum(
-            1
-            for (start, end), steps in cheat_edges.items()
-            if (nx.shortest_path_length(graph, source=start, target=end) - steps)
-            >= cheat_min_save
-        )
+        ans = 0
+        paths = defaultdict(list)
+        cache_hits = 0
+        for (start, end), steps in cheat_edges.items():
+            path_length = 0
+            for path in paths[end]:
+                try:
+                    path_length = len(path) - path.index(start)
+                    cache_hits += 1
+                    print(cache_hits)
+                    break
+                except ValueError:
+                    continue
+            if path_length == 0:
+                path = nx.shortest_path(graph, source=start, target=end)
+                paths[end].append(path)
+                path_length = len(path)
+
+            if path_length - steps >= cheat_min_save:
+                ans += 1
+        return ans
