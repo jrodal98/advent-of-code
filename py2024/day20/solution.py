@@ -27,8 +27,11 @@ class Solver(BaseSolver):
             for path_length, n2 in enumerate(
                 path[a + 1 + cheat_min_save :], start=cheat_min_save + 1
             ):
-                steps = n1.manhattan_distance(n2)
-                if steps <= max_cheat_length and path_length - steps >= cheat_min_save:
+                cheat_length = n1.manhattan_distance(n2)
+                if (
+                    cheat_length <= max_cheat_length
+                    and cheat_length <= path_length - cheat_min_save
+                ):
                     ans += 1
 
         return ans

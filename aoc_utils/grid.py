@@ -142,8 +142,6 @@ class Grid(Generic[T]):
         )
         return p2
 
-    from collections import deque
-
     def reachable(
         self,
         p: Point,
