@@ -2,36 +2,26 @@
 # www.jrodal.com
 
 from aoc_utils.base_solver import BaseSolver, Solution
-import networkx as nx
+from itertools import combinations
 
 
 class Solver(BaseSolver):
     def _solve(self, part1: bool) -> Solution:
-        cheat_min_save = (
-            2 if part1 and self._is_unit_test else 50 if self._is_unit_test else 100
+        return sum(
+            1
+            for (a, n1), (b, n2) in combinations(
+                enumerate(self.grid.shortest_path("S", "E", exclude="#")), 2
+            )
+            if b - a
+            > (
+                cheat_min_save := 2
+                if part1 and self._is_unit_test
+                else 50
+                if self._is_unit_test
+                else 100
+            )
+            and (
+                (cheat_length := n1.manhattan_distance(n2)) <= (2 if part1 else 20)
+                and cheat_length <= (b - a) - cheat_min_save
+            )
         )
-        max_cheat_length = 2 if part1 else 20
-
-        graph = nx.Graph()
-        for p, _ in self.grid.iter(exclude="#"):
-            for neighbor_p, _, _ in self.grid.neighbors(p, exclude="#"):
-                graph.add_edge(p, neighbor_p, weight=1)
-
-        path = nx.shortest_path(
-            graph, source=self.grid.find("S"), target=self.grid.find("E")
-        )
-
-        graph = nx.Graph()
-        ans = 0
-        for a, n1 in enumerate(path):
-            for path_length, n2 in enumerate(
-                path[a + 1 + cheat_min_save :], start=cheat_min_save + 1
-            ):
-                cheat_length = n1.manhattan_distance(n2)
-                if (
-                    cheat_length <= max_cheat_length
-                    and cheat_length <= path_length - cheat_min_save
-                ):
-                    ans += 1
-
-        return ans

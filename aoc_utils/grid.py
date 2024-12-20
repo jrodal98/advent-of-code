@@ -122,7 +122,7 @@ class Grid(Generic[T]):
 
     def walk_directions(
         self,
-        p,
+        p: Point,
         directions: Iterable[Direction],
         default: T | None = None,
         include_start: bool = False,
@@ -141,6 +141,54 @@ class Grid(Generic[T]):
             self.data[p1.y * self.w + p1.x],
         )
         return p2
+
+    def shortest_path(
+        self,
+        source: Point | T,
+        target: Point | T,
+        exclude: T | Callable[[Point, T], bool] | None = None,
+        include: T | Callable[[Point, T], bool] | None = None,
+        include_diagonal: bool = False,
+        allow_overflow: bool | None = None,
+    ) -> list[Point]:
+        if not isinstance(source, Point):
+            source = self.find(source)
+        if not isinstance(target, Point):
+            target = self.find(target)
+        queue = deque([source])
+        seen = {source}
+        predecessors: dict[Point, Point | None] = {source: None}
+
+        while queue:
+            current = queue.popleft()
+            if current == target:
+                break
+
+            for neighbor_p, _, _ in self.neighbors(
+                current,
+                include_diagonal=include_diagonal,
+                allow_overflow=allow_overflow,
+                exclude=exclude,
+                include=include,
+            ):
+                if neighbor_p not in seen:
+                    seen.add(neighbor_p)
+                    queue.append(neighbor_p)
+                    predecessors[neighbor_p] = current
+
+        # If the target was not reached, return an empty iterable
+        if target not in predecessors:
+            return []
+
+        # Reconstruct the shortest path by backtracking
+        path = []
+        step = target
+        while step is not None:
+            path.append(step)
+            step = predecessors[step]
+
+        # Return the path in the correct order (from source to target)
+        return list(reversed(path))
 
     def reachable(
         self,
