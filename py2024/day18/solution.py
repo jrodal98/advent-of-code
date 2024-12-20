@@ -31,27 +31,18 @@ class Solver(BaseSolver):
         if part1:
             return self._shortest_path_to_exit(12 if self._is_unit_test else 1024)
 
-        # for bytes_falling, byte_str in enumerate(self.lines(), start=1):
-        #     try:
-        #         self._shortest_path_to_exit(bytes_falling)
-        #     except nx.NetworkXNoPath:
-        #         return byte_str
-
-        lines = list(self.lines())
-        low, high = 0, len(lines) - 1
+        low, high = 0, len(self.lines()) - 1
         result = None
 
         while low <= high:
             mid = (low + high) // 2
             try:
-                self._shortest_path_to_exit(
-                    mid + 1
-                )  # Assuming this takes the index as input
+                self._shortest_path_to_exit(mid + 1)
             except nx.NetworkXNoPath:
-                result = lines[mid]  # Record the failing value
-                high = mid - 1  # Look for earlier failures
+                result = self.lines()[mid]
+                high = mid - 1
             else:
-                low = mid + 1  # Look for failures later
+                low = mid + 1
 
         assert result
         return result
