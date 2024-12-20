@@ -141,6 +141,37 @@ class Grid(Generic[T]):
         )
         return p2
 
+    def reachable(
+        self,
+        p: Point,
+        *,
+        exclude: T | Callable[[Point, T], bool] | None = None,
+        include: T | Callable[[Point, T], bool] | None = None,
+        min_steps: int = 1,
+        max_steps: int | None = None,
+        include_diagonal: bool = False,
+        allow_overflow: bool | None = None,
+    ) -> Iterator[tuple[Point, int]]:
+        seen = set()
+        queue = [(p, 0)]
+        while queue:
+            current_point, steps = queue.pop()
+            seen.add(current_point)
+            if max_steps is not None and steps > max_steps:
+                continue
+
+            if steps >= min_steps:
+                yield current_point, steps
+            for neighbor_p, _, _ in self.neighbors(
+                current_point,
+                include_diagonal=include_diagonal,
+                allow_overflow=allow_overflow,
+                exclude=exclude,
+                include=include,
+            ):
+                if neighbor_p not in seen:
+                    queue.append((neighbor_p, steps + 1))
+
     def transform(self, func: Callable[[T], U]) -> "Grid[U]":
         transformed_data = [func(cell) for cell in self.data]
         return Grid[U](
@@ -263,7 +294,7 @@ class Grid(Generic[T]):
         *,
         exclude: T | Callable[[Point, T], bool] | None = None,
         include: T | Callable[[Point, T], bool] | None = None,
-        allow_overflow: bool = False,
+        allow_overflow: bool | None = False,
         include_diagonal: bool = False,
     ) -> Iterator[tuple[Point, T, Direction]]:
         for neighbor, direction in p.neighbors_with_direction(
