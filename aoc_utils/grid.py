@@ -10,6 +10,7 @@ from rich.console import Console
 from typing import Callable, Generic, Iterable, Iterator, List, Type, TypeVar
 
 from aoc_utils.point import Direction, Point
+from collections import deque
 
 
 T = TypeVar("T")
@@ -141,6 +142,8 @@ class Grid(Generic[T]):
         )
         return p2
 
+    from collections import deque
+
     def reachable(
         self,
         p: Point,
@@ -153,15 +156,18 @@ class Grid(Generic[T]):
         allow_overflow: bool | None = None,
     ) -> Iterator[tuple[Point, int]]:
         seen = set()
-        queue = [(p, 0)]
+        queue = deque([(p, 0)])  # Use deque for efficient BFS
+        seen.add(p)
+
         while queue:
-            current_point, steps = queue.pop()
-            seen.add(current_point)
+            current_point, steps = queue.popleft()  # Pop from the left for BFS
+
             if max_steps is not None and steps > max_steps:
                 continue
 
             if steps >= min_steps:
                 yield current_point, steps
+
             for neighbor_p, _, _ in self.neighbors(
                 current_point,
                 include_diagonal=include_diagonal,
@@ -170,6 +176,7 @@ class Grid(Generic[T]):
                 include=include,
             ):
                 if neighbor_p not in seen:
+                    seen.add(neighbor_p)
                     queue.append((neighbor_p, steps + 1))
 
     def transform(self, func: Callable[[T], U]) -> "Grid[U]":
