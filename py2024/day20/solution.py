@@ -7,15 +7,10 @@ import networkx as nx
 
 class Solver(BaseSolver):
     def _solve(self, part1: bool) -> Solution:
-        if self._is_unit_test:
-            cheat_min_save = 2 if part1 else 50
-        else:
-            cheat_min_save = 100
-
-        if part1:
-            max_cheat_length = 2
-        else:
-            max_cheat_length = 20
+        cheat_min_save = (
+            2 if part1 and self._is_unit_test else 50 if self._is_unit_test else 100
+        )
+        max_cheat_length = 2 if part1 else 20
 
         graph = nx.Graph()
         for p, _ in self.grid.iter(exclude="#"):
@@ -29,13 +24,11 @@ class Solver(BaseSolver):
         graph = nx.Graph()
         ans = 0
         for a, n1 in enumerate(path):
-            for path_length, n2 in enumerate(path[a + 1 :], start=1):
-                if path_length < cheat_min_save:
-                    continue
+            for path_length, n2 in enumerate(
+                path[a + 1 + cheat_min_save :], start=cheat_min_save + 1
+            ):
                 steps = n1.manhattan_distance(n2)
-                if steps < 2 or steps > max_cheat_length:
-                    continue
-                if path_length - steps >= cheat_min_save:
+                if steps <= max_cheat_length and path_length - steps >= cheat_min_save:
                     ans += 1
 
         return ans
