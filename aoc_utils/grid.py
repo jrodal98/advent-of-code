@@ -173,10 +173,10 @@ class Grid(Generic[T]):
     def cols(self) -> list[list[T]]:
         return [list(c) for c in self.iter_cols()]
 
-    def __getitem__(self, p: Point) -> T:
+    def __getitem__(self, p: Point | tuple[int, int]) -> T:
         return self.at(p)
 
-    def __setitem__(self, p: Point, value: T) -> None:
+    def __setitem__(self, p: Point | tuple[int, int], value: T) -> None:
         self.replace(p, value)
 
     def _allow_overflow(self, allow_overflow: bool | None) -> bool:
@@ -184,20 +184,22 @@ class Grid(Generic[T]):
             return self.allow_overflow
         return allow_overflow
 
-    def at(self, p: Point, *, allow_overflow: bool | None = None) -> T:
-        x, y = p.x, p.y
+    def at(
+        self, p: Point | tuple[int, int], *, allow_overflow: bool | None = None
+    ) -> T:
+        x, y = p
         if self._allow_overflow(allow_overflow):
             x, y = x % self.w, y % self.h
         return self.data[y * self.w + x]
 
     def replace(
         self,
-        p: Point,
+        p: Point | tuple[int, int],
         value: T,
         color: str | None = None,
         allow_overflow: bool | None = None,
     ) -> None:
-        x, y = p.x, p.y
+        x, y = p
         if self._allow_overflow(allow_overflow):
             x, y = x % self.w, y % self.h
         elif self.get(p) is None:
@@ -240,17 +242,20 @@ class Grid(Generic[T]):
                 yield p
 
     def get(
-        self, p: Point, default: T | None = None, *, allow_overflow: bool | None = None
+        self,
+        p: Point | tuple[int, int],
+        default: T | None = None,
+        *,
+        allow_overflow: bool | None = None,
     ) -> T | None:
-        if (0 <= p.x < self.w and 0 <= p.y < self.h) or (
-            allow_overflow := self._allow_overflow(allow_overflow)
-        ):
+        if self.inbounds(p) or (allow_overflow := self._allow_overflow(allow_overflow)):
             return self.at(p, allow_overflow=allow_overflow)
         else:
             return default
 
-    def inbounds(self, p: Point) -> bool:
-        return 0 <= p.x < self.w and 0 <= p.y < self.h
+    def inbounds(self, p: Point | tuple[int, int]) -> bool:
+        x, y = p
+        return 0 <= x < self.w and 0 <= y < self.h
 
     def neighbors(
         self,
