@@ -15,17 +15,10 @@ class Solver(BaseSolver):
             x, y = map(int, line.split(","))
             grid[(x, y)] = "#"
 
-        graph = nx.Graph()
-        for p, _ in grid.iter(exclude="#"):
-            for neighbor_p, _, _ in grid.neighbors(p, exclude="#"):
-                graph.add_edge(p, neighbor_p, weight=1)
-
         source = Point(0, 0)
         target = Point(upper_bound - 1, upper_bound - 1)
 
-        return nx.shortest_path_length(
-            graph, source=source, target=target, weight="weight"
-        )
+        return len(grid.shortest_path(source, target, exclude="#")) - 1
 
     def _solve(self, part1: bool) -> Solution:
         if part1:
@@ -38,7 +31,7 @@ class Solver(BaseSolver):
             mid = (low + high) // 2
             try:
                 self._shortest_path_to_exit(mid + 1)
-            except nx.NetworkXNoPath:
+            except Exception:
                 high = mid - 1
             else:
                 low = mid + 1

@@ -158,7 +158,6 @@ class Grid(Generic[T]):
         queue = deque([source])
         seen = {source}
         predecessors: dict[Point, Point | None] = {source: None}
-
         while queue:
             current = queue.popleft()
             if current == target:
@@ -178,7 +177,7 @@ class Grid(Generic[T]):
 
         # If the target was not reached, return an empty iterable
         if target not in predecessors:
-            return []
+            raise Exception("No path found")
 
         # Reconstruct the shortest path by backtracking
         path = []
