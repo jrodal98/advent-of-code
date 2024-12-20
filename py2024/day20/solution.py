@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # www.jrodal.com
 
-from collections import defaultdict
 from aoc_utils.base_solver import BaseSolver, Solution
 import networkx as nx
 
@@ -23,38 +22,20 @@ class Solver(BaseSolver):
             for neighbor_p, _, _ in self.grid.neighbors(p, exclude="#"):
                 graph.add_edge(p, neighbor_p, weight=1)
 
-        cheat_edges = {}
-        for p, _ in self.grid.iter(exclude="#"):
-            for reachable_p, steps in self.grid.reachable(
-                p,
-                max_steps=max_cheat_length,
-                min_steps=2,
-            ):
-                if (
-                    self.grid[reachable_p] != "#"
-                    and (reachable_p, p) not in cheat_edges
-                ):
-                    cheat_edges[(p, reachable_p)] = min(
-                        steps, cheat_edges.get((p, reachable_p), 100000000000)
-                    )
-        ans = 0
-        paths = defaultdict(list)
-        cache_hits = 0
-        for (start, end), steps in cheat_edges.items():
-            path_length = 0
-            for path in paths[end]:
-                try:
-                    path_length = len(path) - path.index(start)
-                    cache_hits += 1
-                    print(cache_hits)
-                    break
-                except ValueError:
-                    continue
-            if path_length == 0:
-                path = nx.shortest_path(graph, source=start, target=end)
-                paths[end].append(path)
-                path_length = len(path)
+        path = nx.shortest_path(
+            graph, source=self.grid.find("S"), target=self.grid.find("E")
+        )
 
-            if path_length - steps >= cheat_min_save:
-                ans += 1
+        graph = nx.Graph()
+        ans = 0
+        for a, n1 in enumerate(path):
+            for path_length, n2 in enumerate(path[a + 1 :], start=1):
+                if path_length < cheat_min_save:
+                    continue
+                steps = n1.manhattan_distance(n2)
+                if steps < 2 or steps > max_cheat_length:
+                    continue
+                if path_length - steps >= cheat_min_save:
+                    ans += 1
+
         return ans
