@@ -134,6 +134,11 @@ class BaseSolver:
             self.console.print("Not submitting because animation is enabled")
             return solution, runtime
 
+        if not solution and part is ProblemPart.PART2 and day == 25:
+            self.console.print(
+                "Not submitting because it's day 25 part2 and a falsy solution was provided"
+            )
+            return solution, runtime
         response = aocd.post.submit(solution, part=part.value, day=day, year=year)
         if isinstance(response, HTTPResponse):
             if "That's not the right answer." in response.data.decode("utf-8"):
