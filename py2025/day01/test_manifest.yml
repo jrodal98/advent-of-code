@@ -1,0 +1,20 @@
+part1:
+  - input: sample1.txt
+    output: 3
+part2:
+  - input: sample1.txt
+    output: 6
+  - input: L68
+    output: 1
+  - input: L150
+    output: 2
+  - input: R50
+    output: 1
+  - input: R150
+    output: 2
+  - input: R1000
+    output: 10
+  - input: R105
+    output: 1
+  - input: L50
+    output: 1
