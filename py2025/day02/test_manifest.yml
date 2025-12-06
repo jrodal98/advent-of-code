@@ -1,0 +1,50 @@
+part1:
+  - input: sample1.txt
+    output: 1227775554
+  - input: 11-22
+    output: 33
+  - input: 95-115
+    output: 99
+  - input: 998-1012
+    output: 1010
+  - input: 1188511880-1188511890
+    output: 1188511885
+  - input: 222220-222224
+    output: 222222
+  - input: 1698522-1698528
+    output: 0
+  - input: 446443-446449
+    output: 446446
+  - input: 38593856-38593862
+    output: 38593859
+  - input: 565653-565659
+    output: 0
+  - input: 824824821-824824827
+    output: 0
+  - input: 2121212118-2121212124
+    output: 0
+part2:
+  - input: sample1.txt
+    output: 4174379265
+  - input: 11-22
+    output: 33
+  - input: 95-115
+    output: 210
+  - input: 998-1012
+    output: 2009
+  - input: 1188511880-1188511890
+    output: 1188511885
+  - input: 222220-222224
+    output: 222222
+  - input: 1698522-1698528
+    output: 0
+  - input: 446443-446449
+    output: 446446
+  - input: 38593856-38593862
+    output: 38593859
+  - input: 565653-565659
+    output: 565656
+  - input: 824824821-824824827
+    output: 824824824
+  - input: 2121212118-2121212124
+    output: 2121212121
